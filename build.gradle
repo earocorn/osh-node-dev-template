@@ -17,6 +17,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-datastore-h2'
   implementation 'org.sensorhub:sensorhub-service-sweapi:' + oshCoreVersion
   implementation project(':sensorhub-driver-simulation')
+  implementation project(':sensorhub-driver-picamera')
 
 //  implementation project(':[storage-module-name]')
 //  implementation project(':[service-name]')
