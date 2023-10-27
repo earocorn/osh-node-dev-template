@@ -88,6 +88,7 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
 
         try {
 
+
             frameGrabber = FrameGrabber.createDefault(0);
 
         } catch (FrameGrabber.Exception e) {

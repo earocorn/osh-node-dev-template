@@ -15,6 +15,7 @@ package com.sample.impl.sensor.picamera;
 
 import net.opengis.sensorml.v20.PhysicalSystem;
 import org.sensorhub.api.common.SensorHubException;
+import org.sensorhub.impl.module.AbstractModule;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
