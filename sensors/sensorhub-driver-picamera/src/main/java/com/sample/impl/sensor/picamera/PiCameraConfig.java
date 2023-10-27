@@ -13,6 +13,9 @@
 ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.picamera;
 
+import com.sample.impl.sensor.picamera.config.CameraPinConfig;
+import com.sample.impl.sensor.picamera.config.VideoParameters;
+import org.opencv.video.Video;
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
 
@@ -39,4 +42,18 @@ public class PiCameraConfig extends SensorConfig {
     @DisplayInfo.Required
     @DisplayInfo(desc = "Serial number or unique identifier")
     public String serialNumber = "picamera001";
+
+    /**
+     * Video camera configuration
+     */
+    @DisplayInfo(label = "Video Camera Parameters", desc = "Parameters for camera configuration")
+    public VideoParameters videoParameters = new VideoParameters();
+
+    /**
+     * Pin configuration
+     */
+    @DisplayInfo.Required
+    @DisplayInfo(label = "PinConfig", desc = "Pin configuration for tilt servo")
+    public CameraPinConfig cameraPinConfig = new CameraPinConfig();
+
 }

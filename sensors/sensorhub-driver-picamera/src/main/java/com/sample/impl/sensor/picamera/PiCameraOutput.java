@@ -14,15 +14,27 @@
 package com.sample.impl.sensor.picamera;
 
 import net.opengis.swe.v20.*;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.sensorhub.api.data.DataEvent;
+import org.sensorhub.api.sensor.SensorException;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
+import org.sensorhub.impl.sensor.videocam.VideoCamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vast.data.AbstractDataBlock;
+import org.vast.data.DataBlockMixed;
 import org.vast.data.SWEFactory;
 import org.vast.swe.SWEHelper;
 import org.vast.swe.helper.GeoPosHelper;
+import org.vast.swe.helper.RasterHelper;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.lang.Boolean;
+import java.util.Arrays;
 
 /**
  * Output specification and provider for {@link PiCameraSensor}.
@@ -33,12 +45,15 @@ import java.lang.Boolean;
 public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> implements Runnable {
 
     private static final String SENSOR_OUTPUT_NAME = "PiCameraOutput";
-    private static final String SENSOR_OUTPUT_LABEL = "PiCameraSensor";
+    private static final String SENSOR_OUTPUT_LABEL = "CameraSensor";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Pi Camera Video Feed";
+    private static final String VIDEO_FORMAT = "h264";
+
+    private FrameGrabber frameGrabber;
 
     private static final Logger logger = LoggerFactory.getLogger(com.sample.impl.sensor.picamera.PiCameraOutput.class);
 
-    private DataRecord dataStruct;
+    private DataComponent dataStruct;
     private DataEncoding dataEncoding;
 
     private Boolean stopProcessing = false;
@@ -67,18 +82,56 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
      * Initializes the data structure for the output, defining the fields, their ordering,
      * and data types.
      */
-    void doInit() {
+    void doInit() throws SensorException {
 
         logger.debug("Initializing PiCameraOutput");
 
+        try {
+
+            frameGrabber = FrameGrabber.createDefault(0);
+
+        } catch (FrameGrabber.Exception e) {
+
+            logger.debug("Unable to connect to camera\n{}", e.getMessage());
+
+            throw new SensorException("Failed to establish connection with camera", e);
+        }
+
+        frameGrabber.setFormat(VIDEO_FORMAT);
+        frameGrabber.setImageHeight(parentSensor.getConfiguration().videoParameters.videoFrameHeight);
+        frameGrabber.setImageWidth(parentSensor.getConfiguration().videoParameters.videoFrameWidth);
+
+        int videoFrameHeight = frameGrabber.getImageHeight();
+        int videoFrameWidth = frameGrabber.getImageWidth();
+
         // Get an instance of SWE Factory suitable to build components
-        SWEHelper sweFactory = new SWEHelper();
+        VideoCamHelper sweFactory = new VideoCamHelper();
 
-        // TODO: Create data record description
-        dataStruct = sweFactory.createRecord()
-                .build();
+        DataStream outputDef = sweFactory.newVideoOutputMJPEG(getName(), videoFrameWidth, videoFrameHeight);
 
-        DataStream outputStream;
+        dataStruct = outputDef.getElementType();
+
+        dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
+
+        dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
+
+        dataEncoding = outputDef.getEncoding();
+
+//        DataStream videoStream = sweFactory.newVideoOutputMJPEG(getName(), videoFrameWidth, videoFrameHeight);
+//        DataComponent videoStreamOutput = videoStream.getElementType();
+//
+//        // TODO: Create data record description
+//
+//        dataStruct = sweFactory.createRecord()
+//                .name(getName())
+//                .definition(SWEHelper.getPropertyUri(SENSOR_OUTPUT_LABEL))
+//                .description("Video feed")
+//                .addField("samplingTime", sweFactory.createTime()
+//                        .asSamplingTimeIsoUTC())
+//                .addField("videoFrame", videoStreamOutput)
+//                .build();
+//
+//        dataEncoding = videoStream.getEncoding();
 
         logger.debug("Initializing Output Complete");
     }
@@ -86,7 +139,7 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
     /**
      * Begins processing data for output
      */
-    public void doStart() {
+    public void doStart() throws SensorException {
 
         // Instantiate a new worker thread
         worker = new Thread(this, this.name);
@@ -95,8 +148,29 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
 
         logger.info("Starting worker thread: {}", worker.getName());
 
+        if (frameGrabber != null) {
+
+            try {
+
+                frameGrabber.start();
+                worker.start();
+
+            } catch (FrameGrabber.Exception e) {
+
+                logger.error("Failed to start FrameGrabber: {}", e.getMessage());
+
+                throw new SensorException("Failed to start FrameGrabber");
+            }
+
+        } else {
+
+            logger.error("Failed to create FrameGrabber");
+
+            throw new SensorException("Failed to create FrameGrabber");
+        }
+
         // Start the worker thread
-        worker.start();
+        //worker.start();
     }
 
     /**
@@ -107,6 +181,20 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
         synchronized (processingLock) {
 
             stopProcessing = true;
+        }
+
+        if (frameGrabber != null) {
+
+            try {
+
+                frameGrabber.stop();
+
+            } catch(FrameGrabber.Exception e) {
+
+                logger.error("Failed to stop FrameGrabber: {}", e.getMessage());
+
+            }
+
         }
 
         // TODO: Perform other shutdown procedures
@@ -161,6 +249,8 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
 
             while (processSets) {
 
+                Frame frame = frameGrabber.grab();
+
                 DataBlock dataBlock;
                 if (latestRecord == null) {
 
@@ -186,9 +276,29 @@ public class PiCameraOutput extends AbstractSensorOutput<PiCameraSensor> impleme
 
                 double timestamp = System.currentTimeMillis() / 1000d;
 
-                // TODO: Populate data block
+                // populate sample time
                 dataBlock.setDoubleValue(0, timestamp);
-                dataBlock.setStringValue(1, "Your data here");
+
+                // extract frame data as byte array and populate videoFrame field
+                AbstractDataBlock frameData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[1];
+
+                BufferedImage image = new Java2DFrameConverter().convert(frame);
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+                byte[] imageData;
+
+                ImageIO.write(image,"jpg",byteArrayOutputStream);
+
+                byteArrayOutputStream.flush();
+
+                imageData = byteArrayOutputStream.toByteArray();
+
+                byteArrayOutputStream.close();
+
+                // publish byte array to data record
+
+                frameData.setUnderlyingObject(imageData);
 
                 latestRecord = dataBlock;
 

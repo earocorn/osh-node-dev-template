@@ -35,9 +35,12 @@ includeBuild gradle.oshCoreDir
 //project(':[driver-name]').projectDir = "$sensorDir/[path]/[driver-name]" as File
 //
 // Ex:
-//
-//include 'sensorhub-driver-videocam'
-//project(':sensorhub-driver-videocam').projectDir = "$sensorDir/video/sensorhub-driver-videocam" as File
+
+include 'sensorhub-driver-videocam'
+project(':sensorhub-driver-videocam').projectDir = "$sensorDir/video/sensorhub-driver-videocam" as File
+
+include 'sensorhub-service-video'
+project(':sensorhub-service-video').projectDir = "$serviceDir/sensorhub-service-video" as File
 
 // Project modules
 
