@@ -13,9 +13,21 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.picamera;
 
+import com.pi4j.Pi4J;
+import com.pi4j.context.Context;
+import com.pi4j.context.ContextConfig;
+import com.pi4j.context.ContextProperties;
+import com.pi4j.event.InitializedListener;
+import com.pi4j.event.ShutdownListener;
+import com.pi4j.exception.ShutdownException;
+import com.pi4j.io.pwm.Pwm;
+import com.pi4j.platform.Platforms;
+import com.pi4j.provider.Providers;
+import com.pi4j.registry.Registry;
+import com.sample.impl.sensor.picamera.helpers.PIN;
+import com.sample.impl.sensor.picamera.helpers.ServoMotor;
 import net.opengis.sensorml.v20.PhysicalSystem;
 import org.sensorhub.api.common.SensorHubException;
-import org.sensorhub.impl.module.AbstractModule;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +43,8 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(com.sample.impl.sensor.picamera.PiCameraSensor.class);
 
+    Context pi4j;
+    ServoMotor servoMotor;
     PiCameraOutput output;
 
     @Override
@@ -73,7 +87,16 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
 
         output.doInit();
 
-        // TODO: Perform other initialization
+        pi4j = Pi4J.newAutoContext();
+
+        servoMotor = new ServoMotor(pi4j, config.cameraPinConfig.pinConfig, 50, PiCameraControl.getMinTiltAngle(), PiCameraControl.getMaxTiltAngle(), 2.0f, 12f);
+
+        PiCameraControl control = new PiCameraControl(this);
+
+        addControlInput(control);
+
+        control.init();
+
     }
 
     @Override
@@ -96,6 +119,8 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
             output.doStop();
         }
 
+        servoMotor.reset();
+
         // TODO: Perform other shutdown procedures
     }
 
@@ -105,4 +130,18 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         // Determine if sensor is connected
         return output.isAlive();
     }
+
+    protected void tilt(float angle) {
+
+        if (servoMotor != null) {
+            logger.debug("Tilting by " + angle + " degrees");
+            servoMotor.setAngle(angle);
+            logger.debug("Setting percent " + angle + " percent");
+            servoMotor.setPercent(angle);
+        } else {
+            logger.error("Null Servo Motor");
+        }
+
+    }
+
 }
