@@ -6,6 +6,10 @@ import com.pi4j.context.Context;
 import com.pi4j.io.pwm.Pwm;
 import com.pi4j.io.pwm.PwmConfig;
 
+/**
+ * Helper Class from pi4j components
+ * https://pi4j.com/examples/components/servo/
+ */
 public class PwmActuator {
     protected static final List<PIN> AVAILABLE_PWM_PINS = List.of(PIN.PWM12, PIN.PWM13, PIN.PWM18, PIN.PWM19);
 

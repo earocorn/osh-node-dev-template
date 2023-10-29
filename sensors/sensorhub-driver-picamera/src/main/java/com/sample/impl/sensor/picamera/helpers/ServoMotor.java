@@ -6,6 +6,10 @@ import com.pi4j.io.pwm.PwmType;
 
 import java.time.Duration;
 
+/**
+ * Helper Class from pi4j components
+ * https://pi4j.com/examples/components/servo/
+ */
 public class ServoMotor extends PwmActuator {
     /**
      * Default PWM frequency of the servo, based on values for SG92R

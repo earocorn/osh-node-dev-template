@@ -21,7 +21,12 @@ import com.pi4j.event.InitializedListener;
 import com.pi4j.event.ShutdownListener;
 import com.pi4j.exception.ShutdownException;
 import com.pi4j.io.pwm.Pwm;
+import com.pi4j.library.pigpio.PiGpio;
 import com.pi4j.platform.Platforms;
+import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalInputProvider;
+import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalOutputProvider;
+import com.pi4j.plugin.pigpio.provider.pwm.PiGpioPwmProvider;
+import com.pi4j.plugin.raspberrypi.platform.RaspberryPiPlatform;
 import com.pi4j.provider.Providers;
 import com.pi4j.registry.Registry;
 import com.sample.impl.sensor.picamera.helpers.PIN;
@@ -32,6 +37,8 @@ import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.sensorML.SMLHelper;
+
+import static com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalOutputProvider.*;
 
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
@@ -87,8 +94,24 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
 
         output.doInit();
 
-        pi4j = Pi4J.newAutoContext();
+        // initialize PI4J with PWM provider
+        final var piGpio = PiGpio.newNativeInstance();
+        pi4j = Pi4J.newContextBuilder()
+                .noAutoDetect()
+                .add(new RaspberryPiPlatform() {
+                    @Override
+                    protected String[] getProviders() {
+                        return new String[]{};
+                    }
+                })
+                .add(PiGpioDigitalInputProvider.newInstance(piGpio),
+                        newInstance(piGpio),
+                        PiGpioPwmProvider.newInstance(piGpio)
+                )
+                .build();
 
+        // Example servo implementation from
+        // https://pi4j.com/examples/components/servo/
         servoMotor = new ServoMotor(pi4j, config.cameraPinConfig.pinConfig, 50, PiCameraControl.getMinTiltAngle(), PiCameraControl.getMaxTiltAngle(), 2.0f, 12f);
 
         PiCameraControl control = new PiCameraControl(this);
@@ -108,7 +131,6 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
             output.doStart();
         }
 
-        // TODO: Perform other startup procedures
     }
 
     @Override
@@ -119,9 +141,9 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
             output.doStop();
         }
 
-        servoMotor.reset();
+        servoMotor.setAngle(PiCameraControl.getMaxTiltAngle());
+        pi4j.shutdown();
 
-        // TODO: Perform other shutdown procedures
     }
 
     @Override
@@ -134,12 +156,10 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
     protected void tilt(float angle) {
 
         if (servoMotor != null) {
-            logger.debug("Tilting by " + angle + " degrees");
+            logger.info("Tilting by " + angle + " degrees");
             servoMotor.setAngle(angle);
-            logger.debug("Setting percent " + angle + " percent");
-            servoMotor.setPercent(angle);
         } else {
-            logger.error("Null Servo Motor");
+            logger.error("Servo Motor not initialized");
         }
 
     }

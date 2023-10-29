@@ -7,6 +7,6 @@ public class CameraPinConfig {
 
     @DisplayInfo.Required
     @DisplayInfo(label = "Tilt Servo Pin", desc = "GPIO pin to control Pi Camera tilt")
-    public PIN pinConfig = PIN.PWM13;
+    public PIN pinConfig = PIN.PWM12;
 
 }
