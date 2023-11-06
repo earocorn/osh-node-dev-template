@@ -102,6 +102,12 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
                         .label("Wind Direction")
                         .uomCode("deg")
                         .refFrame(SWEConstants.REF_FRAME_NED, "z"))
+                .addField("sampleText", sweFactory.createText()
+                        .description("Sample text for cmd")
+                        .label("Sample Text"))
+                .addField("sampleBoolean", sweFactory.createBoolean()
+                        .description("Sample boolean value for cmd")
+                        .label("Sample bool"))
                 .build();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
@@ -251,6 +257,8 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
                 dataBlock.setDoubleValue(2, press);
                 dataBlock.setDoubleValue(3, windSpeed);
                 dataBlock.setDoubleValue(4, windDir);
+                dataBlock.setBooleanValue(5, latestRecord.getBooleanValue(5));
+                dataBlock.setStringValue(6, latestRecord.getStringValue(6));
 
                 latestRecord = dataBlock;
 
@@ -258,7 +266,7 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
                 eventHandler.publish(new DataEvent(latestRecordTime, Output.this, dataBlock));
 
-                Thread.sleep(2000);
+                Thread.sleep(5000);
 
                 synchronized (processingLock) {
 

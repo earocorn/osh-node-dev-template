@@ -97,6 +97,12 @@ public class Sensor extends AbstractSensorModule<Config> {
 
         output.doInit();
 
+        Control control = new Control(this);
+
+        addControlInput(control);
+
+        control.init();
+
         // TODO: Perform other initialization
     }
 
