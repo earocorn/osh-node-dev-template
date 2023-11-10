@@ -95,30 +95,30 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         output.doInit();
 
         // initialize PI4J with PWM provider
-//        final var piGpio = PiGpio.newNativeInstance();
-//        pi4j = Pi4J.newContextBuilder()
-//                .noAutoDetect()
-//                .add(new RaspberryPiPlatform() {
-//                    @Override
-//                    protected String[] getProviders() {
-//                        return new String[]{};
-//                    }
-//                })
-//                .add(PiGpioDigitalInputProvider.newInstance(piGpio),
-//                        newInstance(piGpio),
-//                        PiGpioPwmProvider.newInstance(piGpio)
-//                )
-//                .build();
-//
-//        // Example servo implementation from
-//        // https://pi4j.com/examples/components/servo/
-//        servoMotor = new ServoMotor(pi4j, config.cameraPinConfig.pinConfig, 50, PiCameraControl.getMinTiltAngle(), PiCameraControl.getMaxTiltAngle(), 2.0f, 12f);
-//
-//        PiCameraControl control = new PiCameraControl(this);
-//
-//        //addControlInput(control);
-//
-//        control.init();
+        final var piGpio = PiGpio.newNativeInstance();
+        pi4j = Pi4J.newContextBuilder()
+                .noAutoDetect()
+                .add(new RaspberryPiPlatform() {
+                    @Override
+                    protected String[] getProviders() {
+                        return new String[]{};
+                    }
+                })
+                .add(PiGpioDigitalInputProvider.newInstance(piGpio),
+                        newInstance(piGpio),
+                        PiGpioPwmProvider.newInstance(piGpio)
+                )
+                .build();
+
+        // Example servo implementation from
+        // https://pi4j.com/examples/components/servo/
+        servoMotor = new ServoMotor(pi4j, config.cameraPinConfig.pinConfig, 50, PiCameraControl.getMinTiltAngle(), PiCameraControl.getMaxTiltAngle(), 2.0f, 12f);
+
+        PiCameraControl control = new PiCameraControl(this);
+
+        addControlInput(control);
+
+        control.init();
 
     }
 
