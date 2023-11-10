@@ -56,4 +56,8 @@ public class PiCameraConfig extends SensorConfig {
     @DisplayInfo(label = "PinConfig", desc = "Pin configuration for tilt servo")
     public CameraPinConfig cameraPinConfig = new CameraPinConfig();
 
+    @DisplayInfo.Required
+    @DisplayInfo(label = "Connect to GPIO", desc = "Choose whether or not to connect to pi GPIO")
+    public boolean isGPIOConnected = true;
+
 }

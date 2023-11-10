@@ -94,6 +94,9 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
 
         output.doInit();
 
+        // check config for whether you connect to GPIO
+        if(config.isGPIOConnected) {
+
         // initialize PI4J with PWM provider
         final var piGpio = PiGpio.newNativeInstance();
         pi4j = Pi4J.newContextBuilder()
@@ -119,6 +122,8 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         addControlInput(control);
 
         control.init();
+
+        }
 
     }
 
