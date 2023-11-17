@@ -62,12 +62,18 @@ public class PiCameraConfig extends SensorConfig {
     public boolean isGPIOConnected = true;
 
     @DisplayInfo.Required
-    @DisplayInfo(desc = "location")
-    public PositionConfig.LLALocation location = getLocation();
+    @DisplayInfo(desc = "PiCamera Location")
+    public PositionConfig.LLALocation location = new PositionConfig.LLALocation();
+
+    public PiCameraConfig() {
+        location.lat = 34.735915156141196;
+        location.lon = -86.72325187317927;
+        location.alt = 0.000;
+    }
 
     @Override
     public PositionConfig.LLALocation getLocation() {
-        return new PositionConfig.LLALocation();
+        return location;
     }
 
 }
