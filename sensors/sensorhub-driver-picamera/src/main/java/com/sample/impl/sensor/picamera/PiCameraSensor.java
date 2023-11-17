@@ -78,6 +78,8 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
 
     }
 
+
+
     @Override
     public void doInit() throws SensorHubException {
 
@@ -91,6 +93,7 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         output = new PiCameraOutput(this);
 
         addOutput(output, false);
+        addLocationOutput(1.0);
 
         output.doInit();
 

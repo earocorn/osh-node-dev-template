@@ -17,6 +17,7 @@ import com.sample.impl.sensor.picamera.config.CameraPinConfig;
 import com.sample.impl.sensor.picamera.config.VideoParameters;
 import org.opencv.video.Video;
 import org.sensorhub.api.config.DisplayInfo;
+import org.sensorhub.api.sensor.PositionConfig;
 import org.sensorhub.api.sensor.SensorConfig;
 
 /**
@@ -59,5 +60,10 @@ public class PiCameraConfig extends SensorConfig {
     @DisplayInfo.Required
     @DisplayInfo(label = "Connect to GPIO", desc = "Choose whether or not to connect to pi GPIO")
     public boolean isGPIOConnected = true;
+
+    @Override
+    public PositionConfig.LLALocation getLocation() {
+        return new PositionConfig.LLALocation();
+    }
 
 }
