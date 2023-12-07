@@ -21,6 +21,7 @@ import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vast.swe.SWEHelper;
 import org.vast.swe.helper.GeoPosHelper;
 
 /**
@@ -71,7 +72,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         logger.debug("Initializing GamepadOutput");
 
         // Get an instance of SWE Factory suitable to build components
-        GeoPosHelper sweFactory = new GeoPosHelper();
+        SWEHelper sweFactory = new SWEHelper();
 
         // TODO: Create data record description
         dataStruct = sweFactory.createRecord()
@@ -82,8 +83,13 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                         .asSamplingTimeIsoUTC()
                         .label("Sample Time")
                         .description("Time of data collection"))
-                .addField("data", sweFactory.createText()
-                        .label("Example Data"))
+                .addField("gamepadData", sweFactory.createRecord()
+                        .addField("y_value", sweFactory.createQuantity()
+                                //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
+                                .label("Joystick Y-Axis"))
+                        .addField("x_value", sweFactory.createQuantity()
+                                .label("Joystick X-Axis"))
+                    .label("Output data from gamepad"))
                 .build();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
