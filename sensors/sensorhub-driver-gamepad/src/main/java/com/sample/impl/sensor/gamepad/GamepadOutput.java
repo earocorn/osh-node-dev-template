@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.vast.swe.SWEHelper;
 import org.vast.swe.helper.GeoPosHelper;
 
+import java.io.File;
+import java.util.Objects;
+
 /**
- * Output specification and provider for {@link Sensor}.
+ * Output specification and provider for {@link GamepadSensor}.
  *
  * @author your_name
  * @since date
@@ -68,7 +71,16 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      * and data types.
      */
     void doInit() {
-
+        logger.info("Fetching resource...");
+        logger.info("java.library.path = " + System.getProperty("java.library.path"));
+        System.setProperty("java.library.path", new File(Objects.requireNonNull(getClass().getClassLoader().getResource("main/jiraw")).getFile()).getAbsolutePath());
+        logger.info("java.library.path = " + System.getProperty("java.library.path"));
+        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("main/jiraw")).getFile());
+        if(file.exists()) {
+            logger.info("File exists! : " + file.getAbsolutePath());
+        } else {
+            logger.error("File does not exist!");
+        }
         logger.debug("Initializing GamepadOutput");
 
         // Get an instance of SWE Factory suitable to build components
@@ -84,11 +96,58 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                         .label("Sample Time")
                         .description("Time of data collection"))
                 .addField("gamepadData", sweFactory.createRecord()
-                        .addField("y_value", sweFactory.createQuantity()
-                                //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
-                                .label("Joystick Y-Axis"))
-                        .addField("x_value", sweFactory.createQuantity()
-                                .label("Joystick X-Axis"))
+                        .addField("joystick", sweFactory.createRecord()
+                                .addField("y", sweFactory.createQuantity()
+                                        //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
+                                        .label("Joystick Y-Axis"))
+                                .addField("x", sweFactory.createQuantity()
+                                        .label("Joystick X-Axis"))
+                                .addField("ry", sweFactory.createQuantity()
+                                        .label("Joystick Rotational Y"))
+                                .addField("rx", sweFactory.createQuantity()
+                                        .label("Joystick Rotational X"))
+                                .build())
+                        .addField("buttons", sweFactory.createRecord()
+                                .addField("a", sweFactory.createBoolean()
+                                        .label("A-Button Selected")
+                                        .value(false))
+                                .addField("b", sweFactory.createBoolean()
+                                        .label("B-Button Selected")
+                                        .value(false))
+                                .addField("x", sweFactory.createBoolean()
+                                        .label("X-Button Selected")
+                                        .value(false))
+                                .addField("y", sweFactory.createBoolean()
+                                        .label("Y-Button Selected")
+                                        .value(false))
+                                .addField("l1", sweFactory.createBoolean()
+                                        .label("Left1 Trigger-Button Selected")
+                                        .value(false))
+                                .addField("r1", sweFactory.createBoolean()
+                                        .label("Right1 Trigger-Button Selected")
+                                        .value(false))
+                                .addField("select", sweFactory.createBoolean()
+                                        .label("Select-Button Selected")
+                                        .value(false))
+                                .addField("start", sweFactory.createBoolean()
+                                        .label("Start-Button Selected")
+                                        .value(false))
+                                .addField("leftJoystick", sweFactory.createBoolean()
+                                        .label("Left Joystick Button Selected")
+                                        .value(false))
+                                .addField("rightJoystick", sweFactory.createBoolean()
+                                        .label("Right Joystick Button Selected")
+                                        .value(false))
+                                .addField("l2", sweFactory.createQuantity()
+                                        .label("Left2 Trigger Pressure"))
+                                .addField("r2", sweFactory.createQuantity()
+                                        .label("Right2 Trigger Pressure"))
+                                .addField("dpad", sweFactory.createQuantity()
+                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
+                                        .label("D-Pad Orientation")
+                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
+                                        .value(0.0))
+                                .build())
                     .label("Output data from gamepad"))
                 .build();
 
