@@ -19,9 +19,12 @@ import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
 import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.data.DataEvent;
+import org.sensorhub.api.sensor.SensorException;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vast.data.AbstractDataBlock;
+import org.vast.data.DataBlockMixed;
 import org.vast.swe.SWEHelper;
 
 import java.io.File;
@@ -72,7 +75,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      * Initializes the data structure for the output, defining the fields, their ordering,
      * and data types.
      */
-    void doInit() {
+    void doInit() throws SensorException {
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
         System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
@@ -81,6 +84,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         logger.debug("Initializing GamepadOutput");
 
         // Sample setup from https://jinput.github.io/jinput/
+        // TODO: throw sensor exception earlier
 
         Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for (int i = 0; i < controllers.length; i++) {
@@ -99,8 +103,10 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                 /* Process event (your awesome code) */
             }
         }
-
-        assert gamepad != null;
+        // TODO: needs to throw sensor exception if no game controller
+        if(gamepad == null) {
+            throw new SensorException("Failed to fetch game controller");
+        }
 
         gamepadComponents = gamepad.getComponents();
 
@@ -131,6 +137,11 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                                         .label("Joystick Rotational Y"))
                                 .addField("rx", sweFactory.createQuantity()
                                         .label("Joystick Rotational X"))
+                                .addField("dpad", sweFactory.createQuantity()
+                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
+                                        .label("D-Pad Orientation")
+                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
+                                        .value(0.0))
                                 .build())
                         .addField("buttons", sweFactory.createRecord()
                                 .addField("a", sweFactory.createBoolean()
@@ -167,11 +178,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                                         .label("Left2 Trigger Pressure"))
                                 .addField("r2", sweFactory.createQuantity()
                                         .label("Right2 Trigger Pressure"))
-                                .addField("dpad", sweFactory.createQuantity()
-                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
-                                        .label("D-Pad Orientation")
-                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
-                                        .value(0.0))
                                 .build())
                     .label("Output data from gamepad"))
                 .build();
@@ -282,11 +288,40 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
                 ++setCount;
 
-                double timestamp = System.currentTimeMillis() / 1000d;
+                double timestamp = System.currentTimeMillis() / 500d;
+
+                if(gamepad != null) {
+                    // Poll the game controller for any updates
+                    gamepad.poll();
+                }
 
                 // TODO: Populate data block
                 dataBlock.setDoubleValue(0, timestamp);
-                dataBlock.setStringValue(1, "Your data here");
+
+                // Collective gamepad data, which is separated into 2 parts, joystick data and button data
+                AbstractDataBlock gamepadData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[1];
+
+                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
+                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
+
+                joystickData.setDoubleValue(0, gamepad.getComponent(Component.Identifier.Axis.Y).getPollData());
+                joystickData.setDoubleValue(1, gamepad.getComponent(Component.Identifier.Axis.X).getPollData());
+                joystickData.setDoubleValue(2, gamepad.getComponent(Component.Identifier.Axis.RY).getPollData());
+                joystickData.setDoubleValue(3, gamepad.getComponent(Component.Identifier.Axis.RX).getPollData());
+                joystickData.setDoubleValue(4, gamepad.getComponent(Component.Identifier.Axis.POV).getPollData());
+
+                buttonData.setBooleanValue(0, gamepad.getComponent(Component.Identifier.Button._0).getPollData() == 1.0);
+                buttonData.setBooleanValue(1, gamepad.getComponent(Component.Identifier.Button._1).getPollData() == 1.0);
+                buttonData.setBooleanValue(2, gamepad.getComponent(Component.Identifier.Button._2).getPollData() == 1.0);
+                buttonData.setBooleanValue(3, gamepad.getComponent(Component.Identifier.Button._3).getPollData() == 1.0);
+                buttonData.setBooleanValue(4, gamepad.getComponent(Component.Identifier.Button._4).getPollData() == 1.0);
+                buttonData.setBooleanValue(5, gamepad.getComponent(Component.Identifier.Button._5).getPollData() == 1.0);
+                buttonData.setBooleanValue(6, gamepad.getComponent(Component.Identifier.Button._6).getPollData() == 1.0);
+                buttonData.setBooleanValue(7, gamepad.getComponent(Component.Identifier.Button._7).getPollData() == 1.0);
+                buttonData.setBooleanValue(8, gamepad.getComponent(Component.Identifier.Button._8).getPollData() == 1.0);
+                buttonData.setBooleanValue(9, gamepad.getComponent(Component.Identifier.Button._9).getPollData() == 1.0);
+                buttonData.setDoubleValue(10, Math.max(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
+                buttonData.setDoubleValue(11, Math.min(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
 
                 latestRecord = dataBlock;
 
