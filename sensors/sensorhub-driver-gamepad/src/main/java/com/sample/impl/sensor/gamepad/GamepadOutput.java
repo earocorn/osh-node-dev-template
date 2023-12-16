@@ -13,6 +13,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
+import net.java.games.input.*;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
@@ -22,10 +23,8 @@ import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.swe.SWEHelper;
-import org.vast.swe.helper.GeoPosHelper;
 
 import java.io.File;
-import java.util.Objects;
 
 /**
  * Output specification and provider for {@link GamepadSensor}.
@@ -53,6 +52,9 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private final Object histogramLock = new Object();
 
     private Thread worker;
+    private Controller gamepad = null;
+    private Component[] gamepadComponents = null;
+    private final Event event = new Event();
 
     /**
      * Constructor
@@ -73,15 +75,38 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     void doInit() {
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
-        System.setProperty("java.library.path", new File(Objects.requireNonNull(getClass().getClassLoader().getResource("main/jiraw")).getFile()).getAbsolutePath());
+        System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
-        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("main/jiraw")).getFile());
-        if(file.exists()) {
-            logger.info("File exists! : " + file.getAbsolutePath());
-        } else {
-            logger.error("File does not exist!");
-        }
+
         logger.debug("Initializing GamepadOutput");
+
+        // Sample setup from https://jinput.github.io/jinput/
+
+        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+        for (int i = 0; i < controllers.length; i++) {
+            /* Remember to poll each one */
+            controllers[i].poll();
+            if(controllers[i].getType()== Controller.Type.GAMEPAD) {
+                gamepad = controllers[i];
+            }
+            /* Get the controllers event queue */
+            EventQueue queue = controllers[i].getEventQueue();
+
+            /* For each object in the queue */
+            while (queue.getNextEvent(event)) {
+                /* Get event component */
+                Component comp = event.getComponent();
+                /* Process event (your awesome code) */
+            }
+        }
+
+        assert gamepad != null;
+
+        gamepadComponents = gamepad.getComponents();
+
+        for(Component comp : gamepadComponents) {
+            logger.info(comp.getName());
+        }
 
         // Get an instance of SWE Factory suitable to build components
         SWEHelper sweFactory = new SWEHelper();
