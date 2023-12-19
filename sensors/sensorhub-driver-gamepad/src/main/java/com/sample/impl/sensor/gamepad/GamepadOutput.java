@@ -57,7 +57,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private Thread worker;
     private Controller gamepad = null;
     private Component[] gamepadComponents = null;
-    private final Event event = new Event();
+    private GamepadUtil gamepadUtil = null;
 
     /**
      * Constructor
@@ -84,103 +84,99 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         logger.debug("Initializing GamepadOutput");
 
         // Sample setup from https://jinput.github.io/jinput/
-        // TODO: throw sensor exception earlier
 
-        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-        for (int i = 0; i < controllers.length; i++) {
-            /* Remember to poll each one */
-            controllers[i].poll();
-            if(controllers[i].getType()== Controller.Type.GAMEPAD) {
-                gamepad = controllers[i];
-            }
-            /* Get the controllers event queue */
-            EventQueue queue = controllers[i].getEventQueue();
+        gamepadUtil = new GamepadUtil();
+        gamepad = gamepadUtil.getGamepad();
+        gamepadComponents = gamepadUtil.getGamepadComponents();
 
-            /* For each object in the queue */
-            while (queue.getNextEvent(event)) {
-                /* Get event component */
-                Component comp = event.getComponent();
-                /* Process event (your awesome code) */
-            }
-        }
-        // TODO: needs to throw sensor exception if no game controller
-        if(gamepad == null) {
-            throw new SensorException("Failed to fetch game controller");
-        }
-
-        gamepadComponents = gamepad.getComponents();
+//        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+//        for(Controller controller : controllers) {
+//            if(controller.getType() == Controller.Type.GAMEPAD) {
+//                gamepad = controller;
+//            }
+//        }
+//
+//        if(gamepad == null) {
+//            throw new SensorException("Failed to fetch game controller");
+//        }
+//
+//        gamepadComponents = gamepad.getComponents();
 
         for(Component comp : gamepadComponents) {
             logger.info(comp.getName());
         }
 
         // Get an instance of SWE Factory suitable to build components
-        SWEHelper sweFactory = new SWEHelper();
+        GamepadHelper sweFactory = new GamepadHelper();
 
-        // TODO: Create data record description
-        dataStruct = sweFactory.createRecord()
-                .name(SENSOR_OUTPUT_NAME)
-                .label(SENSOR_OUTPUT_LABEL)
-                .description(SENSOR_OUTPUT_DESCRIPTION)
-                .addField("sampleTime", sweFactory.createTime()
-                        .asSamplingTimeIsoUTC()
-                        .label("Sample Time")
-                        .description("Time of data collection"))
-                .addField("gamepadData", sweFactory.createRecord()
-                        .addField("joystick", sweFactory.createRecord()
-                                .addField("y", sweFactory.createQuantity()
-                                        //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
-                                        .label("Joystick Y-Axis"))
-                                .addField("x", sweFactory.createQuantity()
-                                        .label("Joystick X-Axis"))
-                                .addField("ry", sweFactory.createQuantity()
-                                        .label("Joystick Rotational Y"))
-                                .addField("rx", sweFactory.createQuantity()
-                                        .label("Joystick Rotational X"))
-                                .addField("dpad", sweFactory.createQuantity()
-                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
-                                        .label("D-Pad Orientation")
-                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
-                                        .value(0.0))
-                                .build())
-                        .addField("buttons", sweFactory.createRecord()
-                                .addField("a", sweFactory.createBoolean()
-                                        .label("A-Button Selected")
-                                        .value(false))
-                                .addField("b", sweFactory.createBoolean()
-                                        .label("B-Button Selected")
-                                        .value(false))
-                                .addField("x", sweFactory.createBoolean()
-                                        .label("X-Button Selected")
-                                        .value(false))
-                                .addField("y", sweFactory.createBoolean()
-                                        .label("Y-Button Selected")
-                                        .value(false))
-                                .addField("l1", sweFactory.createBoolean()
-                                        .label("Left1 Trigger-Button Selected")
-                                        .value(false))
-                                .addField("r1", sweFactory.createBoolean()
-                                        .label("Right1 Trigger-Button Selected")
-                                        .value(false))
-                                .addField("select", sweFactory.createBoolean()
-                                        .label("Select-Button Selected")
-                                        .value(false))
-                                .addField("start", sweFactory.createBoolean()
-                                        .label("Start-Button Selected")
-                                        .value(false))
-                                .addField("leftJoystick", sweFactory.createBoolean()
-                                        .label("Left Joystick Button Selected")
-                                        .value(false))
-                                .addField("rightJoystick", sweFactory.createBoolean()
-                                        .label("Right Joystick Button Selected")
-                                        .value(false))
-                                .addField("l2", sweFactory.createQuantity()
-                                        .label("Left2 Trigger Pressure"))
-                                .addField("r2", sweFactory.createQuantity()
-                                        .label("Right2 Trigger Pressure"))
-                                .build())
-                    .label("Output data from gamepad"))
-                .build();
+        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepad);
+
+        dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
+        dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
+
+//        dataStruct = sweFactory.createRecord()
+//                .name(SENSOR_OUTPUT_NAME)
+//                .label(SENSOR_OUTPUT_LABEL)
+//                .description(SENSOR_OUTPUT_DESCRIPTION)
+//                .addField("sampleTime", sweFactory.createTime()
+//                        .asSamplingTimeIsoUTC()
+//                        .label("Sample Time")
+//                        .description("Time of data collection"))
+//                .addField("gamepadData", sweFactory.createRecord()
+//                        .addField("joystick", sweFactory.createRecord()
+//                                .addField("y", sweFactory.createQuantity()
+//                                        //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
+//                                        .label("Joystick Y-Axis"))
+//                                .addField("x", sweFactory.createQuantity()
+//                                        .label("Joystick X-Axis"))
+//                                .addField("ry", sweFactory.createQuantity()
+//                                        .label("Joystick Rotational Y"))
+//                                .addField("rx", sweFactory.createQuantity()
+//                                        .label("Joystick Rotational X"))
+//                                .addField("dpad", sweFactory.createQuantity()
+//                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
+//                                        .label("D-Pad Orientation")
+//                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
+//                                        .value(0.0))
+//                                .build())
+//                        .addField("buttons", sweFactory.createRecord()
+//                                .addField("a", sweFactory.createBoolean()
+//                                        .label("A-Button Selected")
+//                                        .value(false))
+//                                .addField("b", sweFactory.createBoolean()
+//                                        .label("B-Button Selected")
+//                                        .value(false))
+//                                .addField("x", sweFactory.createBoolean()
+//                                        .label("X-Button Selected")
+//                                        .value(false))
+//                                .addField("y", sweFactory.createBoolean()
+//                                        .label("Y-Button Selected")
+//                                        .value(false))
+//                                .addField("l1", sweFactory.createBoolean()
+//                                        .label("Left1 Trigger-Button Selected")
+//                                        .value(false))
+//                                .addField("r1", sweFactory.createBoolean()
+//                                        .label("Right1 Trigger-Button Selected")
+//                                        .value(false))
+//                                .addField("select", sweFactory.createBoolean()
+//                                        .label("Select-Button Selected")
+//                                        .value(false))
+//                                .addField("start", sweFactory.createBoolean()
+//                                        .label("Start-Button Selected")
+//                                        .value(false))
+//                                .addField("leftJoystick", sweFactory.createBoolean()
+//                                        .label("Left Joystick Button Selected")
+//                                        .value(false))
+//                                .addField("rightJoystick", sweFactory.createBoolean()
+//                                        .label("Right Joystick Button Selected")
+//                                        .value(false))
+//                                .addField("l2", sweFactory.createQuantity()
+//                                        .label("Left2 Trigger Pressure"))
+//                                .addField("r2", sweFactory.createQuantity()
+//                                        .label("Right2 Trigger Pressure"))
+//                                .build())
+//                    .label("Output data from gamepad"))
+//                .build();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
 
@@ -288,40 +284,47 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
                 ++setCount;
 
-                double timestamp = System.currentTimeMillis() / 500d;
+                double timestamp = System.currentTimeMillis() / 1000d;
 
                 if(gamepad != null) {
                     // Poll the game controller for any updates
                     gamepad.poll();
                 }
 
-                // TODO: Populate data block
                 dataBlock.setDoubleValue(0, timestamp);
 
                 // Collective gamepad data, which is separated into 2 parts, joystick data and button data
                 AbstractDataBlock gamepadData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[1];
 
-                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
-                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
+                if(gamepadUtil != null) {
+                    gamepadUtil.pollGamepad();
+                    gamepadUtil.populateGamepadOutput(gamepadData);
+                }
 
-                joystickData.setDoubleValue(0, gamepad.getComponent(Component.Identifier.Axis.Y).getPollData());
-                joystickData.setDoubleValue(1, gamepad.getComponent(Component.Identifier.Axis.X).getPollData());
-                joystickData.setDoubleValue(2, gamepad.getComponent(Component.Identifier.Axis.RY).getPollData());
-                joystickData.setDoubleValue(3, gamepad.getComponent(Component.Identifier.Axis.RX).getPollData());
-                joystickData.setDoubleValue(4, gamepad.getComponent(Component.Identifier.Axis.POV).getPollData());
-
-                buttonData.setBooleanValue(0, gamepad.getComponent(Component.Identifier.Button._0).getPollData() == 1.0);
-                buttonData.setBooleanValue(1, gamepad.getComponent(Component.Identifier.Button._1).getPollData() == 1.0);
-                buttonData.setBooleanValue(2, gamepad.getComponent(Component.Identifier.Button._2).getPollData() == 1.0);
-                buttonData.setBooleanValue(3, gamepad.getComponent(Component.Identifier.Button._3).getPollData() == 1.0);
-                buttonData.setBooleanValue(4, gamepad.getComponent(Component.Identifier.Button._4).getPollData() == 1.0);
-                buttonData.setBooleanValue(5, gamepad.getComponent(Component.Identifier.Button._5).getPollData() == 1.0);
-                buttonData.setBooleanValue(6, gamepad.getComponent(Component.Identifier.Button._6).getPollData() == 1.0);
-                buttonData.setBooleanValue(7, gamepad.getComponent(Component.Identifier.Button._7).getPollData() == 1.0);
-                buttonData.setBooleanValue(8, gamepad.getComponent(Component.Identifier.Button._8).getPollData() == 1.0);
-                buttonData.setBooleanValue(9, gamepad.getComponent(Component.Identifier.Button._9).getPollData() == 1.0);
-                buttonData.setDoubleValue(10, Math.max(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
-                buttonData.setDoubleValue(11, Math.min(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
+//                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
+//                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
+//
+//                // Orientation of joysticks and d-pad
+//                joystickData.setDoubleValue(0, gamepad.getComponent(Component.Identifier.Axis.Y).getPollData());
+//                joystickData.setDoubleValue(1, gamepad.getComponent(Component.Identifier.Axis.X).getPollData());
+//                joystickData.setDoubleValue(2, gamepad.getComponent(Component.Identifier.Axis.RY).getPollData());
+//                joystickData.setDoubleValue(3, gamepad.getComponent(Component.Identifier.Axis.RX).getPollData());
+//                joystickData.setDoubleValue(4, gamepad.getComponent(Component.Identifier.Axis.POV).getPollData());
+//
+//                // Set boolean value for whether button is selected or not
+//                buttonData.setBooleanValue(0, gamepad.getComponent(Component.Identifier.Button._0).getPollData() == 1.0);
+//                buttonData.setBooleanValue(1, gamepad.getComponent(Component.Identifier.Button._1).getPollData() == 1.0);
+//                buttonData.setBooleanValue(2, gamepad.getComponent(Component.Identifier.Button._2).getPollData() == 1.0);
+//                buttonData.setBooleanValue(3, gamepad.getComponent(Component.Identifier.Button._3).getPollData() == 1.0);
+//                buttonData.setBooleanValue(4, gamepad.getComponent(Component.Identifier.Button._4).getPollData() == 1.0);
+//                buttonData.setBooleanValue(5, gamepad.getComponent(Component.Identifier.Button._5).getPollData() == 1.0);
+//                buttonData.setBooleanValue(6, gamepad.getComponent(Component.Identifier.Button._6).getPollData() == 1.0);
+//                buttonData.setBooleanValue(7, gamepad.getComponent(Component.Identifier.Button._7).getPollData() == 1.0);
+//                buttonData.setBooleanValue(8, gamepad.getComponent(Component.Identifier.Button._8).getPollData() == 1.0);
+//                buttonData.setBooleanValue(9, gamepad.getComponent(Component.Identifier.Button._9).getPollData() == 1.0);
+//                // Left and right trigger pressure
+//                buttonData.setDoubleValue(10, Math.max(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
+//                buttonData.setDoubleValue(11, Math.min(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
 
                 latestRecord = dataBlock;
 
