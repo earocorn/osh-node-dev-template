@@ -13,6 +13,10 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
+import com.alexalmanza.GamepadEvent;
+import com.alexalmanza.GamepadEventObserver;
+import com.alexalmanza.GamepadUtil;
+import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
 import net.java.games.input.*;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
@@ -25,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.data.AbstractDataBlock;
 import org.vast.data.DataBlockMixed;
-import org.vast.swe.SWEHelper;
 
 import java.io.File;
 
@@ -58,6 +61,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private Controller gamepad = null;
     private Component[] gamepadComponents = null;
     private GamepadUtil gamepadUtil = null;
+    private Event event;
+    private GamepadEventObserver eventObserver;
 
     /**
      * Constructor
@@ -76,6 +81,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      * and data types.
      */
     void doInit() throws SensorException {
+        event = new Event();
+
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
         System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
@@ -113,6 +120,13 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
+
+        GamepadEvent aButtonEvent = () -> logger.info("button has been pressed: " + event.getComponent().getIdentifier() + " = " + event.getComponent().getPollData());
+        GamepadEvent axisEvent = () -> logger.info("axis event : " + event.getComponent().getName() + " = " + event.getComponent().getPollData());
+
+        eventObserver = new GamepadEventObserver(event, gamepad);
+        eventObserver.addEvent(aButtonEvent, Component.Identifier.Button._0);
+        eventObserver.addEvent(axisEvent, Component.Identifier.Axis.POV);
 
 //        dataStruct = sweFactory.createRecord()
 //                .name(SENSOR_OUTPUT_NAME)
@@ -291,6 +305,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                     gamepad.poll();
                 }
 
+                eventObserver.observe();
+
                 dataBlock.setDoubleValue(0, timestamp);
 
                 // Collective gamepad data, which is separated into 2 parts, joystick data and button data
@@ -298,7 +314,10 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
                 if(gamepadUtil != null) {
                     gamepadUtil.pollGamepad();
-                    gamepadUtil.populateGamepadOutput(gamepadData);
+                }
+
+                for(int i = 0; i < gamepadComponents.length; i++) {
+                   gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
                 }
 
 //                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];

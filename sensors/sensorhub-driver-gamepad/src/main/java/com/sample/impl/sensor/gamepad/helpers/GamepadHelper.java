@@ -1,4 +1,4 @@
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.gamepad.helpers;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -38,6 +38,9 @@ public class GamepadHelper extends SWEHelper {
         recordBuilder.addField("gamepadData", gamepadData.build())
                 .label("Gamepad Data")
                 .description("Output data from game controller");
+
+        recordBuilder.addField("action", this.createText()
+                .label("Event Action"));
 
         dataRecord = recordBuilder.build();
 
