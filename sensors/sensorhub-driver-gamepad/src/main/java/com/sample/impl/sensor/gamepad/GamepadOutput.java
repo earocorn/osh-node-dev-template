@@ -13,11 +13,13 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
-import com.alexalmanza.GamepadEvent;
-import com.alexalmanza.GamepadEventObserver;
+import com.alexalmanza.GamepadListener;
+import com.alexalmanza.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
 import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
-import net.java.games.input.*;
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.Event;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
@@ -62,7 +64,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private Component[] gamepadComponents = null;
     private GamepadUtil gamepadUtil = null;
     private Event event;
-    private GamepadEventObserver eventObserver;
+    private GamepadObserver eventObserver;
 
     /**
      * Constructor
@@ -96,23 +98,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         gamepad = gamepadUtil.getGamepad();
         gamepadComponents = gamepadUtil.getGamepadComponents();
 
-//        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-//        for(Controller controller : controllers) {
-//            if(controller.getType() == Controller.Type.GAMEPAD) {
-//                gamepad = controller;
-//            }
-//        }
-//
-//        if(gamepad == null) {
-//            throw new SensorException("Failed to fetch game controller");
-//        }
-//
-//        gamepadComponents = gamepad.getComponents();
-
-        for(Component comp : gamepadComponents) {
-            logger.info(comp.getName());
-        }
-
         // Get an instance of SWE Factory suitable to build components
         GamepadHelper sweFactory = new GamepadHelper();
 
@@ -121,12 +106,17 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
 
-        GamepadEvent aButtonEvent = () -> logger.info("button has been pressed: " + event.getComponent().getIdentifier() + " = " + event.getComponent().getPollData());
-        GamepadEvent axisEvent = () -> logger.info("axis event : " + event.getComponent().getName() + " = " + event.getComponent().getPollData());
+        // Instantiate the observer in the gamepad output setup
+        eventObserver = new GamepadObserver(event, gamepad);
 
-        eventObserver = new GamepadEventObserver(event, gamepad);
-        eventObserver.addEvent(aButtonEvent, Component.Identifier.Button._0);
-        eventObserver.addEvent(axisEvent, Component.Identifier.Axis.POV);
+        // Two listeners defined with the only method being logging their component's name and data which is the float value
+        GamepadListener aButtonEvent = () -> logger.info(eventObserver.getCurrentEventComponent().getName() + " = " + eventObserver.getCurrentEventComponent().getPollData());
+        GamepadListener axisEvent = () -> logger.info(eventObserver.getCurrentEventComponent().getName() + " = " + eventObserver.getCurrentEventComponent().getPollData());
+
+        // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
+        eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
+        // POV is the Identifier for the D-Pad component
+        eventObserver.addListener(axisEvent, Component.Identifier.Axis.POV);
 
 //        dataStruct = sweFactory.createRecord()
 //                .name(SENSOR_OUTPUT_NAME)
@@ -305,7 +295,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                     gamepad.poll();
                 }
 
-                eventObserver.observe();
+                eventObserver.listen();
 
                 dataBlock.setDoubleValue(0, timestamp);
 
