@@ -7,6 +7,7 @@ dependencies {
 //    implementation project(':sensorhub-service-video')
 //    implementation project(':sensorhub-driver-videocam')
     implementation 'net.java.jinput:jinput:2.0.9'
+    implementation files("libs/controllerlibrary.jar")
     testImplementation('junit:junit:4.13.1')
 }
 
@@ -14,7 +15,6 @@ def thisProjectDir = projectDir
 rootProject.allprojects {
     repositories {
         mavenCentral()
-        maven { url "file:///$thisProjectDir/lib" }
     }
 }
 

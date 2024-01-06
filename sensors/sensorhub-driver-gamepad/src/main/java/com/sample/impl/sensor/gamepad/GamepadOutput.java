@@ -65,6 +65,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private GamepadUtil gamepadUtil = null;
     private Event event;
     private GamepadObserver eventObserver;
+    private String axisData;
 
     /**
      * Constructor
@@ -106,17 +107,23 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
 
+        axisData = "";
+
         // Instantiate the observer in the gamepad output setup
         eventObserver = new GamepadObserver(event, gamepad);
 
         // Two listeners defined with the only method being logging their component's name and data which is the float value
-        GamepadListener aButtonEvent = () -> logger.info(eventObserver.getCurrentEventComponent().getName() + " = " + eventObserver.getCurrentEventComponent().getPollData());
-        GamepadListener axisEvent = () -> logger.info(eventObserver.getCurrentEventComponent().getName() + " = " + eventObserver.getCurrentEventComponent().getPollData());
+        GamepadListener aButtonEvent = () -> axisData = (event.getComponent().getName() + " = " + event.getComponent().getPollData());
+        GamepadListener axisEvent = () -> logger.info(event.getComponent().getName() + " = " + event.getComponent().getPollData());
 
         // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
         eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
         // POV is the Identifier for the D-Pad component
         eventObserver.addListener(axisEvent, Component.Identifier.Axis.POV);
+
+        for(Component component : gamepadComponents) {
+           logger.info(component.getIdentifier() + " deadzone: " + component.getDeadZone());
+        }
 
 //        dataStruct = sweFactory.createRecord()
 //                .name(SENSOR_OUTPUT_NAME)
@@ -309,6 +316,9 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                 for(int i = 0; i < gamepadComponents.length; i++) {
                    gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
                 }
+
+                AbstractDataBlock actionData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
+                actionData.setStringValue(axisData);
 
 //                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
 //                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
