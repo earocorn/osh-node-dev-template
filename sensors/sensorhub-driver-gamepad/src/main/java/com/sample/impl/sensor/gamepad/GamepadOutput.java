@@ -96,7 +96,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         // Sample setup from https://jinput.github.io/jinput/
 
         gamepadUtil = new GamepadUtil();
-        gamepad = gamepadUtil.getGamepad();
         gamepadComponents = gamepadUtil.getGamepadComponents();
 
         // Get an instance of SWE Factory suitable to build components
@@ -110,11 +109,11 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         axisData = "";
 
         // Instantiate the observer in the gamepad output setup
-        eventObserver = new GamepadObserver(event, gamepad);
+        eventObserver = GamepadObserver.getInstance();
 
         // Two listeners defined with the only method being logging their component's name and data which is the float value
-        GamepadListener aButtonEvent = () -> axisData = (event.getComponent().getName() + " = " + event.getComponent().getPollData());
-        GamepadListener axisEvent = () -> logger.info(event.getComponent().getName() + " = " + event.getComponent().getPollData());
+        GamepadListener aButtonEvent = (identifier, value) -> axisData = (identifier + " = " + event.getComponent().getPollData());
+        GamepadListener axisEvent = (identifier, value) -> logger.info(identifier + " = " + event.getComponent().getPollData());
 
         // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
         eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
