@@ -13,6 +13,11 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
+import com.alexalmanza.GamepadInit;
+import com.alexalmanza.GamepadObserver;
+import com.alexalmanza.observer.GamepadListener;
+import com.alexalmanza.observer.GamepadObserver;
+import net.java.games.input.Component;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
@@ -27,8 +32,8 @@ import org.slf4j.LoggerFactory;
 public class GamepadSensor extends AbstractSensorModule<GamepadConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(GamepadSensor.class);
-
     GamepadOutput output;
+    GamepadObserver observer;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -46,6 +51,8 @@ public class GamepadSensor extends AbstractSensorModule<GamepadConfig> {
 
         output.doInit();
 
+        observer = GamepadObserver.getInstance();
+
         // TODO: Perform other initialization
     }
 
@@ -57,6 +64,8 @@ public class GamepadSensor extends AbstractSensorModule<GamepadConfig> {
             // Allocate necessary resources and start outputs
             output.doStart();
         }
+
+
 
         // TODO: Perform other startup procedures
     }

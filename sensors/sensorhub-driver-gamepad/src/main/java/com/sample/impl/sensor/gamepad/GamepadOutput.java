@@ -13,10 +13,11 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
-import com.alexalmanza.GamepadInit;
-import com.alexalmanza.GamepadListener;
-import com.alexalmanza.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
+import com.alexalmanza.model.GamepadAxis;
+import com.alexalmanza.model.Sensitivity;
+import com.alexalmanza.observer.GamepadListener;
+import com.alexalmanza.observer.GamepadObserver;
 import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -110,17 +111,31 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         axisData = "";
 
+        gamepadUtil.setSensitivity(GamepadAxis.LEFT_JOYSTICK, Sensitivity.HIGH);
+
         // Instantiate the observer in the gamepad output setup
         eventObserver = GamepadObserver.getInstance();
-
         // Two listeners defined with the only method being logging their component's name and data which is the float value
-        GamepadListener aButtonEvent = (identifier, value) -> axisData = (identifier + " = " + event.getComponent().getPollData());
-        GamepadListener axisEvent = (identifier, value) -> logger.info(identifier + " = " + event.getComponent().getPollData());
+        GamepadListener aButtonEvent = (identifier, value) -> logger.info(identifier + " = " + event.getComponent().getPollData());
+        GamepadListener axisEvent = (identifier, value) -> {
+            logger.info(identifier + " = " + gamepadUtil.getValueWithSensitivity(identifier));
+            logger.info(identifier + " axis is facing " + gamepadUtil.getDirection(GamepadAxis.LEFT_JOYSTICK).toString());
+        };
+        GamepadListener leftTriggerEvent = (identifier, value) -> {
+            logger.info(identifier + " = " + value);
+            gamepadUtil.setSensitivity(GamepadAxis.LEFT_JOYSTICK, Sensitivity.VERY_LOW);
+        };
+        GamepadListener triggerPressureEvent = (identifier, value) -> {
+            logger.info(identifier + " component pressure is left: " + gamepadUtil.getTriggerPressure(true) + ", right: " + gamepadUtil.getTriggerPressure(false));
+        };
 
         // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
         eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
-        // POV is the Identifier for the D-Pad component
-        eventObserver.addListener(axisEvent, Component.Identifier.Axis.POV);
+        // X is identifier for X-Axis component of the left joystick
+        eventObserver.addListener(axisEvent, Component.Identifier.Axis.X);
+        eventObserver.addListener(leftTriggerEvent, Component.Identifier.Button._4);
+
+        eventObserver.addListener(triggerPressureEvent, Component.Identifier.Axis.Z);
 
         for(Component component : gamepadComponents) {
            logger.info(component.getIdentifier() + " deadzone: " + component.getDeadZone());
@@ -207,6 +222,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         logger.info("Starting worker thread: {}", worker.getName());
 
+        eventObserver.doStart();
+
         // Start the worker thread
         worker.start();
     }
@@ -220,6 +237,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
             stopProcessing = true;
         }
+
+        eventObserver.doStop();
 
         // TODO: Perform other shutdown procedures
     }
@@ -303,8 +322,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                     gamepad.poll();
                 }
 
-                eventObserver.listen();
-
                 dataBlock.setDoubleValue(0, timestamp);
 
                 // Collective gamepad data, which is separated into 2 parts, joystick data and button data
@@ -317,6 +334,8 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                 for(int i = 0; i < gamepadComponents.length; i++) {
                    gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
                 }
+
+                axisData = gamepadUtil.getDirection(GamepadAxis.D_PAD).toString();
 
                 AbstractDataBlock actionData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
                 actionData.setStringValue(axisData);
