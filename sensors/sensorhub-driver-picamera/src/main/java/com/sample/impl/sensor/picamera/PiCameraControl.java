@@ -53,6 +53,8 @@ public class PiCameraControl extends AbstractSensorControl<PiCameraSensor> {
 
             angle = (angle <= MIN_TILT_ANGLE) ? MIN_TILT_ANGLE : Math.min(angle, MAX_TILT_ANGLE);
 
+            parentSensor.currentAngle = angle;
+
             parentSensor.tilt(angle);
 
         } catch (Exception e) {
@@ -81,7 +83,7 @@ public class PiCameraControl extends AbstractSensorControl<PiCameraSensor> {
                                 .description("Control the angle of tilt for camera servo motor")
                                 .addAllowedInterval(MIN_TILT_ANGLE, MAX_TILT_ANGLE)
                                 .uomCode("deg")
-                                .value(0.0)
+                                .value(parentSensor.currentAngle)
                                 .build())
                 .build();
 

@@ -13,24 +13,19 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.picamera;
 
+import com.alexalmanza.GamepadAxis;
+import com.alexalmanza.GamepadDirection;
+import com.alexalmanza.observer.GamepadObserver;
+import com.alexalmanza.GamepadUtil;
+import com.alexalmanza.observer.GamepadListener;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
-import com.pi4j.context.ContextConfig;
-import com.pi4j.context.ContextProperties;
-import com.pi4j.event.InitializedListener;
-import com.pi4j.event.ShutdownListener;
-import com.pi4j.exception.ShutdownException;
-import com.pi4j.io.pwm.Pwm;
 import com.pi4j.library.pigpio.PiGpio;
-import com.pi4j.platform.Platforms;
 import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalInputProvider;
-import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalOutputProvider;
 import com.pi4j.plugin.pigpio.provider.pwm.PiGpioPwmProvider;
 import com.pi4j.plugin.raspberrypi.platform.RaspberryPiPlatform;
-import com.pi4j.provider.Providers;
-import com.pi4j.registry.Registry;
-import com.sample.impl.sensor.picamera.helpers.PIN;
 import com.sample.impl.sensor.picamera.helpers.ServoMotor;
+import net.java.games.input.Component;
 import net.opengis.sensorml.v20.PhysicalSystem;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
@@ -53,6 +48,9 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
     Context pi4j;
     ServoMotor servoMotor;
     PiCameraOutput output;
+    GamepadUtil gamepadUtil;
+    GamepadObserver gamepadObserver;
+    float currentAngle = 0.0f;
 
     @Override
     protected void updateSensorDescription() {
@@ -88,6 +86,17 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         // Generate identifiers
         generateUniqueID("urn:osh:sensor:", config.serialNumber);
         generateXmlID("PI_CAMERA", config.serialNumber);
+
+        gamepadUtil = new GamepadUtil();
+        gamepadObserver = GamepadObserver.getInstance();
+        GamepadListener tiltListener = (identifier, currentValue) -> {
+            if(gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.UP) {
+                tilt(currentAngle++);
+            } else if(gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.DOWN) {
+                tilt(currentAngle--);
+            }
+        };
+        gamepadObserver.addListener(tiltListener, Component.Identifier.Axis.POV);
 
         // Create and initialize output
         output = new PiCameraOutput(this);
@@ -136,7 +145,9 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         if (null != output) {
 
             // Allocate necessary resources and start outputs
+            gamepadObserver.doStart();
             output.doStart();
+            tilt(currentAngle);
         }
 
     }
