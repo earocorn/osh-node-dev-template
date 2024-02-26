@@ -13,6 +13,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
+import com.alexalmanza.GamepadInit;
 import com.alexalmanza.GamepadUtil;
 import com.alexalmanza.model.GamepadAxis;
 import com.alexalmanza.model.Sensitivity;
@@ -87,7 +88,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      */
     void doInit() throws SensorException {
         event = new Event();
-
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
         System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
@@ -115,6 +115,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         // Instantiate the observer in the gamepad output setup
         eventObserver = GamepadObserver.getInstance();
+        eventObserver.setEvent(event);
         // Two listeners defined with the only method being logging their component's name and data which is the float value
         GamepadListener aButtonEvent = (identifier, value) -> logger.info(identifier + " = " + event.getComponent().getPollData());
         GamepadListener axisEvent = (identifier, value) -> {
@@ -223,6 +224,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         logger.info("Starting worker thread: {}", worker.getName());
 
         eventObserver.doStart();
+        logger.debug("Event Observer running? " + eventObserver.isRunning());
 
         // Start the worker thread
         worker.start();
@@ -335,7 +337,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                    gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
                 }
 
-                axisData = gamepadUtil.getDirection(GamepadAxis.D_PAD).toString();
+                axisData = gamepadUtil.getDirection(GamepadAxis.RIGHT_JOYSTICK).toString();
 
                 AbstractDataBlock actionData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
                 actionData.setStringValue(axisData);

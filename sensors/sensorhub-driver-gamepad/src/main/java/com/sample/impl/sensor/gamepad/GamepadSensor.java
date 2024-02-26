@@ -13,11 +13,7 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
-import com.alexalmanza.GamepadInit;
-import com.alexalmanza.GamepadObserver;
-import com.alexalmanza.observer.GamepadListener;
 import com.alexalmanza.observer.GamepadObserver;
-import net.java.games.input.Component;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
