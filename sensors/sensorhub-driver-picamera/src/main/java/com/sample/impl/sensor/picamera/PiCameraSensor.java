@@ -13,8 +13,8 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.picamera;
 
-import com.alexalmanza.GamepadAxis;
-import com.alexalmanza.GamepadDirection;
+import com.alexalmanza.model.GamepadAxis;
+import com.alexalmanza.model.GamepadDirection;
 import com.alexalmanza.observer.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
 import com.alexalmanza.observer.GamepadListener;

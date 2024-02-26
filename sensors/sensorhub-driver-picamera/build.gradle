@@ -10,6 +10,8 @@ dependencies {
     implementation 'com.pi4j:pi4j-plugin-pigpio:2.0'
     implementation 'com.pi4j:pi4j-plugin-raspberrypi:2.0'
     implementation 'org.bytedeco:javacv-platform:1.5.3'
+    implementation 'net.java.jinput:jinput:2.0.10'
+    implementation files("libs/controllerlibrary1.jar")
     testImplementation('junit:junit:4.13.1')
 }
 

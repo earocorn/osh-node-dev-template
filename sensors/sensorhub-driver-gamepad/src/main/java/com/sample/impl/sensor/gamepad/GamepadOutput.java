@@ -13,8 +13,9 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.gamepad;
 
-import com.alexalmanza.GamepadListener;
-import com.alexalmanza.GamepadObserver;
+import com.alexalmanza.model.GamepadAxis;
+import com.alexalmanza.observer.GamepadListener;
+import com.alexalmanza.observer.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
 import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
 import net.java.games.input.Component;
@@ -101,7 +102,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         // Get an instance of SWE Factory suitable to build components
         GamepadHelper sweFactory = new GamepadHelper();
 
-        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepad);
+        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepadUtil.getGamepad());
 
         dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
@@ -110,15 +111,20 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         // Instantiate the observer in the gamepad output setup
         eventObserver = GamepadObserver.getInstance();
+        eventObserver.setEvent(event);
 
         // Two listeners defined with the only method being logging their component's name and data which is the float value
         GamepadListener aButtonEvent = (identifier, value) -> axisData = (identifier + " = " + event.getComponent().getPollData());
-        GamepadListener axisEvent = (identifier, value) -> logger.info(identifier + " = " + event.getComponent().getPollData());
+        GamepadListener axisEvent = (identifier, value) -> logger.info(identifier + " = " + gamepadUtil.getDirection(GamepadAxis.LEFT_JOYSTICK));
+        GamepadListener povEvent = (identifier, value) -> logger.info(identifier + " = " + gamepadUtil.getDirection(GamepadAxis.D_PAD));
+        GamepadListener zEvent = (identifier, value) -> logger.info(identifier+ " = " + gamepadUtil.getComponentValue(identifier) + "\nTrigger Left, Right: " + gamepadUtil.getTriggerPressure(true) + ", " + gamepadUtil.getTriggerPressure(false));
 
         // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
         eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
         // POV is the Identifier for the D-Pad component
-        eventObserver.addListener(axisEvent, Component.Identifier.Axis.POV);
+        eventObserver.addListener(axisEvent, Component.Identifier.Axis.X);
+        eventObserver.addListener(povEvent, Component.Identifier.Axis.POV);
+        eventObserver.addListener(zEvent, Component.Identifier.Axis.Z);
 
         for(Component component : gamepadComponents) {
            logger.info(component.getIdentifier() + " deadzone: " + component.getDeadZone());
@@ -198,6 +204,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      */
     public void doStart() {
 
+        eventObserver.doStart();
         // Instantiate a new worker thread
         worker = new Thread(this, this.name);
 
@@ -300,8 +307,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                     // Poll the game controller for any updates
                     gamepad.poll();
                 }
-
-                eventObserver.listen();
 
                 dataBlock.setDoubleValue(0, timestamp);
 
