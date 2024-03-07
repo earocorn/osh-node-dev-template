@@ -226,6 +226,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
             stopProcessing = true;
         }
 
+        eventObserver.doStop();
         // TODO: Perform other shutdown procedures
     }
 
