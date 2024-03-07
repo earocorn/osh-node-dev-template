@@ -26,6 +26,7 @@ import com.pi4j.plugin.pigpio.provider.pwm.PiGpioPwmProvider;
 import com.pi4j.plugin.raspberrypi.platform.RaspberryPiPlatform;
 import com.sample.impl.sensor.picamera.helpers.ServoMotor;
 import net.java.games.input.Component;
+import net.java.games.input.Event;
 import net.opengis.sensorml.v20.PhysicalSystem;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
@@ -86,9 +87,11 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         // Generate identifiers
         generateUniqueID("urn:osh:sensor:", config.serialNumber);
         generateXmlID("PI_CAMERA", config.serialNumber);
-
+        
+        Event event = new Event();
         gamepadUtil = new GamepadUtil();
         gamepadObserver = GamepadObserver.getInstance();
+        gamepadObserver.setEvent(event);
         GamepadListener tiltListener = (identifier, currentValue) -> {
             if(gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.UP) {
                 tilt(currentAngle++);
@@ -97,6 +100,8 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
             }
         };
         gamepadObserver.addListener(tiltListener, Component.Identifier.Axis.POV);
+
+        gamepadObserver.doStart();
 
         // Create and initialize output
         output = new PiCameraOutput(this);
@@ -145,7 +150,6 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         if (null != output) {
 
             // Allocate necessary resources and start outputs
-            gamepadObserver.doStart();
             output.doStart();
             tilt(currentAngle);
         }
