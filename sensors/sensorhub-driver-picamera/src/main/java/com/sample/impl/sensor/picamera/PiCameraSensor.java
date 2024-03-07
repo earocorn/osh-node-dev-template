@@ -51,6 +51,7 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
     PiCameraOutput output;
     GamepadUtil gamepadUtil;
     GamepadObserver gamepadObserver;
+    boolean tilting = false;
     float currentAngle = 0.0f;
 
     @Override
@@ -93,13 +94,27 @@ public class PiCameraSensor extends AbstractSensorModule<PiCameraConfig> {
         gamepadObserver = GamepadObserver.getInstance();
         gamepadObserver.setEvent(event);
         GamepadListener tiltListener = (identifier, currentValue) -> {
-            if(gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.UP) {
-                tilt(currentAngle++);
-            } else if(gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.DOWN) {
-                tilt(currentAngle--);
+            if (gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.UP) {
+                currentAngle += 10f;
+                currentAngle = Math.min(currentAngle, 120f);
+                tilt(currentAngle);
+            } else if (gamepadUtil.getDirection(GamepadAxis.D_PAD) == GamepadDirection.DOWN) {
+                currentAngle -= 10f;
+                currentAngle = Math.max(currentAngle, 0f);
+                tilt(currentAngle);
             }
         };
+        GamepadListener resetTilt = (identifier, currentValue) -> {
+            currentAngle = 0.0f;
+            tilt(currentAngle);
+        };
+        GamepadListener maximizeTilt = (identifier, currentValue) -> {
+            currentAngle = 120.0f;
+            tilt(currentAngle);
+        };
         gamepadObserver.addListener(tiltListener, Component.Identifier.Axis.POV);
+        gamepadObserver.addListener(resetTilt, Component.Identifier.Button.A);
+        gamepadObserver.addListener(maximizeTilt, Component.Identifier.Button.Y);
 
         gamepadObserver.doStart();
 
