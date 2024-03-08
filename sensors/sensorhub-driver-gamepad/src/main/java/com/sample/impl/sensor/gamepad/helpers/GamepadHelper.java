@@ -39,9 +39,6 @@ public class GamepadHelper extends SWEHelper {
                 .label("Gamepad Data")
                 .description("Output data from game controller");
 
-        recordBuilder.addField("action", this.createText()
-                .label("Event Action"));
-
         dataRecord = recordBuilder.build();
 
         return dataRecord;
