@@ -1,4 +1,4 @@
-package com.sample.impl.sensor.gamepad.helpers;
+package com.sample.impl.sensor.controller.helpers;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -9,7 +9,7 @@ import org.vast.swe.SWEHelper;
 public class GamepadHelper extends SWEHelper {
 
     /**
-     * Creates a new DataRecprd object that is based on a controller's input components.
+     * Creates a new DataRecord object that is based on a controller's input components.
      *
      * @param controller
      * @return a data structure based on the controller components

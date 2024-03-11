@@ -1,21 +1,20 @@
-description = 'Gamepad Driver'
-ext.details = "Driver to be able to read inputs from a gamepad device such as from a PS2 or Xbox controller."
+description = 'Pi Camera Driver'
+ext.details = "Pi Camera output and servo control"
 version = '1.0.0'
 
 dependencies {
     implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
-//    implementation project(':sensorhub-service-video')
-//    implementation project(':sensorhub-driver-videocam')
+    implementation project(':sensorhub-service-video')
+    implementation project(':sensorhub-driver-videocam')
+    implementation 'com.pi4j:pi4j-core:2.0'
+    implementation 'com.pi4j:pi4j-plugin-pigpio:2.0'
+    implementation 'com.pi4j:pi4j-plugin-raspberrypi:2.0'
+    implementation 'org.bytedeco:javacv-platform:1.5.3'
+    // JInput and controller library
     implementation 'net.java.jinput:jinput:2.0.10'
     embeddedImpl fileTree(dir: 'lib', include: ['*.jar'])
-    testImplementation('junit:junit:4.13.1')
-}
 
-def thisProjectDir = projectDir
-rootProject.allprojects {
-    repositories {
-        mavenCentral()
-    }
+    testImplementation('junit:junit:4.13.1')
 }
 
 // exclude tests requiring connection to the sensor
@@ -30,7 +29,7 @@ test {
 osgi {
     manifest {
         attributes ('Bundle-Vendor': 'Botts Inc')
-        attributes ('Bundle-Activator': 'com.sample.impl.sensor.gamepad.Activator')
+        attributes ('Bundle-Activator': 'com.sample.impl.sensor.picamera.Activator')
     }
 }
 

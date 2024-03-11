@@ -6,6 +6,9 @@ dependencies {
     implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
 //    implementation project(':sensorhub-service-video')
 //    implementation project(':sensorhub-driver-videocam')
+    implementation 'net.sf.bluecove:bluecove:2.1.0'
+    implementation 'net.sf.bluecove:bluecove-gpl:2.1.0'
+    implementation 'commons-logging:commons-logging:1.1.1'
     implementation 'net.java.jinput:jinput:2.0.10'
     embeddedImpl fileTree(dir: 'lib', include: ['*.jar'])
     testImplementation('junit:junit:4.13.1')
@@ -42,6 +45,12 @@ ext.pom >>= {
             name 'Alex Almanza'
             organization 'Botts Innovative Research'
             organizationUrl 'https://botts-inc.com'
+        }
+        developer {
+            id 'KalynStricklin'
+            name 'KalynStricklin'
+            organization 'Botts Inc'
+            organizationUrl ''
         }
     }
 }

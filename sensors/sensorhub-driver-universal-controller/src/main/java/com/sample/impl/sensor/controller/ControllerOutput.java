@@ -11,16 +11,12 @@
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
 
  ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.controller;
 
 import com.alexalmanza.model.GamepadAxis;
 import com.alexalmanza.observer.GamepadListener;
 import com.alexalmanza.observer.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
-import com.alexalmanza.model.GamepadAxis;
-import com.alexalmanza.model.Sensitivity;
-import com.alexalmanza.observer.GamepadListener;
-import com.alexalmanza.observer.GamepadObserver;
 import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -45,11 +41,11 @@ import java.io.File;
  * @author your_name
  * @since date
  */
-public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implements Runnable {
+public class ControllerOutput extends AbstractSensorOutput<ControllerSensor> implements Runnable {
 
-    private static final String SENSOR_OUTPUT_NAME = "GamepadOutput";
-    private static final String SENSOR_OUTPUT_LABEL = "Gamepad";
-    private static final String SENSOR_OUTPUT_DESCRIPTION = "Current gamepad output.";
+    private static final String SENSOR_OUTPUT_NAME = "ControllerOutput";
+    private static final String SENSOR_OUTPUT_LABEL = "Controller";
+    private static final String SENSOR_OUTPUT_DESCRIPTION = "Current controller output.";
 
     private static final Logger logger = LoggerFactory.getLogger(GamepadOutput.class);
 
@@ -77,11 +73,11 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      *
      * @param parentSensor Sensor driver providing this output
      */
-    GamepadOutput(GamepadSensor parentSensor) {
+    ControllerOutput(ControllerSensor parentSensor) {
 
         super(SENSOR_OUTPUT_NAME, parentSensor);
 
-        logger.debug("GamepadOutput created");
+        logger.debug("ControllerOutput created");
     }
 
     /**
@@ -90,6 +86,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      */
     void doInit() throws SensorException {
         event = new Event();
+
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
         System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
@@ -100,7 +97,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         // Sample setup from https://jinput.github.io/jinput/
 
         gamepadUtil = new GamepadUtil();
-        gamepad = gamepadUtil.getGamepad();
         gamepadComponents = gamepadUtil.getGamepadComponents();
 
         // Get an instance of SWE Factory suitable to build components
@@ -112,8 +108,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
 
         axisData = "";
-
-        gamepadUtil.setSensitivity(GamepadAxis.LEFT_JOYSTICK, Sensitivity.HIGH);
 
         // Instantiate the observer in the gamepad output setup
         eventObserver = GamepadObserver.getInstance();
@@ -202,7 +196,7 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
 
-        logger.debug("Initializing GamepadOutput Complete");
+        logger.debug("Initializing ControllerOutput Complete");
     }
 
     /**
@@ -217,9 +211,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
         // TODO: Perform other startup
 
         logger.info("Starting worker thread: {}", worker.getName());
-
-        eventObserver.doStart();
-        logger.debug("Event Observer running? " + eventObserver.isRunning());
 
         // Start the worker thread
         worker.start();
@@ -330,8 +321,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                 for(int i = 0; i < gamepadComponents.length; i++) {
                    gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
                 }
-
-                axisData = gamepadUtil.getDirection(GamepadAxis.RIGHT_JOYSTICK).toString();
 
                 AbstractDataBlock actionData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
                 actionData.setStringValue(axisData);
