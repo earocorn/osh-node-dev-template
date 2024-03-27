@@ -1,6 +1,7 @@
 package org.sensorhub.process.gamepadptz;
 
 import net.opengis.swe.v20.DataBlock;
+import net.opengis.swe.v20.DataComponent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sensorhub.api.data.IStreamingDataInterface;
@@ -9,6 +10,7 @@ import org.sensorhub.impl.SensorHub;
 import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.processing.SMLProcessConfig;
 import org.sensorhub.impl.processing.SMLProcessImpl;
+import org.vast.sensorML.AggregateProcessImpl;
 import org.vast.sensorML.SMLUtils;
 import org.vast.sensorML.SimpleProcessImpl;
 
@@ -63,10 +65,16 @@ public class TestGamepadPtzProcess {
         GamepadPtz p = new GamepadPtz();
         p.init();
 
+        SMLUtils smlHelper = new SMLUtils(SMLUtils.V2_0);
+
+        SimpleProcessImpl simple = new SimpleProcessImpl();
+        simple.setExecutableImpl(p);
+
         // serialize
-        SimpleProcessImpl wp = new SimpleProcessImpl();
-        wp.setExecutableImpl(p);
-        new SMLUtils(SMLUtils.V2_0).writeProcess(System.out, wp, true);
+        AggregateProcessImpl wp = new AggregateProcessImpl();
+        wp.addOutput(p.getOutputList().get(0).getLabel(), (DataComponent) p.getOutputList().get(0));
+
+        smlHelper.writeProcess(System.out, wp, true);
 
         p.execute();
     }
