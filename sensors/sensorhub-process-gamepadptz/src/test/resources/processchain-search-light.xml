@@ -1,0 +1,104 @@
+<sml:AggregateProcess xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sml="http://www.opengis.net/sensorml/2.0" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" gml:id="CHAIN1">
+    <gml:identifier codeSpace="uid">0c58ed65-e63d-4d1e-9ef0-b7db0be3685c</gml:identifier>
+    <sml:outputs>
+        <sml:OutputList>
+            <sml:output name="Searchlight Pi-Bot">
+                <swe:elementType>
+                    <swe:DataRecord definition="http://sensorml.com/ont/swe/property/SearchlighSensor">
+                        <swe:label>Searchlight</swe:label>
+                        <swe:description>Processed colors for Pi-bot Search Light</swe:description>
+                        <swe:field name="time">
+                            <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime"
+                                      referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                <swe:label>Sampling Time</swe:label>
+                                <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                            </swe:Time>
+                        </swe:field>
+
+                        <swe:field name="color">
+                            <swe:label>RGB Color</swe:label>
+                            <swe:DataArray definition="http://sensorml.com/ont/swe/property/Color">
+                                <swe:elementType name="rgb color">
+                                    <swe:category
+                                            definition="http://sensorml.com/ont/swe/property/RedChannel http://sensorml.com/ont/swe/property/GreenChannel http://sensorml.com/ont/swe/property/BlueChannel">
+                                        <swe:contraint>
+                                            <swe:AllowedTokens>
+                                                <swe:value>OFF</swe:value>
+                                                <swe:value>WHITE</swe:value>
+                                                <swe:value>RED</swe:value>
+                                                <swe:value>CYAN</swe:value>
+                                                <swe:value>MAGENTA</swe:value>
+                                                <swe:value>BLUE</swe:value>
+                                                <swe:value>CYAN</swe:value>
+                                                <swe:value>GREEN</swe:value>
+                                                <swe:value>YELLOW</swe:value>
+                                                <swe:value>UNKNOWN</swe:value>
+                                            </swe:AllowedTokens>
+                                        </swe:contraint>
+                                    </swe:category>
+
+                                </swe:elementType>
+                            </swe:DataArray>
+                        </swe:field>
+
+                    </swe:DataRecord>
+                </swe:elementType>
+                <swe:encoding>
+                    <swe:BinaryEncoding byteOrder="bigEndian" byteEncoding="raw">
+                        <swe:member>
+                            <swe:Component ref="/time" dataType="http://www.opengis.net/def/dataType/OGC/0/double"/>
+                        </swe:member>
+                        <swe:member>
+                            <swe:Component ref="/color"
+                                           dataType="https://defs.opengis.net/vocprez/object?uri=http%3A//www.opengis.net/def/dataType/OGC/0/unsignedByte"/>
+                        </swe:member>
+
+                    </swe:BinaryEncoding>
+                </swe:encoding>
+            </sml:output>
+        </sml:OutputList>
+    </sml:outputs>
+
+    <sml:components>
+        <sml:ComponentList>
+            <sml:component name="source0">
+                <sml:SimpleProcess gml:id="P1">
+                    <sml:typeOf xlink:href="urn:osh:process:datasource:stream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="outputs/button/buttonOne">false</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="decoder">
+                <sml:SimpleProcess gml:id="P2">
+                    <sml:typeOf xlink:href="urn:osh:process:pi-bot:searchlight"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="inputs/searchlight/color">OFF</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+        </sml:ComponentList>
+    </sml:components>
+
+    <sml:connections>
+        <sml:ConnectionList>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/source0/outputs/button/buttonOne"/>
+                    <sml:destination ref="components/decoder/inputs/searchlight/color"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/source0/outputs/button/time"/>
+                    <sml:destination ref="components/decoder/inputs/searchlight/time"/>
+                </sml:Link>
+            </sml:connection>
+        </sml:ConnectionList>
+    </sml:connections>
+
+</sml:AggregateProcess>
