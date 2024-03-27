@@ -52,6 +52,9 @@ project(':sensorhub-driver-axis').projectDir = "$sensorDir/video/sensorhub-drive
 include 'sensorhub-driver-rtpcam'
 project(':sensorhub-driver-rtpcam').projectDir = "$sensorDir/video/sensorhub-driver-rtpcam" as File
 
+include 'sensorhub-process-vecmath'
+project(':sensorhub-process-vecmath').projectDir = "$processDir/sensorhub-process-vecmath" as File
+
 // Project modules
 
 // Include all folders with build.gradle as subprojects
