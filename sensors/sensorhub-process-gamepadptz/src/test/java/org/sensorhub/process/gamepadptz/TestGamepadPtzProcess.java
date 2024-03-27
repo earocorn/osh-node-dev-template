@@ -1,5 +1,8 @@
 package org.sensorhub.process.gamepadptz;
 
+import net.opengis.gml.v32.Reference;
+import net.opengis.sensorml.v20.FeatureList;
+import net.opengis.sensorml.v20.Link;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import org.junit.Assert;
@@ -72,7 +75,12 @@ public class TestGamepadPtzProcess {
 
         // serialize
         AggregateProcessImpl wp = new AggregateProcessImpl();
-        wp.addOutput(p.getOutputList().get(0).getLabel(), (DataComponent) p.getOutputList().get(0));
+
+        // set type
+        wp.setTypeOf(simple.getTypeOf());
+        // set inputs and outputs
+        wp.addOutput("ptz", p.getOutputList().getComponent(0));
+        wp.addInput("pov", p.getInputList().getComponent(0));
 
         smlHelper.writeProcess(System.out, wp, true);
 
