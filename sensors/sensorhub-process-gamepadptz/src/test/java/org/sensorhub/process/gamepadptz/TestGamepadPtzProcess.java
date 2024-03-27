@@ -1,14 +1,20 @@
 package org.sensorhub.process.gamepadptz;
 
+import net.opengis.swe.v20.DataBlock;
 import org.junit.Assert;
+import org.junit.Test;
 import org.sensorhub.api.data.IStreamingDataInterface;
 import org.sensorhub.api.processing.IProcessModule;
 import org.sensorhub.impl.SensorHub;
 import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.processing.SMLProcessConfig;
 import org.sensorhub.impl.processing.SMLProcessImpl;
+import org.vast.sensorML.SMLUtils;
+import org.vast.sensorML.SimpleProcessImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestGamepadPtzProcess {
 
@@ -51,17 +57,18 @@ public class TestGamepadPtzProcess {
         return process;
     }
 
-
-    public static void main(String[] args) throws Exception
+    @Test
+    public void testGamepadPtzProcess() throws Exception
     {
-        // init sensorhub with in-memory config
-        var hub = new SensorHub();
-        hub.start();
-        registry = hub.getModuleRegistry();
+        GamepadPtz p = new GamepadPtz();
+        p.init();
 
-        String smlUrl = TestGamepadPtzProcess.class.getResource("processchain-gamepad-ptz.xml").getFile();
-        IProcessModule<?> process = createSMLProcess(smlUrl);
-        runProcess(process);
+        // serialize
+        SimpleProcessImpl wp = new SimpleProcessImpl();
+        wp.setExecutableImpl(p);
+        new SMLUtils(SMLUtils.V2_0).writeProcess(System.out, wp, true);
+
+        p.execute();
     }
 
 }

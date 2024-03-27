@@ -18,6 +18,9 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-webui-core:' + oshCoreVersion
   implementation 'org.sensorhub:sensorhub-service-consys:' + oshCoreVersion
   implementation 'org.sensorhub:sensorhub-service-sweapi:' + oshCoreVersion
+
+  implementation project(':sensorhub-process-vecmath')
+
   implementation project(':sensorhub-driver-simulation')
   implementation project(':sensorhub-driver-gamepad')
 
