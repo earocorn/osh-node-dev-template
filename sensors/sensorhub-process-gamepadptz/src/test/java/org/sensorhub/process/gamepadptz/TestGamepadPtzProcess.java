@@ -105,6 +105,7 @@ public class TestGamepadPtzProcess {
 
         link.setSource("components/gamepadsource/outputs/gamepadData/pov");
         link.setDestination("components/axiscam/outputs/ptz");
+
         wp.addConnection(link);
 
         smlHelper.writeProcess(System.out, wp, true);
