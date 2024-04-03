@@ -13,11 +13,15 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
-import com.alexalmanza.observer.GamepadObserver;
+import com.alexalmanza.interfaces.IController;
+import com.alexalmanza.util.FindControllers;
+import net.java.games.input.Event;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
@@ -27,8 +31,9 @@ import org.slf4j.LoggerFactory;
  */
 public class UniversalControllerSensor extends AbstractSensorModule<UniversalControllerConfig> {
 
-    private static final Logger logger = LoggerFactory.getLogger(GamepadSensor.class);
+    private static final Logger logger = LoggerFactory.getLogger(UniversalControllerSensor.class);
     UniversalControllerOutput output;
+    ArrayList<IController> allControllers = new ArrayList<>();
 
     @Override
     public void doInit() throws SensorHubException {
@@ -47,6 +52,15 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         output.doInit();
 
         // TODO: Perform other initialization
+
+        try {
+            FindControllers findControllers = new FindControllers(new Event());
+            if(!findControllers.getControllers().isEmpty()) {
+                allControllers = findControllers.getControllers();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Override

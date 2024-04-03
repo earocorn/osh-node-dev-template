@@ -13,15 +13,11 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
-import com.alexalmanza.model.GamepadAxis;
-import com.alexalmanza.observer.GamepadObserver;
-import com.alexalmanza.GamepadUtil;
-import com.alexalmanza.model.Sensitivity;
-import com.alexalmanza.observer.GamepadListener;
-import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
+import com.alexalmanza.interfaces.IController;
+import com.sample.impl.sensor.universalcontroller.helpers.GamepadHelper;
 import net.java.games.input.Component;
-import net.java.games.input.Controller;
 import net.java.games.input.Event;
+import net.opengis.sensorml.v20.IdentifierList;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
@@ -33,11 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.data.AbstractDataBlock;
 import org.vast.data.DataBlockMixed;
+import org.vast.swe.SWEBuilders;
+import org.vast.swe.SWEHelper;
 
 import java.io.File;
+import java.util.Map;
 
 /**
- * Output specification and provider for {@link GamepadSensor}.
+ * Output specification and provider for {@link UniversalControllerSensor}.
  *
  * @author your_name
  * @since date
@@ -48,7 +47,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private static final String SENSOR_OUTPUT_LABEL = "UniversalController";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Currently connected controller outputs.";
 
-    private static final Logger logger = LoggerFactory.getLogger(GamepadOutput.class);
+    private static final Logger logger = LoggerFactory.getLogger(UniversalControllerOutput.class);
 
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
@@ -62,8 +61,6 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private final Object histogramLock = new Object();
 
     private Thread worker;
-
-    private Event event;
 
     /**
      * Constructor
@@ -82,90 +79,58 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
      * and data types.
      */
     void doInit() throws SensorException {
-        event = new Event();
 
-        logger.info("Fetching resource...");
-        logger.info("java.library.path = " + System.getProperty("java.library.path"));
-        System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
-        logger.info("java.library.path = " + System.getProperty("java.library.path"));
-
-        logger.debug("Initializing GamepadOutput");
+        logger.debug("Initializing UniversalControllerOutput");
 
         // Get an instance of SWE Factory suitable to build components
-        GamepadHelper sweFactory = new GamepadHelper();
+//        GamepadHelper sweFactory = new GamepadHelper();
+//
+//        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepadUtil.getGamepad());
+//
+//        dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
+//        dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
 
-        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepadUtil.getGamepad());
+        SWEHelper sweFactory = new SWEHelper();
 
-        dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
-        dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
+        SWEBuilders.DataRecordBuilder recordBuilder;
+        DataRecord controllersRecord;
 
-//        dataStruct = sweFactory.createRecord()
-//                .name(SENSOR_OUTPUT_NAME)
-//                .label(SENSOR_OUTPUT_LABEL)
-//                .description(SENSOR_OUTPUT_DESCRIPTION)
-//                .addField("sampleTime", sweFactory.createTime()
-//                        .asSamplingTimeIsoUTC()
-//                        .label("Sample Time")
-//                        .description("Time of data collection"))
-//                .addField("gamepadData", sweFactory.createRecord()
-//                        .addField("joystick", sweFactory.createRecord()
-//                                .addField("y", sweFactory.createQuantity()
-//                                        //TODO .definition() NEED TO ADD DEFINITIONS and possibly unit of measurement???
-//                                        .label("Joystick Y-Axis"))
-//                                .addField("x", sweFactory.createQuantity()
-//                                        .label("Joystick X-Axis"))
-//                                .addField("ry", sweFactory.createQuantity()
-//                                        .label("Joystick Rotational Y"))
-//                                .addField("rx", sweFactory.createQuantity()
-//                                        .label("Joystick Rotational X"))
-//                                .addField("dpad", sweFactory.createQuantity()
-//                                        //TODO make it easier to get orientation possibly with up-down-left-right booleans
-//                                        .label("D-Pad Orientation")
-//                                        .addAllowedValues(0.0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1.0)
-//                                        .value(0.0))
-//                                .build())
-//                        .addField("buttons", sweFactory.createRecord()
-//                                .addField("a", sweFactory.createBoolean()
-//                                        .label("A-Button Selected")
-//                                        .value(false))
-//                                .addField("b", sweFactory.createBoolean()
-//                                        .label("B-Button Selected")
-//                                        .value(false))
-//                                .addField("x", sweFactory.createBoolean()
-//                                        .label("X-Button Selected")
-//                                        .value(false))
-//                                .addField("y", sweFactory.createBoolean()
-//                                        .label("Y-Button Selected")
-//                                        .value(false))
-//                                .addField("l1", sweFactory.createBoolean()
-//                                        .label("Left1 Trigger-Button Selected")
-//                                        .value(false))
-//                                .addField("r1", sweFactory.createBoolean()
-//                                        .label("Right1 Trigger-Button Selected")
-//                                        .value(false))
-//                                .addField("select", sweFactory.createBoolean()
-//                                        .label("Select-Button Selected")
-//                                        .value(false))
-//                                .addField("start", sweFactory.createBoolean()
-//                                        .label("Start-Button Selected")
-//                                        .value(false))
-//                                .addField("leftJoystick", sweFactory.createBoolean()
-//                                        .label("Left Joystick Button Selected")
-//                                        .value(false))
-//                                .addField("rightJoystick", sweFactory.createBoolean()
-//                                        .label("Right Joystick Button Selected")
-//                                        .value(false))
-//                                .addField("l2", sweFactory.createQuantity()
-//                                        .label("Left2 Trigger Pressure"))
-//                                .addField("r2", sweFactory.createQuantity()
-//                                        .label("Right2 Trigger Pressure"))
-//                                .build())
-//                    .label("Output data from gamepad"))
-//                .build();
+        recordBuilder = sweFactory.createRecord()
+                .name("controllers")
+                .label("Gamepads")
+                .description("List of connected gamepads.");
+
+        for(IController controller : parentSensor.allControllers) {
+            SWEBuilders.DataRecordBuilder controllerRecord = sweFactory.createRecord()
+                    // TODO: better identification
+                    .name(controller.getControllerData().getName())
+                    .description("Auto-populated gamepad data");
+
+            for (String entry : controller.getControllerData().getOutputs().keySet()) {
+                controllerRecord.addField(entry, sweFactory.createQuantity()
+                        .value(controller.getControllerData().getOutputs().get(entry))
+                        .addAllowedInterval(-1.0f, 1.0f));
+                controllerRecord.build();
+            }
+            recordBuilder.addAllFields(controllerRecord);
+        }
+
+        controllersRecord = recordBuilder.build();
+
+        dataStruct = sweFactory.createRecord()
+                .name(SENSOR_OUTPUT_NAME)
+                .label(SENSOR_OUTPUT_LABEL)
+                .description(SENSOR_OUTPUT_DESCRIPTION)
+                .addField("sampleTime", sweFactory.createTime()
+                        .asSamplingTimeIsoUTC()
+                        .label("Sample Time")
+                        .description("Time of data collection"))
+                .addAllFields(controllersRecord)
+                .build();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
 
-        logger.debug("Initializing GamepadOutput Complete");
+        logger.debug("Initializing UniversalControllerOutput Complete");
     }
 
     /**
@@ -173,16 +138,12 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
      */
     public void doStart() {
 
-        eventObserver.doStart();
         // Instantiate a new worker thread
         worker = new Thread(this, this.name);
 
         // TODO: Perform other startup
 
         logger.info("Starting worker thread: {}", worker.getName());
-
-        eventObserver.doStart();
-        logger.debug("Event Observer running? " + eventObserver.isRunning());
 
         // Start the worker thread
         worker.start();
@@ -198,7 +159,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             stopProcessing = true;
         }
 
-        eventObserver.doStop();
+        // stop all controller observers and disconnect all controllers
+        for(IController controller : parentSensor.allControllers) {
+            controller.getObserver().doStop();
+            controller.disconnect();
+        }
         // TODO: Perform other shutdown procedures
     }
 
@@ -279,20 +244,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 dataBlock.setDoubleValue(0, timestamp);
 
                 // Collective gamepad data, which is separated into 2 parts, joystick data and button data
-                AbstractDataBlock gamepadData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[1];
+                AbstractDataBlock gamepadsData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[1];
 
-                if(gamepadUtil != null) {
-                    gamepadUtil.pollGamepad();
+                for(AbstractDataBlock controllerData : ((DataBlockMixed) gamepadsData).getUnderlyingObject()) {
+                    //controllerData
                 }
-
-                for(int i = 0; i < gamepadComponents.length; i++) {
-                   gamepadData.setDoubleValue(i, gamepadComponents[i].getPollData());
-                }
-
-                axisData = gamepadUtil.getDirection(GamepadAxis.RIGHT_JOYSTICK).toString();
-
-                AbstractDataBlock actionData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
-                actionData.setStringValue(axisData);
 
 //                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
 //                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
@@ -323,7 +279,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 latestRecordTime = System.currentTimeMillis();
 
-                eventHandler.publish(new DataEvent(latestRecordTime, GamepadOutput.this, dataBlock));
+                eventHandler.publish(new DataEvent(latestRecordTime, UniversalControllerOutput.this, dataBlock));
 
                 synchronized (processingLock) {
 
