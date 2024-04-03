@@ -11,7 +11,7 @@
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
 
  ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.universalcontroller;
 
 import com.alexalmanza.observer.GamepadObserver;
 import org.sensorhub.api.common.SensorHubException;
@@ -25,11 +25,10 @@ import org.slf4j.LoggerFactory;
  * @author your_name
  * @since date
  */
-public class GamepadSensor extends AbstractSensorModule<GamepadConfig> {
+public class UniversalControllerSensor extends AbstractSensorModule<UniversalControllerConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(GamepadSensor.class);
-    GamepadOutput output;
-    GamepadObserver observer;
+    UniversalControllerOutput output;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -38,16 +37,14 @@ public class GamepadSensor extends AbstractSensorModule<GamepadConfig> {
 
         // Generate identifiers
         generateUniqueID("urn:osh:sensor:", config.serialNumber);
-        generateXmlID("GAMEPAD", config.serialNumber);
+        generateXmlID("UNIVERSAL_CONTROLLER", config.serialNumber);
 
         // Create and initialize output
-        output = new GamepadOutput(this);
+        output = new UniversalControllerOutput(this);
 
         addOutput(output, false);
 
         output.doInit();
-
-        observer = GamepadObserver.getInstance();
 
         // TODO: Perform other initialization
     }

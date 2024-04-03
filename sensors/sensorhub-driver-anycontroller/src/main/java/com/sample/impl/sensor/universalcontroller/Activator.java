@@ -1,4 +1,4 @@
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.anycontroller;
 
 import org.sensorhub.utils.OshBundleActivator;
 

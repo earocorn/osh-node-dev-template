@@ -11,7 +11,7 @@
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
 
 ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.universalcontroller;
 
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
@@ -31,12 +31,12 @@ import org.sensorhub.api.sensor.SensorConfig;
  * @author your_name
  * @since date
  */
-public class GamepadConfig extends SensorConfig {
+public class UniversalControllerConfig extends SensorConfig {
 
     /**
      * The unique identifier for the configured sensor (or sensor platform).
      */
     @DisplayInfo.Required
     @DisplayInfo(desc = "Serial number or unique identifier")
-    public String serialNumber = "gamepad001";
+    public String serialNumber = "universalcontroller";
 }

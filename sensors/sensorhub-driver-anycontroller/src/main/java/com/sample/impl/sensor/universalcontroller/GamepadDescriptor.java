@@ -11,7 +11,7 @@
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
 
  ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.universalcontroller;
 
 import org.sensorhub.api.module.IModule;
 import org.sensorhub.api.module.IModuleProvider;
@@ -24,7 +24,7 @@ import org.sensorhub.impl.module.JarModuleProvider;
  * @author your_name
  * @since date
  */
-public class GamepadDescriptor extends JarModuleProvider implements IModuleProvider {
+public class UniversalControllerDescriptor extends JarModuleProvider implements IModuleProvider {
 
     /**
      * Retrieves the class implementing the OpenSensorHub interface necessary to
@@ -34,7 +34,7 @@ public class GamepadDescriptor extends JarModuleProvider implements IModuleProvi
      */
     public Class<? extends IModule<?>> getModuleClass() {
 
-        return GamepadSensor.class;
+        return UniversalControllerSensor.class;
     }
 
     /**
@@ -44,6 +44,6 @@ public class GamepadDescriptor extends JarModuleProvider implements IModuleProvi
      */
     public Class<? extends ModuleConfig> getModuleConfigClass() {
 
-        return GamepadConfig.class;
+        return UniversalControllerConfig.class;
     }
 }

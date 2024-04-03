@@ -11,16 +11,13 @@
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
 
  ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.gamepad;
+package com.sample.impl.sensor.universalcontroller;
 
 import com.alexalmanza.model.GamepadAxis;
-import com.alexalmanza.observer.GamepadListener;
 import com.alexalmanza.observer.GamepadObserver;
 import com.alexalmanza.GamepadUtil;
-import com.alexalmanza.model.GamepadAxis;
 import com.alexalmanza.model.Sensitivity;
 import com.alexalmanza.observer.GamepadListener;
-import com.alexalmanza.observer.GamepadObserver;
 import com.sample.impl.sensor.gamepad.helpers.GamepadHelper;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -45,11 +42,11 @@ import java.io.File;
  * @author your_name
  * @since date
  */
-public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implements Runnable {
+public class UniversalControllerOutput extends AbstractSensorOutput<UniversalControllerSensor> implements Runnable {
 
-    private static final String SENSOR_OUTPUT_NAME = "GamepadOutput";
-    private static final String SENSOR_OUTPUT_LABEL = "Gamepad";
-    private static final String SENSOR_OUTPUT_DESCRIPTION = "Current gamepad output.";
+    private static final String SENSOR_OUTPUT_NAME = "UniversalControllerOutput";
+    private static final String SENSOR_OUTPUT_LABEL = "UniversalController";
+    private static final String SENSOR_OUTPUT_DESCRIPTION = "Currently connected controller outputs.";
 
     private static final Logger logger = LoggerFactory.getLogger(GamepadOutput.class);
 
@@ -65,23 +62,19 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
     private final Object histogramLock = new Object();
 
     private Thread worker;
-    private Controller gamepad = null;
-    private Component[] gamepadComponents = null;
-    private GamepadUtil gamepadUtil = null;
+
     private Event event;
-    private GamepadObserver eventObserver;
-    private String axisData;
 
     /**
      * Constructor
      *
      * @param parentSensor Sensor driver providing this output
      */
-    GamepadOutput(GamepadSensor parentSensor) {
+    UniversalControllerOutput(UniversalControllerSensor parentSensor) {
 
         super(SENSOR_OUTPUT_NAME, parentSensor);
 
-        logger.debug("GamepadOutput created");
+        logger.debug("UniversalControllerOutput created");
     }
 
     /**
@@ -90,18 +83,13 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
      */
     void doInit() throws SensorException {
         event = new Event();
+
         logger.info("Fetching resource...");
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
         System.setProperty("java.library.path", new File("jiraw").getAbsolutePath());
         logger.info("java.library.path = " + System.getProperty("java.library.path"));
 
         logger.debug("Initializing GamepadOutput");
-
-        // Sample setup from https://jinput.github.io/jinput/
-
-        gamepadUtil = new GamepadUtil();
-        gamepad = gamepadUtil.getGamepad();
-        gamepadComponents = gamepadUtil.getGamepadComponents();
 
         // Get an instance of SWE Factory suitable to build components
         GamepadHelper sweFactory = new GamepadHelper();
@@ -110,31 +98,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
 
         dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
         dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
-
-        axisData = "";
-
-        gamepadUtil.setSensitivity(GamepadAxis.LEFT_JOYSTICK, Sensitivity.HIGH);
-
-        // Instantiate the observer in the gamepad output setup
-        eventObserver = GamepadObserver.getInstance();
-        eventObserver.setEvent(event);
-
-        // Two listeners defined with the only method being logging their component's name and data which is the float value
-        GamepadListener aButtonEvent = (identifier, value) -> axisData = (identifier + " = " + event.getComponent().getPollData());
-        GamepadListener axisEvent = (identifier, value) -> logger.info(identifier + " = " + gamepadUtil.getDirection(GamepadAxis.LEFT_JOYSTICK));
-        GamepadListener povEvent = (identifier, value) -> logger.info(identifier + " = " + gamepadUtil.getDirection(GamepadAxis.D_PAD));
-        GamepadListener zEvent = (identifier, value) -> logger.info(identifier+ " = " + gamepadUtil.getComponentValue(identifier) + "\nTrigger Left, Right: " + gamepadUtil.getTriggerPressure(true) + ", " + gamepadUtil.getTriggerPressure(false));
-
-        // Button 0 is usually the Identifier for the primary button on gamepad which is usually the A or X button
-        eventObserver.addListener(aButtonEvent, Component.Identifier.Button._0);
-        // POV is the Identifier for the D-Pad component
-        eventObserver.addListener(axisEvent, Component.Identifier.Axis.X);
-        eventObserver.addListener(povEvent, Component.Identifier.Axis.POV);
-        eventObserver.addListener(zEvent, Component.Identifier.Axis.Z);
-
-        for(Component component : gamepadComponents) {
-           logger.info(component.getIdentifier() + " deadzone: " + component.getDeadZone());
-        }
 
 //        dataStruct = sweFactory.createRecord()
 //                .name(SENSOR_OUTPUT_NAME)
@@ -312,11 +275,6 @@ public class GamepadOutput extends AbstractSensorOutput<GamepadSensor> implement
                 ++setCount;
 
                 double timestamp = System.currentTimeMillis() / 1000d;
-
-                if(gamepad != null) {
-                    // Poll the game controller for any updates
-                    gamepad.poll();
-                }
 
                 dataBlock.setDoubleValue(0, timestamp);
 

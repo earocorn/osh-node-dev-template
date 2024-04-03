@@ -1,4 +1,4 @@
-package com.sample.impl.sensor.gamepad.helpers;
+package com.sample.impl.sensor.universalcontroller.helpers;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
