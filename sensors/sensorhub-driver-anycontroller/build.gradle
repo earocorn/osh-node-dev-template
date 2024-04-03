@@ -1,11 +1,9 @@
-description = 'Gamepad Driver'
-ext.details = "Driver to be able to read inputs from a gamepad device such as from a PS2 or Xbox controller."
+description = 'Universal Controller Driver'
+ext.details = "Driver to be able to read inputs from a gamepad device such as from a PS2 or Xbox controller OR read from a Wii Remote."
 version = '1.0.0'
 
 dependencies {
     implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
-//    implementation project(':sensorhub-service-video')
-//    implementation project(':sensorhub-driver-videocam')
     implementation 'net.java.jinput:jinput:2.0.10'
     embeddedImpl fileTree(dir: 'lib', include: ['*.jar'])
     testImplementation('junit:junit:4.13.1')
