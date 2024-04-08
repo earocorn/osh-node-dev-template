@@ -22,7 +22,6 @@ dependencies {
   // implementation project(':PROJECT_NAME')
   //
   // EX:
-   implementation project(':sensorhub-driver-gamepad')
 //   implementation project(':sensorhub-driver-picamera')
    implementation project(':sensorhub-driver-simulation')
    implementation project(':sensorhub-driver-template')
