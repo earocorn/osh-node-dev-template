@@ -13,3 +13,4 @@
 /.moduledata/
 /data.dat
 include/osh-addons
+/sensors/satellite-tasking
