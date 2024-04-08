@@ -17,7 +17,7 @@ import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
 
 /**
- * Configuration settings for the {@link GamepadSensor} driver exposed via the OpenSensorHub Admin panel.
+ * Configuration settings for the {@link UniversalControllerSensor} driver exposed via the OpenSensorHub Admin panel.
  * <p>
  * Configuration settings take the form of
  * <code>
