@@ -34,8 +34,8 @@ project(':sensorhub-test').projectDir = "$toolsDir/sensorhub-test" as File
 //
 // Ex:
 //
-//include 'sensorhub-service-video'
-//project(':sensorhub-service-video').projectDir = "$serviceDir/sensorhub-service-video" as File
+include 'sensorhub-service-video'
+project(':sensorhub-service-video').projectDir = "$serviceDir/sensorhub-service-video" as File
 
 // osh-sensor-drivers
 //include '[driver-name]'
