@@ -13,8 +13,12 @@
 ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
+import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Configuration settings for the {@link UniversalControllerSensor} driver exposed via the OpenSensorHub Admin panel.
@@ -31,24 +35,9 @@ import org.sensorhub.api.sensor.SensorConfig;
  * @author your_name
  * @since date
  */
-public class UniversalControllerConfig extends SensorConfig {
+public class ControllerLayerConfig extends SensorConfig {
 
-    /**
-     * The unique identifier for the configured sensor (or sensor platform).
-     */
-    @DisplayInfo.Required
-    @DisplayInfo(desc = "Serial number or unique identifier")
-    public String serialNumber = "universalcontroller";
-
-    /**
-     * The index of the primary controller.
-     */
-    @DisplayInfo.Required
-    @DisplayInfo(desc = "Index of primary controller")
-    public int primaryControllerIndex = 0;
-
-    @DisplayInfo.Required
-    @DisplayInfo(desc = "Primary controller switching configuration")
-    public ControllerLayerConfig controllerLayerConfig = new ControllerLayerConfig();
+    @DisplayInfo(desc = "Controller mapping presets")
+    public List<ControllerMappingPreset> presets = new ArrayList<ControllerMappingPreset>();
 
 }

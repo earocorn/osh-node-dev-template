@@ -1,12 +1,15 @@
 package org.sensorhub.process.gamepadptz;
 
+import net.opengis.HrefResolver;
 import net.opengis.gml.v32.Reference;
+import net.opengis.gml.v32.impl.ReferenceImpl;
 import net.opengis.sensorml.v20.AbstractProcess;
 import net.opengis.sensorml.v20.FeatureList;
 import net.opengis.sensorml.v20.Link;
 import net.opengis.sensorml.v20.SimpleProcess;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
+import net.opengis.swe.v20.DataStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sensorhub.api.data.IStreamingDataInterface;
@@ -14,9 +17,7 @@ import org.sensorhub.api.processing.IProcessModule;
 import org.sensorhub.impl.SensorHub;
 import org.sensorhub.impl.module.ModuleClassFinder;
 import org.sensorhub.impl.module.ModuleRegistry;
-import org.sensorhub.impl.processing.ProcessingManagerImpl;
-import org.sensorhub.impl.processing.SMLProcessConfig;
-import org.sensorhub.impl.processing.SMLProcessImpl;
+import org.sensorhub.impl.processing.*;
 import org.vast.data.DataStreamImpl;
 import org.vast.sensorML.*;
 
@@ -79,34 +80,47 @@ public class TestGamepadPtzProcess {
 
         // serialize
         AggregateProcessImpl wp = new AggregateProcessImpl();
-        smlHelper.makeProcessExecutable(wp, false);
+        //smlHelper.makeProcessExecutable(wp, false);
+        //wp.setExecutableImpl(p);
         // set type
-        wp.setTypeOf(simple.getTypeOf());
         wp.setUniqueIdentifier(UUID.randomUUID().toString());
 
-        // components
+        // gamepad source
         SimpleProcess gamepadSource = new SimpleProcessImpl();
-        // gamepad source output uuid
-        gamepadSource.setUniqueIdentifier("urn:osh:sensor:gamepad001");
-
+        gamepadSource.setUniqueIdentifier("urn:osh:sensor:universalcontroller");
+        Reference sourceRef = new ReferenceImpl();
+        sourceRef.setHref("urn:osh:process:datasource:datastream");
+        gamepadSource.setTypeOf(sourceRef);
         wp.addComponent("gamepadsource", gamepadSource);
 
+        // process component
+        wp.addComponent("ptzprocess", simple);
+
+        // axiscam commandstream
+//        CommandStreamSink ptzDestination = new CommandStreamSink();
         SimpleProcess ptzDestination = new SimpleProcessImpl();
         ptzDestination.setUniqueIdentifier("urn:axis:cam:00408CA0FF1C");
-
+        Reference sinkRef = new ReferenceImpl();
+        sinkRef.setHref("urn:osh:process:datasink:commandstream");
+        ptzDestination.setTypeOf(sinkRef);
         wp.addComponent("axiscam", ptzDestination);
 
         // inputs and outputs
-        wp.addOutput("ptz", p.getOutputList().getComponent(0));
-        wp.addInput("pov", p.getInputList().getComponent(0));
+//        wp.addOutput("ptz", p.getOutputList().getComponent(0));
+//        wp.addInput("pov", p.getInputList().getComponent(0));
 
         // connections
-        LinkImpl link = new LinkImpl();
+        LinkImpl inputToProcess = new LinkImpl();
+        inputToProcess.setSource("components/gamepadsource/outputs/gamepads/gamepad0/pov");
+        inputToProcess.setDestination("components/ptzprocess/inputs/pov");
 
-        link.setSource("components/gamepadsource/outputs/gamepadData/pov");
-        link.setDestination("components/axiscam/outputs/ptz");
+        LinkImpl outputToCommand = new LinkImpl();
+        outputToCommand.setSource("components/ptzprocess/outputs/ptz");
+        outputToCommand.setDestination("components/axiscam/inputs/ptz");
 
-        wp.addConnection(link);
+        // add 2 connections
+        wp.addConnection(inputToProcess);
+        wp.addConnection(outputToCommand);
 
         smlHelper.writeProcess(System.out, wp, true);
 

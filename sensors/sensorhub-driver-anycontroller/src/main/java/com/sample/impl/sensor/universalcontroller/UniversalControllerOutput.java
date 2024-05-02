@@ -13,8 +13,10 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
+import com.alexalmanza.controller.wii.identifiers.WiiIdentifier;
 import com.alexalmanza.interfaces.IController;
 import com.alexalmanza.models.ControllerComponent;
+import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
@@ -90,14 +92,15 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         DataRecord controllersRecord;
 
         recordBuilder = sweFactory.createRecord()
-                .name("controllers")
+                .name("gamepads")
                 .label("Gamepads")
                 .description("List of connected gamepads.");
 
         for(IController controller : parentSensor.allControllers) {
             SWEBuilders.DataRecordBuilder controllerRecord = sweFactory.createRecord()
                     // TODO: better identification
-                    .name(controller.getControllerData().getName())
+                    .name("gamepad" + parentSensor.allControllers.indexOf(controller))
+                    .label(controller.getControllerData().getName())
                     .description("Auto-populated gamepad data");
 
             for (ControllerComponent component : controller.getControllerData().getOutputs()) {
@@ -248,6 +251,25 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 double timestamp = System.currentTimeMillis() / 1000d;
 
                 dataBlock.setDoubleValue(0, timestamp);
+
+
+                for (ControllerMappingPreset preset : parentSensor.getConfiguration().controllerLayerConfig.presets) {
+                    IController controller = parentSensor.allControllers.get(preset.controllerIndex);
+                    WiiIdentifier component = preset.component;
+
+                    if (preset.cyclesPrimaryController) {
+                        for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
+                            if (controllerComponent.getName().equals(component.getName())) {
+                                if (controllerComponent.getValue() == 1.0f) {
+                                    parentSensor.getConfiguration().primaryControllerIndex++;
+                                    if (parentSensor.getConfiguration().primaryControllerIndex >= parentSensor.allControllers.size()) {
+                                        parentSensor.getConfiguration().primaryControllerIndex = 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 dataBlock.setIntValue(1, parentSensor.getConfiguration().primaryControllerIndex);
 
