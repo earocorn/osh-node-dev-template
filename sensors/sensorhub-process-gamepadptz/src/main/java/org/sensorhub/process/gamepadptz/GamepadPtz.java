@@ -45,6 +45,11 @@ public class GamepadPtz extends ExecutableProcessImpl
     private Quantity dpad;
     private DataRecord ptzOutput;
 
+    float curPan = 0;
+    float curTilt = 0;
+    float newPan = 0, newTilt = 0;
+    double curDpadValue = 0;
+
     public GamepadPtz()
     {
         super(INFO);
@@ -73,6 +78,7 @@ public class GamepadPtz extends ExecutableProcessImpl
                         .definition(SWEHelper.getPropertyUri("ZoomFactor"))
                         .label("Zoom Factor")
                         .uomCode("1")
+                        .value(0)
                         .dataType(DataType.SHORT))
                 .build());
     }
@@ -82,7 +88,6 @@ public class GamepadPtz extends ExecutableProcessImpl
     public void init() throws ProcessException
     {
         super.init();
-
     }
 
 
@@ -90,47 +95,58 @@ public class GamepadPtz extends ExecutableProcessImpl
     public void execute() throws ProcessException
     {
         try {
+            curDpadValue = dpad.getValue();
 
-            float curPan = ptzOutput.getField("pan").getData().getFloatValue();
-            float curTilt = ptzOutput.getField("tilt").getData().getFloatValue();
+            if(curDpadValue != 0) {
+                curPan = ptzOutput.getField("pan").getData().getFloatValue();
+                curTilt = ptzOutput.getField("tilt").getData().getFloatValue();
 
-            float newPan = 0, newTilt = 0;
+                if (curDpadValue == 0.125f) {
+                    newPan = curPan - 15;
+                    newTilt = curTilt + 15;
+                } else if (curDpadValue == 0.25f) {
+                    newPan = curPan;
+                    newTilt = curTilt + 15;
+                } else if (curDpadValue == 0.375f) {
+                    newPan = curPan + 15;
+                    newTilt = curTilt + 15;
+                } else if (curDpadValue == 0.5f) {
+                    newPan = curPan + 15;
+                    newTilt = curTilt;
+                } else if (curDpadValue == 0.625f) {
+                    newPan = curPan + 15;
+                    newTilt = curTilt - 15;
+                } else if (curDpadValue == 0.75f) {
+                    newPan = curPan;
+                    newTilt = curTilt - 15;
+                } else if (curDpadValue == 0.875f) {
+                    newPan = curPan - 15;
+                    newTilt = curTilt - 15;
+                } else if (curDpadValue == 1.0f) {
+                    newPan = curPan - 15;
+                    newTilt = curTilt;
+                } else {
+                    newPan = curPan;
+                    newTilt = curTilt;
+                }
 
-            double curDpadValue = dpad.getValue();
+                if(newPan >= 180) {
+                    newPan = Math.min(newPan, 180.0f);
+                } else if (newPan <= -180) {
+                    newPan = Math.max(newPan, 180.0f);
+                }
 
-            if (curDpadValue == 0.125f) {
-                newPan = curPan - 15;
-                newTilt = curTilt + 15;
-            } else if (curDpadValue == 0.25f) {
-                newPan = curPan;
-                newTilt = curTilt + 15;
-            } else if (curDpadValue == 0.375f) {
-                newPan = curPan + 15;
-                newTilt = curTilt + 15;
-            } else if (curDpadValue == 0.5f) {
-                newPan = curPan + 15;
-                newTilt = curTilt;
-            } else if (curDpadValue == 0.625f) {
-                newPan = curPan + 15;
-                newTilt = curTilt - 15;
-            } else if (curDpadValue == 0.75f) {
-                newPan = curPan;
-                newTilt = curTilt - 15;
-            } else if (curDpadValue == 0.875f) {
-                newPan = curPan - 15;
-                newTilt = curTilt - 15;
-            } else if (curDpadValue == 1.0f) {
-                newPan = curPan - 15;
-                newTilt = curTilt;
-            } else {
-                newPan = curPan;
-                newTilt = curTilt;
+                if(newTilt >= 180) {
+                    newTilt = Math.min(newTilt, 180.0f);
+                } else if(newTilt <= 0) {
+                    newTilt = Math.max(newTilt, 0.0f);
+                }
+
+                getLogger().debug("New Pan and Tilt = [{},{}]", newPan, newTilt);
+
+                ptzOutput.getData().setDoubleValue(0, newPan);
+                ptzOutput.getData().setDoubleValue(1, newTilt);
             }
-
-            getLogger().debug("New Pan and Tilt = [{},{}]", newPan, newTilt);
-
-            ptzOutput.getData().setDoubleValue(0, newPan);
-            ptzOutput.getData().setDoubleValue(1, newTilt);
         } catch (Exception e) {
             reportError("Error computing PTZ position");
         }

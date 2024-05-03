@@ -46,6 +46,16 @@ project(':sensorhub-service-video').projectDir = "$serviceDir/sensorhub-service-
 //include 'sensorhub-driver-videocam'
 //project(':sensorhub-driver-videocam').projectDir = "$sensorDir/video/sensorhub-driver-videocam" as File
 
+include 'sensorhub-driver-videocam'
+project(':sensorhub-driver-videocam').projectDir = "$sensorDir/video/sensorhub-driver-videocam" as File
+
+include 'sensorhub-driver-axis'
+project(':sensorhub-driver-axis').projectDir = "$sensorDir/video/sensorhub-driver-axis" as File
+
+include 'sensorhub-driver-rtpcam'
+project(':sensorhub-driver-rtpcam').projectDir = "$sensorDir/video/sensorhub-driver-rtpcam" as File
+
+
 // Project modules
 
 // Include all folders with build.gradle as subprojects

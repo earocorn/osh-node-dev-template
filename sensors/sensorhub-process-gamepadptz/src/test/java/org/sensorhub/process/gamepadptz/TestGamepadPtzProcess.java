@@ -72,6 +72,7 @@ public class TestGamepadPtzProcess {
     {
         GamepadPtz p = new GamepadPtz();
         p.init();
+        System.out.println(p.getProcessInfo().getUri());
 
         SMLUtils smlHelper = new SMLUtils(SMLUtils.V2_0);
 

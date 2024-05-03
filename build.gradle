@@ -31,7 +31,16 @@ dependencies {
   implementation project(':sensorhub-service-video')
 //  implementation project(':sensorhub-driver-videocam')
 
+  // universal controller driver
   implementation project(':sensorhub-driver-anycontroller')
+
+  // drivers for axis ptz cam connection
+  implementation project(':sensorhub-driver-videocam')
+  implementation project(':sensorhub-driver-axis')
+  implementation project(':sensorhub-driver-rtpcam')
+
+  // process
+  implementation project(':sensorhub-process-gamepadptz')
 }
 
 // create one configuration for each distribution
