@@ -101,6 +101,7 @@ public class GamepadPtz extends ExecutableProcessImpl
                 curPan = ptzOutput.getField("pan").getData().getFloatValue();
                 curTilt = ptzOutput.getField("tilt").getData().getFloatValue();
 
+                // D-Pad values arranged in 8 parts from UP_LEFT(0.125) to LEFT(1.0) in a clockwise sequence
                 if (curDpadValue == 0.125f) {
                     newPan = curPan - 15;
                     newTilt = curTilt + 15;
