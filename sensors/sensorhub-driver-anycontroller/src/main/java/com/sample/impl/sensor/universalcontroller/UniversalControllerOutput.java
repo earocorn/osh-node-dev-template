@@ -285,31 +285,6 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 }
 
-//                AbstractDataBlock joystickData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[0];
-//                AbstractDataBlock buttonData = ((DataBlockMixed) gamepadData).getUnderlyingObject()[1];
-//
-//                // Orientation of joysticks and d-pad
-//                joystickData.setDoubleValue(0, gamepad.getComponent(Component.Identifier.Axis.Y).getPollData());
-//                joystickData.setDoubleValue(1, gamepad.getComponent(Component.Identifier.Axis.X).getPollData());
-//                joystickData.setDoubleValue(2, gamepad.getComponent(Component.Identifier.Axis.RY).getPollData());
-//                joystickData.setDoubleValue(3, gamepad.getComponent(Component.Identifier.Axis.RX).getPollData());
-//                joystickData.setDoubleValue(4, gamepad.getComponent(Component.Identifier.Axis.POV).getPollData());
-//
-//                // Set boolean value for whether button is selected or not
-//                buttonData.setBooleanValue(0, gamepad.getComponent(Component.Identifier.Button._0).getPollData() == 1.0);
-//                buttonData.setBooleanValue(1, gamepad.getComponent(Component.Identifier.Button._1).getPollData() == 1.0);
-//                buttonData.setBooleanValue(2, gamepad.getComponent(Component.Identifier.Button._2).getPollData() == 1.0);
-//                buttonData.setBooleanValue(3, gamepad.getComponent(Component.Identifier.Button._3).getPollData() == 1.0);
-//                buttonData.setBooleanValue(4, gamepad.getComponent(Component.Identifier.Button._4).getPollData() == 1.0);
-//                buttonData.setBooleanValue(5, gamepad.getComponent(Component.Identifier.Button._5).getPollData() == 1.0);
-//                buttonData.setBooleanValue(6, gamepad.getComponent(Component.Identifier.Button._6).getPollData() == 1.0);
-//                buttonData.setBooleanValue(7, gamepad.getComponent(Component.Identifier.Button._7).getPollData() == 1.0);
-//                buttonData.setBooleanValue(8, gamepad.getComponent(Component.Identifier.Button._8).getPollData() == 1.0);
-//                buttonData.setBooleanValue(9, gamepad.getComponent(Component.Identifier.Button._9).getPollData() == 1.0);
-//                // Left and right trigger pressure
-//                buttonData.setDoubleValue(10, Math.max(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
-//                buttonData.setDoubleValue(11, Math.min(gamepad.getComponent(Component.Identifier.Axis.Z).getPollData(), 0));
-
                 latestRecord = dataBlock;
 
                 latestRecordTime = System.currentTimeMillis();
