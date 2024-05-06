@@ -34,6 +34,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     private static final Logger logger = LoggerFactory.getLogger(UniversalControllerSensor.class);
     UniversalControllerOutput output;
     ArrayList<IController> allControllers = new ArrayList<>();
+    private FindControllers findControllers;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -45,7 +46,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         generateXmlID("UNIVERSAL_CONTROLLER", config.serialNumber);
 
         try {
-            FindControllers findControllers = new FindControllers(new Event());
+            findControllers = new FindControllers(new Event());
             if(!findControllers.getControllers().isEmpty()) {
                 allControllers = findControllers.getControllers();
             }
@@ -83,6 +84,8 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     public void doStop() throws SensorHubException {
 
         if (null != output) {
+
+            findControllers.getControllerConnection(ControllerType.WIIMOTE).cancelSearch();
 
             for(IController controller : allControllers) {
                 controller.disconnect();

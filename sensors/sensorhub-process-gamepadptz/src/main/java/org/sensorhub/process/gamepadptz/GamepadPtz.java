@@ -18,14 +18,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.opengis.swe.v20.DataRecord;
-import net.opengis.swe.v20.DataType;
-import net.opengis.swe.v20.Quantity;
-import net.opengis.swe.v20.Text;
+import net.opengis.swe.v20.*;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
+import org.vast.swe.SWEBuilders;
 import org.vast.swe.SWEConstants;
 import org.vast.swe.SWEHelper;
 
@@ -43,12 +41,24 @@ public class GamepadPtz extends ExecutableProcessImpl
 {
     public static final OSHProcessInfo INFO = new OSHProcessInfo("dpadPTZ", "DPad (POV) PTZ Process", null, GamepadPtz.class);
     private Quantity dpad;
+    private Quantity zoomInHID;
+    private Quantity zoomOutHID;
+    private Quantity zoomInWii;
+    private Quantity zoomOutWii;
+    private Quantity zoomReset;
     private DataRecord ptzOutput;
 
     float curPan = 0;
     float curTilt = 0;
+    float curZoom = 0;
     float newPan = 0, newTilt = 0;
+    float newZoom = 0;
     double curDpadValue = 0;
+    boolean isLeftPressed = false;
+    boolean isRightPressed = false;
+    boolean isMinusPressed = false;
+    boolean isPlusPressed = false;
+    boolean isBPressed = false;
 
     public GamepadPtz()
     {
@@ -56,9 +66,31 @@ public class GamepadPtz extends ExecutableProcessImpl
 
         SWEHelper sweHelper = new SWEHelper();
 
+        // TODO: add different input to get current PTZ position
+
         // inputs
         inputData.add("pov", dpad = sweHelper.createQuantity()
                 .label("Hat Switch")
+                .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
+        inputData.add("Left Thumb", zoomOutHID = sweHelper.createQuantity()
+                .label("Left Thumb")
+                .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
+        inputData.add("Right Thumb", zoomInHID = sweHelper.createQuantity()
+                .label("Right Thumb")
+                .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
+//        inputData.add("Minus", zoomOutWii = sweHelper.createQuantity()
+//                .label("Minus")
+//                .uomUri(SWEConstants.UOM_UNITLESS)
+//                .build());
+//        inputData.add("Plus", zoomInWii = sweHelper.createQuantity()
+//                .label("Plus")
+//                .uomUri(SWEConstants.UOM_UNITLESS)
+//                .build());
+        inputData.add("B", zoomReset = sweHelper.createQuantity()
+                .label("B")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
 
@@ -78,7 +110,6 @@ public class GamepadPtz extends ExecutableProcessImpl
                         .definition(SWEHelper.getPropertyUri("ZoomFactor"))
                         .label("Zoom Factor")
                         .uomCode("1")
-                        .value(0)
                         .dataType(DataType.SHORT))
                 .build());
     }
@@ -96,11 +127,32 @@ public class GamepadPtz extends ExecutableProcessImpl
     {
         try {
             curDpadValue = dpad.getValue();
+            
+            // Zoom in/out button isPressed values for HID and Wii controllers
+            isLeftPressed = zoomOutHID.getValue() == 1.0f;
+            isRightPressed = zoomInHID.getValue() == 1.0f;
+//            isMinusPressed = zoomOutWii.getValue() == 1.0f;
+//            isPlusPressed = zoomInWii.getValue() == 1.0f;
+            
+            // Zoom reset button isPressed values for HID and Wii controllers
+            isBPressed = zoomReset.getValue() == 1.0f;
 
-            if(curDpadValue != 0) {
+            if(curDpadValue != 0 || isLeftPressed || isRightPressed || isBPressed) {
                 curPan = ptzOutput.getField("pan").getData().getFloatValue();
                 curTilt = ptzOutput.getField("tilt").getData().getFloatValue();
+                curZoom = ptzOutput.getField("zoom").getData().getShortValue();
 
+                // Zoom in or out incrementally based on whether buttons are pressed
+                if(isLeftPressed || isMinusPressed) {
+                    newZoom -= 50;
+                } else if(isRightPressed || isPlusPressed) {
+                    newZoom += 50;
+                }
+
+                if(isBPressed) {
+                    newZoom = 0;
+                }
+                
                 // D-Pad values arranged in 8 parts from UP_LEFT(0.125) to LEFT(1.0) in a clockwise sequence
                 if (curDpadValue == 0.125f) {
                     newPan = curPan - 15;
@@ -134,7 +186,7 @@ public class GamepadPtz extends ExecutableProcessImpl
                 if(newPan >= 180) {
                     newPan = Math.min(newPan, 180.0f);
                 } else if (newPan <= -180) {
-                    newPan = Math.max(newPan, 180.0f);
+                    newPan = Math.max(newPan, -180.0f);
                 }
 
                 if(newTilt >= 180) {
@@ -142,11 +194,18 @@ public class GamepadPtz extends ExecutableProcessImpl
                 } else if(newTilt <= 0) {
                     newTilt = Math.max(newTilt, 0.0f);
                 }
+                
+                if(newZoom >= 10909) {
+                    newZoom = Math.min(newZoom, 10909);
+                } else if(newZoom <= 0) {
+                    newZoom = 0;
+                }
 
-                getLogger().debug("New Pan and Tilt = [{},{}]", newPan, newTilt);
+                getLogger().debug("New PTZ = [{},{},{}]", newPan, newTilt, newZoom);
 
-                ptzOutput.getData().setDoubleValue(0, newPan);
-                ptzOutput.getData().setDoubleValue(1, newTilt);
+                ptzOutput.getData().setFloatValue(0, newPan);
+                ptzOutput.getData().setFloatValue(1, newTilt);
+                ptzOutput.getData().setFloatValue(2, (short) newZoom);
             }
         } catch (Exception e) {
             reportError("Error computing PTZ position");

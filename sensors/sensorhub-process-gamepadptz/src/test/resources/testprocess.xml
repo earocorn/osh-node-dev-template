@@ -97,17 +97,6 @@
                     </sml:outputs>
                 </sml:SimpleProcess>
             </sml:component>
-            <sml:component name="axiscam">
-                <sml:SimpleProcess gml:id="F4">
-                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
-                    <sml:configuration>
-                        <sml:Settings>
-                            <sml:setValue ref="parameters/systemUID">urn:axis:cam:00408CA0FF1C</sml:setValue>
-                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
-                        </sml:Settings>
-                    </sml:configuration>
-                </sml:SimpleProcess>
-            </sml:component>
         </sml:ComponentList>
     </sml:components>
     <sml:connections>
@@ -134,12 +123,6 @@
                 <sml:Link>
                     <sml:source ref="components/gamepadsource/outputs/UniversalControllerOutput/gamepads/gamepad0/Right Thumb"/>
                     <sml:destination ref="components/ptzprocess/inputs/Right Thumb"/>
-                </sml:Link>
-            </sml:connection>
-            <sml:connection>
-                <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/ptz"/>
-                    <sml:destination ref="components/axiscam/inputs/ptzControl/ptzPos"/>
                 </sml:Link>
             </sml:connection>
             <sml:connection>

@@ -51,4 +51,9 @@ public class UniversalControllerConfig extends SensorConfig {
     @DisplayInfo(desc = "Primary controller switching configuration")
     public ControllerLayerConfig controllerLayerConfig = new ControllerLayerConfig();
 
+
+    @DisplayInfo.Required
+    @DisplayInfo(desc = "Polling rate in milliseconds")
+    public long pollingRate = 250;
+
 }

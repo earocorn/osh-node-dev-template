@@ -225,6 +225,9 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
             while (processSets) {
 
+                // adjust polling rate from config
+                Thread.sleep(parentSensor.getConfiguration().pollingRate);
+
                 DataBlock dataBlock;
                 if (latestRecord == null) {
 
