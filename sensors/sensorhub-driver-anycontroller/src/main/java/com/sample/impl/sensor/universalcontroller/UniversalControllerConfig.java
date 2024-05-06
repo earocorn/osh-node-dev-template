@@ -13,8 +13,11 @@
 ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
+import com.alexalmanza.models.ControllerType;
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
+
+import java.util.ArrayList;
 
 /**
  * Configuration settings for the {@link UniversalControllerSensor} driver exposed via the OpenSensorHub Admin panel.
@@ -54,6 +57,10 @@ public class UniversalControllerConfig extends SensorConfig {
 
     @DisplayInfo.Required
     @DisplayInfo(desc = "Polling rate in milliseconds")
-    public long pollingRate = 250;
+    public int pollingRate = 250;
+
+    @DisplayInfo.Required
+    @DisplayInfo(desc = "Controllers to search for")
+    public ArrayList<ControllerType> controllerTypes = new ArrayList<>();
 
 }

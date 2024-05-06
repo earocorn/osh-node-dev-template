@@ -56,6 +56,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
 
+    // Stuff from config
+    private int primaryControllerIndex;
+    private long pollingRate;
+    private ControllerLayerConfig controllerLayerConfig;
+
     private Thread worker;
 
     /**
@@ -77,6 +82,10 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     void doInit() throws SensorException {
 
         logger.debug("Initializing UniversalControllerOutput");
+
+        primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
+        pollingRate = parentSensor.getConfiguration().pollingRate;
+        controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
 
         // Get an instance of SWE Factory suitable to build components
 //        GamepadHelper sweFactory = new GamepadHelper();
@@ -132,7 +141,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 .addField("primaryControllerIndex", sweFactory.createCount()
                         .label("Primary Controller Index")
                         .description("Index of the primary controller in use")
-                        .value(parentSensor.getConfiguration().primaryControllerIndex)
+                        .value(primaryControllerIndex)
                         .addAllowedValues(controllerIndices))
                 .addField(controllersRecord.getName(), controllersRecord)
                 .build();
@@ -167,6 +176,8 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
             stopProcessing = true;
         }
+
+        parentSensor.cancelWiiMoteSearch();
 
         // stop all controller observers and disconnect all controllers
         for(IController controller : parentSensor.allControllers) {
@@ -226,7 +237,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             while (processSets) {
 
                 // adjust polling rate from config
-                Thread.sleep(parentSensor.getConfiguration().pollingRate);
+                Thread.sleep(pollingRate);
 
                 DataBlock dataBlock;
                 if (latestRecord == null) {
@@ -256,7 +267,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 dataBlock.setDoubleValue(0, timestamp);
 
 
-                for (ControllerMappingPreset preset : parentSensor.getConfiguration().controllerLayerConfig.presets) {
+                for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
                     IController controller = parentSensor.allControllers.get(preset.controllerIndex);
                     WiiIdentifier component = preset.component;
 
@@ -264,9 +275,9 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
                             if (controllerComponent.getName().equals(component.getName())) {
                                 if (controllerComponent.getValue() == 1.0f) {
-                                    parentSensor.getConfiguration().primaryControllerIndex++;
-                                    if (parentSensor.getConfiguration().primaryControllerIndex >= parentSensor.allControllers.size()) {
-                                        parentSensor.getConfiguration().primaryControllerIndex = 0;
+                                    primaryControllerIndex++;
+                                    if (primaryControllerIndex >= parentSensor.allControllers.size()) {
+                                        primaryControllerIndex = 0;
                                     }
                                 }
                             }
@@ -274,7 +285,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     }
                 }
 
-                dataBlock.setIntValue(1, parentSensor.getConfiguration().primaryControllerIndex);
+                dataBlock.setIntValue(1, primaryControllerIndex);
 
                 AbstractDataBlock gamepadsData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
 

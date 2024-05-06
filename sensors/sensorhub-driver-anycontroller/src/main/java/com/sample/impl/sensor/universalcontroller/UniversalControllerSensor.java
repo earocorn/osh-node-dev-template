@@ -13,7 +13,11 @@
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.universalcontroller;
 
+import com.alexalmanza.controller.wii.WiiMote;
+import com.alexalmanza.controller.wii.WiiMoteConnection;
 import com.alexalmanza.interfaces.IController;
+import com.alexalmanza.interfaces.IControllerConnection;
+import com.alexalmanza.models.ControllerType;
 import com.alexalmanza.util.FindControllers;
 import net.java.games.input.Event;
 import org.sensorhub.api.common.SensorHubException;
@@ -35,6 +39,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     UniversalControllerOutput output;
     ArrayList<IController> allControllers = new ArrayList<>();
     private FindControllers findControllers;
+    private WiiMoteConnection wiiMoteConnection;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -45,8 +50,15 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         generateUniqueID("urn:osh:sensor:", config.serialNumber);
         generateXmlID("UNIVERSAL_CONTROLLER", config.serialNumber);
 
+        ControllerType[] typesArray = new ControllerType[config.controllerTypes.size()];
+
+        for (int i = 0; i < config.controllerTypes.size(); i++) {
+            ControllerType type = config.controllerTypes.get(i);
+            typesArray[i] = type;
+        }
+
         try {
-            findControllers = new FindControllers(new Event());
+            findControllers = new FindControllers(new Event(), typesArray);
             if(!findControllers.getControllers().isEmpty()) {
                 allControllers = findControllers.getControllers();
             }
@@ -80,12 +92,18 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         // TODO: Perform other startup procedures
     }
 
+    public void cancelWiiMoteSearch() {
+        wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
+        wiiMoteConnection.cancelSearch();
+    }
+
     @Override
     public void doStop() throws SensorHubException {
 
         if (null != output) {
 
-            findControllers.getControllerConnection(ControllerType.WIIMOTE).cancelSearch();
+            wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
+            wiiMoteConnection.cancelSearch();
 
             for(IController controller : allControllers) {
                 controller.disconnect();

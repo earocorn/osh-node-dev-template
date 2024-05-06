@@ -97,7 +97,7 @@
                     </sml:outputs>
                 </sml:SimpleProcess>
             </sml:component>
-            <sml:component name="axiscam">
+            <sml:component name="axiscamcontrol">
                 <sml:SimpleProcess gml:id="F4">
                     <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
                     <sml:configuration>
@@ -139,7 +139,7 @@
             <sml:connection>
                 <sml:Link>
                     <sml:source ref="components/ptzprocess/outputs/ptz"/>
-                    <sml:destination ref="components/axiscam/inputs/ptzControl/ptzPos"/>
+                    <sml:destination ref="components/axiscamcontrol/inputs/ptzControl/ptzPos"/>
                 </sml:Link>
             </sml:connection>
             <sml:connection>

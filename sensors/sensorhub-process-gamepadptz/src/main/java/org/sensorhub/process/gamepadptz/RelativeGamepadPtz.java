@@ -30,28 +30,22 @@ import org.vast.swe.SWEHelper;
 
 /**
  * <p>
- * Implementation of a binary operation with respect to a parameter (addition,
- * soustraction, multiplication, division, power)
+ *
  * </p>
  *
- * @author Alexandre Robin & Gregoire Berthiau
- * @date Mar 7, 2007
+ * @author Alex Almanza
+ * @date May 6, 2024
  */
-public class GamepadPtz extends ExecutableProcessImpl
+public class RelativeGamepadPtz extends ExecutableProcessImpl
 {
-    public static final OSHProcessInfo INFO = new OSHProcessInfo("dpadPTZ", "DPad (POV) PTZ Process", null, GamepadPtz.class);
+    public static final OSHProcessInfo INFO = new OSHProcessInfo("gamepadPTZ", "Gamepad PTZ Process", null, RelativeGamepadPtz.class);
     private Quantity dpad;
     private Quantity zoomInHID;
     private Quantity zoomOutHID;
-    private Quantity zoomInWii;
-    private Quantity zoomOutWii;
     private Quantity zoomReset;
-    private DataRecord ptzOutput;
-    private DataRecord ptzInput;
-
-    float curPan = 0;
-    float curTilt = 0;
-    float curZoom = 0;
+    private Quantity rPanOutput;
+    private Quantity rTiltOutput;
+    private Quantity rZoomOutput;
     float newPan = 0, newTilt = 0;
     float newZoom = 0;
     double curDpadValue = 0;
@@ -62,7 +56,7 @@ public class GamepadPtz extends ExecutableProcessImpl
     boolean isBPressed = false;
     boolean isInOutMatched = false;
 
-    public GamepadPtz()
+    public RelativeGamepadPtz()
     {
         super(INFO);
 
@@ -83,42 +77,29 @@ public class GamepadPtz extends ExecutableProcessImpl
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-//        inputData.add("Minus", zoomOutWii = sweHelper.createQuantity()
-//                .label("Minus")
-//                .uomUri(SWEConstants.UOM_UNITLESS)
-//                .build());
-//        inputData.add("Plus", zoomInWii = sweHelper.createQuantity()
-//                .label("Plus")
-//                .uomUri(SWEConstants.UOM_UNITLESS)
-//                .build());
         inputData.add("B", zoomReset = sweHelper.createQuantity()
                 .label("B")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
 
         // outputs
-        outputData.add("ptz", ptzOutput = sweHelper.createRecord()
-                .addField("pan", sweHelper.createQuantity()
-                        .definition(SWEHelper.getPropertyUri("PanAngle"))
-                        .label("Pan")
-                        .uomCode("deg")
-                        .dataType(DataType.FLOAT)
-                        //.value(ptzInput.getField("pan").getData().getFloatValue()))
-                )
-                .addField("tilt", sweHelper.createQuantity()
-                        .definition(SWEHelper.getPropertyUri("TiltAngle"))
-                        .label("Tilt")
-                        .uomCode("deg")
-                        .dataType(DataType.FLOAT)
-                        //.value(ptzInput.getField("tilt").getData().getFloatValue()))
-                )
-                .addField("zoom", sweHelper.createQuantity()
-                        .definition(SWEHelper.getPropertyUri("ZoomFactor"))
-                        .label("Zoom Factor")
-                        .uomCode("1")
-                        .dataType(DataType.SHORT)
-                        //.value(ptzInput.getField("zoom").getData().getShortValue()))
-                )
+        outputData.add("rpan", rPanOutput = sweHelper.createQuantity()
+                .dataType(DataType.FLOAT)
+                .definition(SWEHelper.getPropertyUri("RelativePan"))
+                .label("Relative Pan")
+                .uomCode("deg")
+                .build());
+        outputData.add("rtilt", rTiltOutput = sweHelper.createQuantity()
+                .dataType(DataType.FLOAT)
+                .definition(SWEHelper.getPropertyUri("RelativeTilt"))
+                .label("Relative Tilt")
+                .uomCode("deg")
+                .build());
+        outputData.add("rzoom", rZoomOutput = sweHelper.createQuantity()
+                .dataType(DataType.FLOAT)
+                .definition(SWEHelper.getPropertyUri("RelativeZoom"))
+                .label("Relative Zoom")
+                .uomCode("deg")
                 .build());
     }
 
@@ -134,13 +115,13 @@ public class GamepadPtz extends ExecutableProcessImpl
     {
         try {
             curDpadValue = dpad.getValue();
-            
+
             // Zoom in/out button isPressed values for HID and Wii controllers
             isLeftPressed = zoomOutHID.getValue() == 1.0f;
             isRightPressed = zoomInHID.getValue() == 1.0f;
 //            isMinusPressed = zoomOutWii.getValue() == 1.0f;
 //            isPlusPressed = zoomInWii.getValue() == 1.0f;
-            
+
             // Zoom reset button isPressed values for HID and Wii controllers
             isBPressed = zoomReset.getValue() == 1.0f;
 
@@ -159,7 +140,7 @@ public class GamepadPtz extends ExecutableProcessImpl
                 if(isBPressed) {
                     newZoom = 0;
                 }
-                
+
                 // D-Pad values arranged in 8 parts from UP_LEFT(0.125) to LEFT(1.0) in a clockwise sequence
                 if (curDpadValue == 0.125f) {
                     newPan = curPan - 15;
@@ -201,7 +182,7 @@ public class GamepadPtz extends ExecutableProcessImpl
                 } else if(newTilt <= 0) {
                     newTilt = Math.max(newTilt, 0.0f);
                 }
-                
+
                 if(newZoom >= 10909) {
                     newZoom = Math.min(newZoom, 10909);
                 } else if(newZoom <= 0) {
