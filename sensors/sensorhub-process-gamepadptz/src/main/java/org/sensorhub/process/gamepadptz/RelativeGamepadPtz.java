@@ -14,6 +14,7 @@
 
 package org.sensorhub.process.gamepadptz;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,22 +40,22 @@ import org.vast.swe.SWEHelper;
 public class RelativeGamepadPtz extends ExecutableProcessImpl
 {
     public static final OSHProcessInfo INFO = new OSHProcessInfo("gamepadPTZ", "Gamepad PTZ Process", null, RelativeGamepadPtz.class);
+    private Quantity xAxis;
+    private Quantity yAxis;
     private Quantity dpad;
+    float curXValue = 0;
+    float curYValue = 0;
     private Quantity zoomInHID;
     private Quantity zoomOutHID;
     private Quantity zoomReset;
     private Quantity rPanOutput;
     private Quantity rTiltOutput;
     private Quantity rZoomOutput;
+    private Quantity sensitivityOutput;
     float newPan = 0, newTilt = 0;
     float newZoom = 0;
-    double curDpadValue = 0;
     boolean isLeftPressed = false;
     boolean isRightPressed = false;
-    boolean isMinusPressed = false;
-    boolean isPlusPressed = false;
-    boolean isBPressed = false;
-    boolean isInOutMatched = false;
 
     public RelativeGamepadPtz()
     {
@@ -69,6 +70,14 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 .label("Hat Switch")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
+        inputData.add("x", xAxis = sweHelper.createQuantity()
+                .label("x")
+                .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
+        inputData.add("y", yAxis = sweHelper.createQuantity()
+                .label("y")
+                .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
         inputData.add("Left Thumb", zoomOutHID = sweHelper.createQuantity()
                 .label("Left Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
@@ -77,12 +86,9 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("B", zoomReset = sweHelper.createQuantity()
-                .label("B")
-                .uomUri(SWEConstants.UOM_UNITLESS)
-                .build());
 
         // outputs
+
         outputData.add("rpan", rPanOutput = sweHelper.createQuantity()
                 .dataType(DataType.FLOAT)
                 .definition(SWEHelper.getPropertyUri("RelativePan"))
@@ -97,9 +103,17 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 .build());
         outputData.add("rzoom", rZoomOutput = sweHelper.createQuantity()
                 .dataType(DataType.FLOAT)
-                .definition(SWEHelper.getPropertyUri("RelativeZoom"))
-                .label("Relative Zoom")
-                .uomCode("deg")
+                .definition(SWEHelper.getPropertyUri("RelativeZoomFactor"))
+                .label("Relative Zoom Factor")
+                .uomCode("1")
+                .build());
+
+        // TODO: sense is temporary, should be its own field in gamepad output
+        outputData.add("sensitivity", sensitivityOutput = sweHelper.createQuantity()
+                .definition(SWEHelper.getPropertyUri("JoystickSensitivity"))
+                .dataType(DataType.INT)
+                .value(1)
+                .label("Sensitivity")
                 .build());
     }
 
@@ -114,7 +128,8 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     public void execute() throws ProcessException
     {
         try {
-            curDpadValue = dpad.getValue();
+            curXValue = xAxis.getData().getFloatValue();
+            curYValue = yAxis.getData().getFloatValue();
 
             // Zoom in/out button isPressed values for HID and Wii controllers
             isLeftPressed = zoomOutHID.getValue() == 1.0f;
@@ -122,79 +137,39 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
 //            isMinusPressed = zoomOutWii.getValue() == 1.0f;
 //            isPlusPressed = zoomInWii.getValue() == 1.0f;
 
-            // Zoom reset button isPressed values for HID and Wii controllers
-            isBPressed = zoomReset.getValue() == 1.0f;
+//            if(dpad.getData().getFloatValue() != 0 || curXValue != 0 || curYValue != 0 || isLeftPressed || isRightPressed) {
 
-            if(curDpadValue != 0 || isLeftPressed || isRightPressed || isBPressed) {
-                curPan = ptzOutput.getField("pan").getData().getFloatValue();
-                curTilt = ptzOutput.getField("tilt").getData().getFloatValue();
-                curZoom = ptzOutput.getField("zoom").getData().getShortValue();
+                // Sensitivity determined by dpad up and down on scale of 1-10
+                if(dpad.getData().getFloatValue() == 0.25f) {
+                    if(sensitivityOutput.getData().getIntValue() < 10) {
+                        sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() + 1);
+                    }
+                } else if(dpad.getData().getFloatValue() == 0.75f) {
+                    if(sensitivityOutput.getData().getIntValue() > 1) {
+                        sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() - 1);
+                    }
+                }
+
+
+                newPan = curXValue * sensitivityOutput.getData().getIntValue() * 5;
+
+                newTilt = -(curYValue * sensitivityOutput.getData().getIntValue() * 5);
 
                 // Zoom in or out incrementally based on whether buttons are pressed
-                if(isLeftPressed || isMinusPressed) {
-                    newZoom -= 50;
-                } else if(isRightPressed || isPlusPressed) {
-                    newZoom += 50;
-                }
-
-                if(isBPressed) {
-                    newZoom = 0;
-                }
-
-                // D-Pad values arranged in 8 parts from UP_LEFT(0.125) to LEFT(1.0) in a clockwise sequence
-                if (curDpadValue == 0.125f) {
-                    newPan = curPan - 15;
-                    newTilt = curTilt + 15;
-                } else if (curDpadValue == 0.25f) {
-                    newPan = curPan;
-                    newTilt = curTilt + 15;
-                } else if (curDpadValue == 0.375f) {
-                    newPan = curPan + 15;
-                    newTilt = curTilt + 15;
-                } else if (curDpadValue == 0.5f) {
-                    newPan = curPan + 15;
-                    newTilt = curTilt;
-                } else if (curDpadValue == 0.625f) {
-                    newPan = curPan + 15;
-                    newTilt = curTilt - 15;
-                } else if (curDpadValue == 0.75f) {
-                    newPan = curPan;
-                    newTilt = curTilt - 15;
-                } else if (curDpadValue == 0.875f) {
-                    newPan = curPan - 15;
-                    newTilt = curTilt - 15;
-                } else if (curDpadValue == 1.0f) {
-                    newPan = curPan - 15;
-                    newTilt = curTilt;
+                if(isLeftPressed) {
+                    newZoom = -50 * sensitivityOutput.getData().getIntValue();
+                } else if(isRightPressed) {
+                    newZoom = 50 * sensitivityOutput.getData().getIntValue();
                 } else {
-                    newPan = curPan;
-                    newTilt = curTilt;
-                }
-
-                if(newPan >= 180) {
-                    newPan = Math.min(newPan, 180.0f);
-                } else if (newPan <= -180) {
-                    newPan = Math.max(newPan, -180.0f);
-                }
-
-                if(newTilt >= 180) {
-                    newTilt = Math.min(newTilt, 180.0f);
-                } else if(newTilt <= 0) {
-                    newTilt = Math.max(newTilt, 0.0f);
-                }
-
-                if(newZoom >= 10909) {
-                    newZoom = Math.min(newZoom, 10909);
-                } else if(newZoom <= 0) {
                     newZoom = 0;
                 }
 
                 getLogger().debug("New PTZ = [{},{},{}]", newPan, newTilt, newZoom);
 
-                ptzOutput.getData().setFloatValue(0, newPan);
-                ptzOutput.getData().setFloatValue(1, newTilt);
-                ptzOutput.getData().setFloatValue(2, (short) newZoom);
-            }
+                rPanOutput.getData().setFloatValue(newPan);
+                rTiltOutput.getData().setFloatValue(newTilt);
+                rZoomOutput.getData().setFloatValue(newZoom);
+            //}
         } catch (Exception e) {
             reportError("Error computing PTZ position");
         }

@@ -38,6 +38,6 @@ import java.util.List;
 public class ControllerLayerConfig extends SensorConfig {
 
     @DisplayInfo(desc = "Controller mapping presets")
-    public List<ControllerMappingPreset> presets = new ArrayList<ControllerMappingPreset>();
+    public List<ControllerMappingPreset> presets = new ArrayList<>();
 
 }

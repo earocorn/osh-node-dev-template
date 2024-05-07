@@ -16,11 +16,9 @@ package com.sample.impl.sensor.universalcontroller;
 import com.alexalmanza.controller.wii.identifiers.WiiIdentifier;
 import com.alexalmanza.interfaces.IController;
 import com.alexalmanza.models.ControllerComponent;
+import com.alexalmanza.models.ControllerType;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
-import net.opengis.swe.v20.DataBlock;
-import net.opengis.swe.v20.DataComponent;
-import net.opengis.swe.v20.DataEncoding;
-import net.opengis.swe.v20.DataRecord;
+import net.opengis.swe.v20.*;
 import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.api.sensor.SensorException;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
@@ -30,6 +28,8 @@ import org.vast.data.AbstractDataBlock;
 import org.vast.data.DataBlockMixed;
 import org.vast.swe.SWEBuilders;
 import org.vast.swe.SWEHelper;
+
+import java.lang.Boolean;
 
 /**
  * Output specification and provider for {@link UniversalControllerSensor}.
@@ -60,6 +60,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private int primaryControllerIndex;
     private long pollingRate;
     private ControllerLayerConfig controllerLayerConfig;
+    private boolean hasSensitivity;
 
     private Thread worker;
 
@@ -86,6 +87,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
         pollingRate = parentSensor.getConfiguration().pollingRate;
         controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
+        hasSensitivity = parentSensor.getConfiguration().hasSensitivity;
 
         // Get an instance of SWE Factory suitable to build components
 //        GamepadHelper sweFactory = new GamepadHelper();
@@ -116,6 +118,15 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 controllerRecord.addField(component.getName(), sweFactory.createQuantity()
                         .value(component.getValue())
                         .addAllowedInterval(-1.0f, 1.0f));
+            }
+
+            // TODO: make this better
+            if(hasSensitivity) {
+                controllerRecord.addField("sensitivity", sweFactory.createQuantity()
+                        .label("Sensitivity")
+                        .value(1)
+                        .addAllowedInterval(1, 10)
+                        .dataType(DataType.INT));
             }
 
             DataRecord builtControllerRecord = controllerRecord.build();
@@ -177,10 +188,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             stopProcessing = true;
         }
 
-        parentSensor.cancelWiiMoteSearch();
-
         // stop all controller observers and disconnect all controllers
         for(IController controller : parentSensor.allControllers) {
+            if(controller.getControllerData().getControllerType() == ControllerType.WIIMOTE) {
+                parentSensor.cancelWiiMoteSearch();
+            }
             controller.getObserver().doStop();
             controller.disconnect();
         }
@@ -269,11 +281,10 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
                     IController controller = parentSensor.allControllers.get(preset.controllerIndex);
-                    WiiIdentifier component = preset.component;
 
                     if (preset.cyclesPrimaryController) {
                         for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                            if (controllerComponent.getName().equals(component.getName())) {
+                            if (controllerComponent.getName().equals(preset.componentName)) {
                                 if (controllerComponent.getValue() == 1.0f) {
                                     primaryControllerIndex++;
                                     if (primaryControllerIndex >= parentSensor.allControllers.size()) {

@@ -63,4 +63,8 @@ public class UniversalControllerConfig extends SensorConfig {
     @DisplayInfo(desc = "Controllers to search for")
     public ArrayList<ControllerType> controllerTypes = new ArrayList<>();
 
+    @DisplayInfo.Required
+    @DisplayInfo(desc = "Include sensitivity field")
+    public boolean hasSensitivity = false;
+
 }
