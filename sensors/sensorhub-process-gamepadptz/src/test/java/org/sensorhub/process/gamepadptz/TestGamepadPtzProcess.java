@@ -3,10 +3,8 @@ package org.sensorhub.process.gamepadptz;
 import net.opengis.HrefResolver;
 import net.opengis.gml.v32.Reference;
 import net.opengis.gml.v32.impl.ReferenceImpl;
-import net.opengis.sensorml.v20.AbstractProcess;
-import net.opengis.sensorml.v20.FeatureList;
-import net.opengis.sensorml.v20.Link;
-import net.opengis.sensorml.v20.SimpleProcess;
+import net.opengis.sensorml.v20.*;
+import net.opengis.swe.v20.AbstractSWEIdentifiable;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataStream;
@@ -81,6 +79,9 @@ public class TestGamepadPtzProcess {
 
         // serialize
         AggregateProcessImpl wp = new AggregateProcessImpl();
+        for (AbstractSWEIdentifiable output: p.getOutputList()) {
+            wp.addOutput(output.getId(), (DataComponent) output);
+        }
         //smlHelper.makeProcessExecutable(wp, false);
         //wp.setExecutableImpl(p);
         // set type

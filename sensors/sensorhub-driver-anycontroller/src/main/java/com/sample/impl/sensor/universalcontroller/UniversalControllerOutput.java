@@ -120,6 +120,10 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         .addAllowedInterval(-1.0f, 1.0f));
             }
 
+            controllerRecord.addField("isPrimaryController", sweFactory.createBoolean()
+                    .label("Is Primary Controller")
+                    .value(false));
+
             // TODO: make this better
             if(hasSensitivity) {
                 controllerRecord.addField("sensitivity", sweFactory.createQuantity()
@@ -278,18 +282,37 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 dataBlock.setDoubleValue(0, timestamp);
 
-
+                // Go through controller mapping
                 for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
                     IController controller = parentSensor.allControllers.get(preset.controllerIndex);
+                    int componentsForCombination = preset.componentNames.size();
 
                     if (preset.cyclesPrimaryController) {
+                        // TODO: only cycle to next controller if current controller is primary controller?
                         for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                            if (controllerComponent.getName().equals(preset.componentName)) {
+                            if (preset.componentNames.contains(controllerComponent.getName())) {
                                 if (controllerComponent.getValue() == 1.0f) {
+                                    componentsForCombination--;
+                                }
+                                if(componentsForCombination == 0) {
                                     primaryControllerIndex++;
                                     if (primaryControllerIndex >= parentSensor.allControllers.size()) {
                                         primaryControllerIndex = 0;
                                     }
+                                }
+                            }
+                        }
+                    }
+
+                    if (preset.overridesPrimaryController) {
+                        componentsForCombination = preset.componentNames.size();
+                        for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
+                            if(preset.componentNames.contains(controllerComponent.getName())) {
+                                if(controllerComponent.getValue() == 1.0f) {
+                                    componentsForCombination--;
+                                }
+                                if(componentsForCombination == 0) {
+                                    primaryControllerIndex = parentSensor.allControllers.indexOf(controller);
                                 }
                             }
                         }
@@ -307,7 +330,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     for (int recordNum = 0; recordNum < controller.getControllerData().getOutputs().size(); recordNum++) {
                         controllerDataBlock.setDoubleValue(recordNum, controller.getControllerData().getOutputs().get(recordNum).getValue());
                     }
-
+                    controllerDataBlock.setBooleanValue(controller.getControllerData().getOutputs().size(), i == primaryControllerIndex);
                 }
 
                 latestRecord = dataBlock;

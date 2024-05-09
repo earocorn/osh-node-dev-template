@@ -94,7 +94,9 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
 
     public void cancelWiiMoteSearch() {
         wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
-        wiiMoteConnection.cancelSearch();
+        if (wiiMoteConnection != null) {
+            wiiMoteConnection.cancelSearch();
+        }
     }
 
     @Override

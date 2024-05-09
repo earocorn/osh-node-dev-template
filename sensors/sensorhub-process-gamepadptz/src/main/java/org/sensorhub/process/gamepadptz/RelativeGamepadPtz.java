@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.opengis.swe.v20.*;
+import net.opengis.swe.v20.Boolean;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.vast.process.ExecutableProcessImpl;
@@ -43,11 +44,11 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     private Quantity xAxis;
     private Quantity yAxis;
     private Quantity dpad;
-    float curXValue = 0;
-    float curYValue = 0;
     private Quantity zoomInHID;
     private Quantity zoomOutHID;
-    private Quantity zoomReset;
+    private Boolean isPrimaryController;
+    float curXValue = 0;
+    float curYValue = 0;
     private Quantity rPanOutput;
     private Quantity rTiltOutput;
     private Quantity rZoomOutput;
@@ -56,6 +57,7 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     float newZoom = 0;
     boolean isLeftPressed = false;
     boolean isRightPressed = false;
+    boolean isPrimary;
 
     public RelativeGamepadPtz()
     {
@@ -85,6 +87,10 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
         inputData.add("Right Thumb", zoomInHID = sweHelper.createQuantity()
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
+                .build());
+        inputData.add("isPrimaryController", isPrimaryController = sweHelper.createBoolean()
+                .label("Is Primary Controller")
+                .value(false)
                 .build());
 
         // outputs
@@ -128,6 +134,9 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     public void execute() throws ProcessException
     {
         try {
+            isPrimary = isPrimaryController.getData().getBooleanValue();
+            if(isPrimary) {
+
             curXValue = xAxis.getData().getFloatValue();
             curYValue = yAxis.getData().getFloatValue();
 
@@ -150,16 +159,15 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                     }
                 }
 
-
                 newPan = curXValue * sensitivityOutput.getData().getIntValue() * 5;
 
                 newTilt = -(curYValue * sensitivityOutput.getData().getIntValue() * 5);
 
                 // Zoom in or out incrementally based on whether buttons are pressed
                 if(isLeftPressed) {
-                    newZoom = -50 * sensitivityOutput.getData().getIntValue();
+                    newZoom = -100 * sensitivityOutput.getData().getIntValue();
                 } else if(isRightPressed) {
-                    newZoom = 50 * sensitivityOutput.getData().getIntValue();
+                    newZoom = 100 * sensitivityOutput.getData().getIntValue();
                 } else {
                     newZoom = 0;
                 }
@@ -169,7 +177,11 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 rPanOutput.getData().setFloatValue(newPan);
                 rTiltOutput.getData().setFloatValue(newTilt);
                 rZoomOutput.getData().setFloatValue(newZoom);
-            //}
+            } else {
+                rPanOutput.getData().setFloatValue(0);
+                rTiltOutput.getData().setFloatValue(0);
+                rZoomOutput.getData().setFloatValue(0);
+            }
         } catch (Exception e) {
             reportError("Error computing PTZ position");
         }
