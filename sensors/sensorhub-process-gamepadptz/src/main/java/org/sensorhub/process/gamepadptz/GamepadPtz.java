@@ -75,11 +75,11 @@ public class GamepadPtz extends ExecutableProcessImpl
                 .label("Hat Switch")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("Left Thumb", zoomOutHID = sweHelper.createQuantity()
+        inputData.add("LeftThumb", zoomOutHID = sweHelper.createQuantity()
                 .label("Left Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("Right Thumb", zoomInHID = sweHelper.createQuantity()
+        inputData.add("RightThumb", zoomInHID = sweHelper.createQuantity()
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());

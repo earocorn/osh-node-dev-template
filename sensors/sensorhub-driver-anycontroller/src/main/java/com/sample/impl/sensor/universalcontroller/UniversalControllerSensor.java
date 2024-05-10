@@ -100,12 +100,11 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     }
 
     @Override
-    public void doStop() throws SensorHubException {
+    public void doStop() {
 
         if (null != output) {
 
-            wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
-            wiiMoteConnection.cancelSearch();
+            cancelWiiMoteSearch();
 
             for(IController controller : allControllers) {
                 controller.disconnect();

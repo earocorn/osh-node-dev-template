@@ -41,12 +41,12 @@ import org.vast.swe.SWEHelper;
 public class RelativeGamepadPtz extends ExecutableProcessImpl
 {
     public static final OSHProcessInfo INFO = new OSHProcessInfo("gamepadPTZ", "Gamepad PTZ Process", null, RelativeGamepadPtz.class);
-    private Quantity xAxis;
-    private Quantity yAxis;
-    private Quantity dpad;
-    private Quantity zoomInHID;
-    private Quantity zoomOutHID;
-    private Boolean isPrimaryController;
+    private Quantity xAxisInput;
+    private Quantity yAxisInput;
+    private Quantity dpadInput;
+    private Quantity rightInput;
+    private Quantity leftInput;
+    private Boolean isPrimaryControllerInput;
     float curXValue = 0;
     float curYValue = 0;
     private Quantity rPanOutput;
@@ -68,27 +68,27 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
         // TODO: add different input to get current PTZ position
 
         // inputs
-        inputData.add("pov", dpad = sweHelper.createQuantity()
+        inputData.add("pov", dpadInput = sweHelper.createQuantity()
                 .label("Hat Switch")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("x", xAxis = sweHelper.createQuantity()
+        inputData.add("x", xAxisInput = sweHelper.createQuantity()
                 .label("x")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("y", yAxis = sweHelper.createQuantity()
+        inputData.add("y", yAxisInput = sweHelper.createQuantity()
                 .label("y")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("Left Thumb", zoomOutHID = sweHelper.createQuantity()
+        inputData.add("LeftThumb", leftInput = sweHelper.createQuantity()
                 .label("Left Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("Right Thumb", zoomInHID = sweHelper.createQuantity()
+        inputData.add("RightThumb", rightInput = sweHelper.createQuantity()
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("isPrimaryController", isPrimaryController = sweHelper.createBoolean()
+        inputData.add("isPrimaryControllerInput", isPrimaryControllerInput = sweHelper.createBoolean()
                 .label("Is Primary Controller")
                 .value(false)
                 .build());
@@ -134,26 +134,26 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     public void execute() throws ProcessException
     {
         try {
-            isPrimary = isPrimaryController.getData().getBooleanValue();
+            isPrimary = isPrimaryControllerInput.getData().getBooleanValue();
             if(isPrimary) {
 
-            curXValue = xAxis.getData().getFloatValue();
-            curYValue = yAxis.getData().getFloatValue();
+            curXValue = xAxisInput.getData().getFloatValue();
+            curYValue = yAxisInput.getData().getFloatValue();
 
             // Zoom in/out button isPressed values for HID and Wii controllers
-            isLeftPressed = zoomOutHID.getValue() == 1.0f;
-            isRightPressed = zoomInHID.getValue() == 1.0f;
+            isLeftPressed = leftInput.getValue() == 1.0f;
+            isRightPressed = rightInput.getValue() == 1.0f;
 //            isMinusPressed = zoomOutWii.getValue() == 1.0f;
 //            isPlusPressed = zoomInWii.getValue() == 1.0f;
 
-//            if(dpad.getData().getFloatValue() != 0 || curXValue != 0 || curYValue != 0 || isLeftPressed || isRightPressed) {
+//            if(dpadInput.getData().getFloatValue() != 0 || curXValue != 0 || curYValue != 0 || isLeftPressed || isRightPressed) {
 
-                // Sensitivity determined by dpad up and down on scale of 1-10
-                if(dpad.getData().getFloatValue() == 0.25f) {
+                // Sensitivity determined by dpadInput up and down on scale of 1-10
+                if(dpadInput.getData().getFloatValue() == 0.25f) {
                     if(sensitivityOutput.getData().getIntValue() < 10) {
                         sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() + 1);
                     }
-                } else if(dpad.getData().getFloatValue() == 0.75f) {
+                } else if(dpadInput.getData().getFloatValue() == 0.75f) {
                     if(sensitivityOutput.getData().getIntValue() > 1) {
                         sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() - 1);
                     }

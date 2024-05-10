@@ -17,6 +17,7 @@ import com.alexalmanza.controller.wii.identifiers.WiiIdentifier;
 import com.alexalmanza.interfaces.IController;
 import com.alexalmanza.models.ControllerComponent;
 import com.alexalmanza.models.ControllerType;
+import com.sample.impl.sensor.universalcontroller.helpers.ControllerCyclingAction;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
 import net.opengis.swe.v20.*;
 import org.sensorhub.api.data.DataEvent;
@@ -115,16 +116,23 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     .description("Auto-populated gamepad data");
 
             for (ControllerComponent component : controller.getControllerData().getOutputs()) {
-                controllerRecord.addField(component.getName(), sweFactory.createQuantity()
+                String uriName = component.getName();
+                if(uriName.equals("x") || uriName.equals("y") || uriName.equals("z")) {
+                    uriName += "Axis";
+                }
+                uriName = uriName.replace(" ", "");
+                controllerRecord.addField(component.getName().replace(" ", ""), sweFactory.createQuantity()
                         .value(component.getValue())
+                        .definition(SWEHelper.getPropertyUri(uriName))
                         .addAllowedInterval(-1.0f, 1.0f));
             }
 
             controllerRecord.addField("isPrimaryController", sweFactory.createBoolean()
                     .label("Is Primary Controller")
+                    .definition(SWEHelper.getPropertyUri("IsPrimaryController"))
                     .value(false));
 
-            // TODO: make this better
+            // TODO: make this better OR just do all sensitivity logic in process
             if(hasSensitivity) {
                 controllerRecord.addField("sensitivity", sweFactory.createQuantity()
                         .label("Sensitivity")
@@ -156,6 +164,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 .addField("primaryControllerIndex", sweFactory.createCount()
                         .label("Primary Controller Index")
                         .description("Index of the primary controller in use")
+                        .definition(SWEHelper.getPropertyUri("PrimaryControllerIndex"))
                         .value(primaryControllerIndex)
                         .addAllowedValues(controllerIndices))
                 .addField(controllersRecord.getName(), controllersRecord)
@@ -287,7 +296,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     IController controller = parentSensor.allControllers.get(preset.controllerIndex);
                     int componentsForCombination = preset.componentNames.size();
 
-                    if (preset.cyclesPrimaryController) {
+                    if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_PRIMARY_CONTROLLER)) {
                         // TODO: only cycle to next controller if current controller is primary controller?
                         for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
                             if (preset.componentNames.contains(controllerComponent.getName())) {
@@ -304,7 +313,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         }
                     }
 
-                    if (preset.overridesPrimaryController) {
+                    if (preset.controllerCyclingAction.equals(ControllerCyclingAction.OVERRIDES_PRIMARY_CONTROLLER)) {
                         componentsForCombination = preset.componentNames.size();
                         for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
                             if(preset.componentNames.contains(controllerComponent.getName())) {
