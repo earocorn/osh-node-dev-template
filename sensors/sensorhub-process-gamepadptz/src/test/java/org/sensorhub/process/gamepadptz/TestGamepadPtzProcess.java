@@ -68,7 +68,7 @@ public class TestGamepadPtzProcess {
     @Test
     public void testGamepadPtzProcess() throws Exception
     {
-        GamepadPtz p = new GamepadPtz();
+        GamepadProcessChain p = new GamepadProcessChain();
         p.init();
         System.out.println(p.getProcessInfo().getUri());
 
@@ -78,53 +78,53 @@ public class TestGamepadPtzProcess {
         simple.setExecutableImpl(p);
 
         // serialize
-        AggregateProcessImpl wp = new AggregateProcessImpl();
-        for (AbstractSWEIdentifiable output: p.getOutputList()) {
-            wp.addOutput(output.getId(), (DataComponent) output);
-        }
+//        AggregateProcessImpl wp = new AggregateProcessImpl();
+//        for (AbstractSWEIdentifiable output: p.getOutputList()) {
+//            wp.addOutput(output.getId(), (DataComponent) output);
+//        }
         //smlHelper.makeProcessExecutable(wp, false);
         //wp.setExecutableImpl(p);
         // set type
-        wp.setUniqueIdentifier(UUID.randomUUID().toString());
+//        wp.setUniqueIdentifier(UUID.randomUUID().toString());
 
-        // gamepad source
-        SimpleProcess gamepadSource = new SimpleProcessImpl();
-        gamepadSource.setUniqueIdentifier("urn:osh:sensor:universalcontroller");
-        Reference sourceRef = new ReferenceImpl();
-        sourceRef.setHref("urn:osh:process:datasource:datastream");
-        gamepadSource.setTypeOf(sourceRef);
-        wp.addComponent("gamepadsource", gamepadSource);
+//        // gamepad source
+//        SimpleProcess gamepadSource = new SimpleProcessImpl();
+//        gamepadSource.setUniqueIdentifier("urn:osh:sensor:universalcontroller");
+//        Reference sourceRef = new ReferenceImpl();
+//        sourceRef.setHref("urn:osh:process:datasource:datastream");
+//        gamepadSource.setTypeOf(sourceRef);
+//        wp.addComponent("gamepadsource", gamepadSource);
+//
+//        // process component
+//        wp.addComponent("ptzprocess", simple);
+//
+//        // axiscam commandstream
+////        CommandStreamSink ptzDestination = new CommandStreamSink();
+//        SimpleProcess ptzDestination = new SimpleProcessImpl();
+//        ptzDestination.setUniqueIdentifier("urn:axis:cam:00408CA0FF1C");
+//        Reference sinkRef = new ReferenceImpl();
+//        sinkRef.setHref("urn:osh:process:datasink:commandstream");
+//        ptzDestination.setTypeOf(sinkRef);
+//        wp.addComponent("axiscam", ptzDestination);
+//
+//        // inputs and outputs
+////        wp.addOutput("ptz", p.getOutputList().getComponent(0));
+////        wp.addInput("pov", p.getInputList().getComponent(0));
+//
+//        // connections
+//        LinkImpl inputToProcess = new LinkImpl();
+//        inputToProcess.setSource("components/gamepadsource/outputs/gamepads/gamepad0/pov");
+//        inputToProcess.setDestination("components/ptzprocess/inputs/pov");
+//
+//        LinkImpl outputToCommand = new LinkImpl();
+//        outputToCommand.setSource("components/ptzprocess/outputs/ptz");
+//        outputToCommand.setDestination("components/axiscam/inputs/ptz");
+//
+//        // add 2 connections
+//        wp.addConnection(inputToProcess);
+//        wp.addConnection(outputToCommand);
 
-        // process component
-        wp.addComponent("ptzprocess", simple);
-
-        // axiscam commandstream
-//        CommandStreamSink ptzDestination = new CommandStreamSink();
-        SimpleProcess ptzDestination = new SimpleProcessImpl();
-        ptzDestination.setUniqueIdentifier("urn:axis:cam:00408CA0FF1C");
-        Reference sinkRef = new ReferenceImpl();
-        sinkRef.setHref("urn:osh:process:datasink:commandstream");
-        ptzDestination.setTypeOf(sinkRef);
-        wp.addComponent("axiscam", ptzDestination);
-
-        // inputs and outputs
-//        wp.addOutput("ptz", p.getOutputList().getComponent(0));
-//        wp.addInput("pov", p.getInputList().getComponent(0));
-
-        // connections
-        LinkImpl inputToProcess = new LinkImpl();
-        inputToProcess.setSource("components/gamepadsource/outputs/gamepads/gamepad0/pov");
-        inputToProcess.setDestination("components/ptzprocess/inputs/pov");
-
-        LinkImpl outputToCommand = new LinkImpl();
-        outputToCommand.setSource("components/ptzprocess/outputs/ptz");
-        outputToCommand.setDestination("components/axiscam/inputs/ptz");
-
-        // add 2 connections
-        wp.addConnection(inputToProcess);
-        wp.addConnection(outputToCommand);
-
-        smlHelper.writeProcess(System.out, wp, true);
+        smlHelper.writeProcess(System.out, simple, true);
 
         p.execute();
     }

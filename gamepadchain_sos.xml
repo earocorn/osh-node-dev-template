@@ -76,8 +76,15 @@
                     <sml:inputs>
                         <sml:InputList>
                             <sml:input name="gamepads">
-                                <swe:DataRecord>
+                                <swe:DataRecord updatable="true">
                                     <swe:label>Gamepads</swe:label>
+                                    <swe:description>List of connected gamepads.</swe:description>
+                                    <swe:field name="test">
+                                        <swe:DataRecord updatable="true"/>
+                                    </swe:field>
+                                    <swe:field name="test2">
+                                        <swe:DataRecord updatable="true"/>
+                                    </swe:field>
                                 </swe:DataRecord>
                             </sml:input>
                         </sml:InputList>
@@ -224,7 +231,7 @@
         <sml:ConnectionList>
             <sml:connection>
                 <sml:Link>
-                    <sml:source ref="components/gamepadchainsource/outputs/UniversalControllerOutput/gamepads"/>
+                    <sml:source ref="components/gamepadchainsource/outputs/output1/gamepads"/>
                     <sml:destination ref="components/gamepadchainprocess/inputs/gamepads"/>
                 </sml:Link>
             </sml:connection>

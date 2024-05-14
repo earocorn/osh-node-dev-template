@@ -23,4 +23,11 @@ dependencies {
   //
   // EX:
   // implementation project(':sensorhub-driver-rtpcam')
+  implementation project(':sensorhub-driver-videocam')
+  implementation project(':sensorhub-driver-axis')
+  implementation project(':sensorhub-driver-rtpcam')
+  implementation project(':sensorhub-driver-anycontroller')
+
+  // process
+  implementation project(':sensorhub-process-gamepadptz')
 }

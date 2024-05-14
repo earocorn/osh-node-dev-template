@@ -237,7 +237,11 @@
       "localAddress": "AUTO"
     },
     "observedProperties": [
-      "http://sensorml.com/ont/swe/property/GamepadList"
+      "http://sensorml.com/ont/swe/property/LeftThumb",
+      "http://sensorml.com/ont/swe/property/RightThumb",
+      "http://sensorml.com/ont/swe/property/pov",
+      "http://sensorml.com/ont/swe/property/xAxis",
+      "http://sensorml.com/ont/swe/property/yAxis"
     ],
     "sosUseWebsockets": false,
     "connectionConfig": {
@@ -250,64 +254,6 @@
     "id": "ba3748e3-8719-4228-af36-d72f3fb1751c",
     "moduleClass": "org.sensorhub.impl.sensor.swe.SWEVirtualSensor",
     "name": "New SWE Virtual Sensor",
-    "autoStart": false
-  },
-  {
-    "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig",
-    "http": {
-      "objClass": "org.sensorhub.impl.comm.HTTPConfig",
-      "remotePort": 80,
-      "user": "root",
-      "password": "password",
-      "enableTLS": false,
-      "remoteHost": "192.168.1.123",
-      "localAddress": "AUTO"
-    },
-    "rtsp": {
-      "objClass": "org.sensorhub.impl.sensor.rtpcam.RTSPConfig",
-      "videoPath": "/axis-media/media.amp?videocodec=h264",
-      "localUdpPort": 20100,
-      "onlyConnectRtsp": false,
-      "remotePort": 554,
-      "user": "root",
-      "password": "password",
-      "enableTLS": false,
-      "remoteHost": "192.168.1.123",
-      "localAddress": "AUTO"
-    },
-    "connection": {
-      "objClass": "org.sensorhub.impl.comm.RobustIPConnectionConfig",
-      "checkReachability": true,
-      "connectTimeout": 3000,
-      "reconnectPeriod": 10000,
-      "reconnectAttempts": 0
-    },
-    "video": {
-      "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig$VideoConfig",
-      "resolution": "_4CIF",
-      "frameRate": 0,
-      "grayscale": false
-    },
-    "ptz": {
-      "objClass": "org.sensorhub.impl.sensor.videocam.ptz.PtzConfig",
-      "presets": []
-    },
-    "position": {
-      "objClass": "org.sensorhub.api.sensor.PositionConfig"
-    },
-    "enableH264": false,
-    "enableMJPEG": true,
-    "lastUpdated": "2024-05-10T15:25:27.197-0500",
-    "id": "30c0f550-35bf-460a-aeac-86ff57090194",
-    "moduleClass": "org.sensorhub.impl.sensor.axis.AxisCameraDriver",
-    "name": "New Axis Video Camera",
     "autoStart": true
-  },
-  {
-    "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "id": "f821628a-f0b1-4cda-8b0b-e9e616ac00ba",
-    "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
-    "name": "New SensorML Stream Process",
-    "autoStart": false
   }
 ]

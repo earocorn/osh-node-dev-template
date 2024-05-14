@@ -237,7 +237,11 @@
       "localAddress": "AUTO"
     },
     "observedProperties": [
-      "http://sensorml.com/ont/swe/property/GamepadList"
+      "http://sensorml.com/ont/swe/property/LeftThumb",
+      "http://sensorml.com/ont/swe/property/RightThumb",
+      "http://sensorml.com/ont/swe/property/pov",
+      "http://sensorml.com/ont/swe/property/xAxis",
+      "http://sensorml.com/ont/swe/property/yAxis"
     ],
     "sosUseWebsockets": false,
     "connectionConfig": {
@@ -250,7 +254,7 @@
     "id": "ba3748e3-8719-4228-af36-d72f3fb1751c",
     "moduleClass": "org.sensorhub.impl.sensor.swe.SWEVirtualSensor",
     "name": "New SWE Virtual Sensor",
-    "autoStart": false
+    "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig",

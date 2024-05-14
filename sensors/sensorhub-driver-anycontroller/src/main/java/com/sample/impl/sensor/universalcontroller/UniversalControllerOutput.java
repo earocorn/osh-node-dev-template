@@ -16,6 +16,7 @@ package com.sample.impl.sensor.universalcontroller;
 import com.alexalmanza.controller.wii.identifiers.WiiIdentifier;
 import com.alexalmanza.interfaces.IController;
 import com.alexalmanza.models.ControllerComponent;
+import com.alexalmanza.models.ControllerData;
 import com.alexalmanza.models.ControllerType;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerCyclingAction;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
@@ -25,12 +26,13 @@ import org.sensorhub.api.sensor.SensorException;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vast.data.AbstractDataBlock;
-import org.vast.data.DataBlockMixed;
+import org.vast.data.*;
 import org.vast.swe.SWEBuilders;
 import org.vast.swe.SWEHelper;
 
 import java.lang.Boolean;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Output specification and provider for {@link UniversalControllerSensor}.
@@ -61,7 +63,6 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private int primaryControllerIndex;
     private long pollingRate;
     private ControllerLayerConfig controllerLayerConfig;
-    private boolean hasSensitivity;
 
     private Thread worker;
 
@@ -88,65 +89,8 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
         pollingRate = parentSensor.getConfiguration().pollingRate;
         controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
-        hasSensitivity = parentSensor.getConfiguration().hasSensitivity;
-
-        // Get an instance of SWE Factory suitable to build components
-//        GamepadHelper sweFactory = new GamepadHelper();
-//
-//        dataStruct = sweFactory.newGamepadOutput(SENSOR_OUTPUT_NAME, gamepadUtil.getGamepad());
-//
-//        dataStruct.setLabel(SENSOR_OUTPUT_LABEL);
-//        dataStruct.setDescription(SENSOR_OUTPUT_DESCRIPTION);
 
         SWEHelper sweFactory = new SWEHelper();
-
-        SWEBuilders.DataRecordBuilder recordBuilder;
-        DataRecord controllersRecord;
-
-        recordBuilder = sweFactory.createRecord()
-                .name("gamepads")
-                .label("Gamepads")
-                .description("List of connected gamepads.");
-
-        for(IController controller : parentSensor.allControllers) {
-            SWEBuilders.DataRecordBuilder controllerRecord = sweFactory.createRecord()
-                    // TODO: better identification
-                    .name("gamepad" + parentSensor.allControllers.indexOf(controller))
-                    .label(controller.getControllerData().getName())
-                    .description("Auto-populated gamepad data");
-
-            for (ControllerComponent component : controller.getControllerData().getOutputs()) {
-                String uriName = component.getName();
-                if(uriName.equals("x") || uriName.equals("y") || uriName.equals("z")) {
-                    uriName += "Axis";
-                }
-                uriName = uriName.replace(" ", "");
-                controllerRecord.addField(component.getName().replace(" ", ""), sweFactory.createQuantity()
-                        .value(component.getValue())
-                        .definition(SWEHelper.getPropertyUri(uriName))
-                        .addAllowedInterval(-1.0f, 1.0f));
-            }
-
-            controllerRecord.addField("isPrimaryController", sweFactory.createBoolean()
-                    .label("Is Primary Controller")
-                    .definition(SWEHelper.getPropertyUri("IsPrimaryController"))
-                    .value(false));
-
-            // TODO: make this better OR just do all sensitivity logic in process
-            if(hasSensitivity) {
-                controllerRecord.addField("sensitivity", sweFactory.createQuantity()
-                        .label("Sensitivity")
-                        .value(1)
-                        .addAllowedInterval(1, 10)
-                        .dataType(DataType.INT));
-            }
-
-            DataRecord builtControllerRecord = controllerRecord.build();
-
-            recordBuilder.addField(builtControllerRecord.getName(), builtControllerRecord);
-        }
-
-        controllersRecord = recordBuilder.build();
 
         int[] controllerIndices = new int[parentSensor.allControllers.size()];
         for (int i = 0; i < parentSensor.allControllers.size(); i++) {
@@ -155,7 +99,9 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
         dataStruct = sweFactory.createRecord()
                 .name(SENSOR_OUTPUT_NAME)
+                .updatable(true)
                 .label(SENSOR_OUTPUT_LABEL)
+                .definition(SWEHelper.getPropertyUri(SENSOR_OUTPUT_NAME))
                 .description(SENSOR_OUTPUT_DESCRIPTION)
                 .addField("sampleTime", sweFactory.createTime()
                         .asSamplingTimeIsoUTC()
@@ -167,7 +113,58 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         .definition(SWEHelper.getPropertyUri("PrimaryControllerIndex"))
                         .value(primaryControllerIndex)
                         .addAllowedValues(controllerIndices))
-                .addField(controllersRecord.getName(), controllersRecord)
+                .addField("numGamepads", sweFactory.createCount()
+                        .label("Num Gamepads")
+                        .description("Number of connected gamepads")
+                        .definition(SWEHelper.getPropertyUri("GamepadCount"))
+                        .id("numGamepads"))
+                .addField("gamepads", sweFactory.createArray()
+                        .name("gamepads")
+                        .label("Gamepads")
+                        .description("List of connected gamepads.")
+                        .definition(SWEHelper.getPropertyUri("GamepadArray"))
+                        .withVariableSize("numGamepads")
+                        .withElement("gamepad", sweFactory.createRecord()
+                                .label("Gamepad")
+                                .description("Gamepad Data")
+                                .definition(SWEHelper.getPropertyUri("Gamepad"))
+                                .addField("gamepadName", sweFactory.createText()
+                                        .label("Gamepad Name")
+                                        .definition("GamepadName"))
+                                .addField("isPrimaryController", sweFactory.createBoolean()
+                                        .label("Is Primary Controller")
+                                        .definition(SWEHelper.getPropertyUri("IsPrimaryController"))
+                                        .value(false))
+                                .addField("numComponents", sweFactory.createCount()
+                                        .label("Num Components")
+                                        .description("Number of button and axis components on gamepad")
+                                        .definition(SWEHelper.getPropertyUri("NumGamepadComponents"))
+                                        .id("numComponents")
+                                        .build())
+                                .addField("gamepadComponents", sweFactory.createArray()
+                                        .name("gamepadComponents")
+                                        .label("Gamepad Components")
+                                        .description("Data of Connected Gamepad Components")
+                                        .definition(SWEHelper.getPropertyUri("GamepadComponentArray"))
+                                        .withVariableSize("numComponents")
+                                        .withElement("component", sweFactory.createRecord()
+                                                .name("component")
+                                                .label("Component")
+                                                .description("Gamepad Component (A button, B button, X axis, etc.)")
+                                                .definition(SWEHelper.getPropertyUri("GamepadComponent"))
+                                                .addField("componentName", sweFactory.createText()
+                                                        .label("Component Name")
+                                                        .description("Name of component")
+                                                        .definition(SWEHelper.getPropertyUri("ComponentName"))
+                                                        .value(""))
+                                                .addField("componentValue", sweFactory.createQuantity()
+                                                        .label("Component Value")
+                                                        .description("Value of component")
+                                                        .definition(SWEHelper.getPropertyUri("ComponentValue"))
+                                                        .dataType(DataType.FLOAT)
+                                                        .value(0.0f)
+                                                        .addAllowedInterval(-1.0f, 1.0f)))
+                                        .build())))
                 .build();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
@@ -250,6 +247,48 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         return accumulator / (double) MAX_NUM_TIMING_SAMPLES;
     }
 
+    /**
+     * Updates the primary controller index based on controller mappings.
+     */
+    public void updatePrimaryControllerIndex() {
+        // Go through controller mapping
+        for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
+            IController controller = parentSensor.allControllers.get(preset.controllerIndex);
+            int componentsForCombination = preset.componentNames.size();
+
+            if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_PRIMARY_CONTROLLER)) {
+                // TODO: only cycle to next controller if current controller is primary controller?
+                for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
+                    if (preset.componentNames.contains(controllerComponent.getName())) {
+                        if (controllerComponent.getValue() == 1.0f) {
+                            componentsForCombination--;
+                        }
+                        if(componentsForCombination == 0) {
+                            primaryControllerIndex++;
+                            if (primaryControllerIndex >= parentSensor.allControllers.size()) {
+                                primaryControllerIndex = 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (preset.controllerCyclingAction.equals(ControllerCyclingAction.OVERRIDES_PRIMARY_CONTROLLER)) {
+                componentsForCombination = preset.componentNames.size();
+                for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
+                    if(preset.componentNames.contains(controllerComponent.getName())) {
+                        if(controllerComponent.getValue() == 1.0f) {
+                            componentsForCombination--;
+                        }
+                        if(componentsForCombination == 0) {
+                            primaryControllerIndex = parentSensor.allControllers.indexOf(controller);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void run() {
 
@@ -287,60 +326,75 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 ++setCount;
 
+                updatePrimaryControllerIndex();
+
                 double timestamp = System.currentTimeMillis() / 1000d;
 
                 dataBlock.setDoubleValue(0, timestamp);
-
-                // Go through controller mapping
-                for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
-                    IController controller = parentSensor.allControllers.get(preset.controllerIndex);
-                    int componentsForCombination = preset.componentNames.size();
-
-                    if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_PRIMARY_CONTROLLER)) {
-                        // TODO: only cycle to next controller if current controller is primary controller?
-                        for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                            if (preset.componentNames.contains(controllerComponent.getName())) {
-                                if (controllerComponent.getValue() == 1.0f) {
-                                    componentsForCombination--;
-                                }
-                                if(componentsForCombination == 0) {
-                                    primaryControllerIndex++;
-                                    if (primaryControllerIndex >= parentSensor.allControllers.size()) {
-                                        primaryControllerIndex = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (preset.controllerCyclingAction.equals(ControllerCyclingAction.OVERRIDES_PRIMARY_CONTROLLER)) {
-                        componentsForCombination = preset.componentNames.size();
-                        for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                            if(preset.componentNames.contains(controllerComponent.getName())) {
-                                if(controllerComponent.getValue() == 1.0f) {
-                                    componentsForCombination--;
-                                }
-                                if(componentsForCombination == 0) {
-                                    primaryControllerIndex = parentSensor.allControllers.indexOf(controller);
-                                }
-                            }
-                        }
-                    }
-                }
-
                 dataBlock.setIntValue(1, primaryControllerIndex);
+                dataBlock.setIntValue(2, parentSensor.allControllers.size());
 
-                AbstractDataBlock gamepadsData = ((DataBlockMixed) dataBlock).getUnderlyingObject()[2];
+                // debug stuff
+                // List of gamepads is a DataBlockList
+                logger.debug("datablock : {}", ((AbstractDataBlock[]) dataBlock.getUnderlyingObject())[3].getClass());
+                // gamepad is a DataBlockMixed
+                logger.debug("gamepad component : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").createDataBlock().getClass());
+                // gamepadComponents array is a DataBlockParallel
+                logger.debug("components component : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").getComponent("gamepadComponents").createDataBlock().getClass());
+                // Component itself is a DataBlockTuple
+                logger.debug("cloned component block : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").getComponent("gamepadComponents").getComponent("component").clone().createDataBlock().getClass());
+
+                DataArrayImpl gamepadArray = (DataArrayImpl) dataStruct.getComponent("gamepads");
+                gamepadArray.updateSize();
+                List<DataBlock> gamepadList = new ArrayList<>();
 
                 for (int i = 0; i < parentSensor.allControllers.size(); i++) {
                     IController controller = parentSensor.allControllers.get(i);
-                    AbstractDataBlock controllerDataBlock = ((DataBlockMixed) gamepadsData).getUnderlyingObject()[i];
+                    DataBlock gamepadDataBlock = dataStruct
+                            .getComponent("gamepads")
+                            .getComponent("gamepad")
+                            .createDataBlock();
 
-                    for (int recordNum = 0; recordNum < controller.getControllerData().getOutputs().size(); recordNum++) {
-                        controllerDataBlock.setDoubleValue(recordNum, controller.getControllerData().getOutputs().get(recordNum).getValue());
+                    // Set each element for underlying gamepad object
+                    gamepadDataBlock.setStringValue(0, "gamepad" + i);
+                    gamepadDataBlock.setBooleanValue(1, i == primaryControllerIndex);
+                    gamepadDataBlock.setIntValue(2, controller.getControllerData().getOutputs().size());
+
+                    DataArrayImpl componentArray = (DataArrayImpl) dataStruct
+                            .getComponent("gamepads")
+                            .getComponent("gamepad")
+                            .getComponent("gamepadComponents");
+                    componentArray.updateSize(controller.getControllerData().getOutputs().size());
+
+                    List<DataBlock> componentList = new ArrayList<>();
+
+                    // Set component data from controllerData outputs
+                    for(int componentIndex = 0; componentIndex < controller.getControllerData().getOutputs().size(); componentIndex++) {
+                        ControllerComponent componentData = controller.getControllerData().getOutputs().get(componentIndex);
+
+                        DataBlock componentDataBlock = dataStruct
+                                .getComponent("gamepads")
+                                .getComponent("gamepad")
+                                .getComponent("gamepadComponents")
+                                .getComponent("component")
+                                .createDataBlock();
+
+                        componentDataBlock.setStringValue(0, componentData.getName());
+                        componentDataBlock.setFloatValue(1, componentData.getValue());
+
+                        componentList.add(componentDataBlock);
                     }
-                    controllerDataBlock.setBooleanValue(controller.getControllerData().getOutputs().size(), i == primaryControllerIndex);
+                    // Set this list of components for each gamepad
+                    ((AbstractDataBlock[])(gamepadDataBlock.getUnderlyingObject()))[3].setUnderlyingObject(componentList);
+
+                    gamepadList.add(gamepadDataBlock);
                 }
+
+                // Set the list of gamepads
+                //logger.debug("gamepadsDatablock = {}", ((AbstractDataBlock[]) dataBlock.getUnderlyingObject())[3].getClass());
+                ((AbstractDataBlock[])(dataBlock.getUnderlyingObject()))[3].setUnderlyingObject(gamepadList);
+
+                dataBlock.updateAtomCount();
 
                 latestRecord = dataBlock;
 

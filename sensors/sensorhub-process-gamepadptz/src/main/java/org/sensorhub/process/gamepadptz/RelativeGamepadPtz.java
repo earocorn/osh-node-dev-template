@@ -94,7 +94,6 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 .build());
 
         // outputs
-
         outputData.add("rpan", rPanOutput = sweHelper.createQuantity()
                 .dataType(DataType.FLOAT)
                 .definition(SWEHelper.getPropertyUri("RelativePan"))
