@@ -78,26 +78,17 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         logger.debug("UniversalControllerOutput created");
     }
 
-    /**
-     * Initializes the data structure for the output, defining the fields, their ordering,
-     * and data types.
-     */
-    void doInit() throws SensorException {
-
-        logger.debug("Initializing UniversalControllerOutput");
-
-        primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
-        pollingRate = parentSensor.getConfiguration().pollingRate;
-        controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
-
-        SWEHelper sweFactory = new SWEHelper();
-
+    DataRecord createDataRecord() {
         int[] controllerIndices = new int[parentSensor.allControllers.size()];
         for (int i = 0; i < parentSensor.allControllers.size(); i++) {
             controllerIndices[i] = i;
         }
 
-        dataStruct = sweFactory.createRecord()
+        SWEHelper sweFactory = new SWEHelper();
+
+        dataEncoding = sweFactory.newTextEncoding(",", "\n");
+
+        return dataStruct = sweFactory.createRecord()
                 .name(SENSOR_OUTPUT_NAME)
                 .updatable(true)
                 .label(SENSOR_OUTPUT_LABEL)
@@ -167,7 +158,21 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                                         .build())))
                 .build();
 
-        dataEncoding = sweFactory.newTextEncoding(",", "\n");
+    }
+
+    /**
+     * Initializes the data structure for the output, defining the fields, their ordering,
+     * and data types.
+     */
+    void doInit() throws SensorException {
+
+        logger.debug("Initializing UniversalControllerOutput");
+
+        primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
+        pollingRate = parentSensor.getConfiguration().pollingRate;
+        controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
+
+        dataStruct = createDataRecord();
 
         logger.debug("Initializing UniversalControllerOutput Complete");
     }
@@ -196,6 +201,12 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         synchronized (processingLock) {
 
             stopProcessing = true;
+        }
+
+        try{
+            parentSensor.cancelWiiMoteSearch();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
 
         // stop all controller observers and disconnect all controllers
@@ -303,15 +314,9 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                 // adjust polling rate from config
                 Thread.sleep(pollingRate);
 
-                DataBlock dataBlock;
-                if (latestRecord == null) {
-
-                    dataBlock = dataStruct.createDataBlock();
-
-                } else {
-
-                    dataBlock = latestRecord.renew();
-                }
+                dataStruct = createDataRecord();
+                DataBlock dataBlock = dataStruct.createDataBlock();
+                dataStruct.setData(dataBlock);
 
                 synchronized (histogramLock) {
 
@@ -330,69 +335,36 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                 double timestamp = System.currentTimeMillis() / 1000d;
 
-                dataBlock.setDoubleValue(0, timestamp);
-                dataBlock.setIntValue(1, primaryControllerIndex);
-                dataBlock.setIntValue(2, parentSensor.allControllers.size());
+                int index = 0;
 
-                // debug stuff
-                // List of gamepads is a DataBlockList
-                logger.debug("datablock : {}", ((AbstractDataBlock[]) dataBlock.getUnderlyingObject())[3].getClass());
-                // gamepad is a DataBlockMixed
-                logger.debug("gamepad component : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").createDataBlock().getClass());
-                // gamepadComponents array is a DataBlockParallel
-                logger.debug("components component : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").getComponent("gamepadComponents").createDataBlock().getClass());
-                // Component itself is a DataBlockTuple
-                logger.debug("cloned component block : {}", dataStruct.getComponent("gamepads").getComponent("gamepad").getComponent("gamepadComponents").getComponent("component").clone().createDataBlock().getClass());
+                dataBlock.setDoubleValue(index++, timestamp);
+                dataBlock.setIntValue(index++, primaryControllerIndex);
+                dataBlock.setIntValue(index++, parentSensor.allControllers.size());
 
-                DataArrayImpl gamepadArray = (DataArrayImpl) dataStruct.getComponent("gamepads");
+                var gamepadArray = (DataArrayImpl) dataStruct.getComponent("gamepads");
                 gamepadArray.updateSize();
-                List<DataBlock> gamepadList = new ArrayList<>();
+                dataBlock.updateAtomCount();
 
                 for (int i = 0; i < parentSensor.allControllers.size(); i++) {
                     IController controller = parentSensor.allControllers.get(i);
-                    DataBlock gamepadDataBlock = dataStruct
-                            .getComponent("gamepads")
-                            .getComponent("gamepad")
-                            .createDataBlock();
+                    DataRecord gamepadDataBlock = (DataRecord) gamepadArray.getComponent(i);
 
                     // Set each element for underlying gamepad object
-                    gamepadDataBlock.setStringValue(0, "gamepad" + i);
-                    gamepadDataBlock.setBooleanValue(1, i == primaryControllerIndex);
-                    gamepadDataBlock.setIntValue(2, controller.getControllerData().getOutputs().size());
+                    dataBlock.setStringValue(index++, "gamepad" + i);
+                    dataBlock.setBooleanValue(index++, i == primaryControllerIndex);
+                    dataBlock.setIntValue(index++, controller.getControllerData().getOutputs().size());
 
-                    DataArrayImpl componentArray = (DataArrayImpl) dataStruct
-                            .getComponent("gamepads")
-                            .getComponent("gamepad")
-                            .getComponent("gamepadComponents");
-                    componentArray.updateSize(controller.getControllerData().getOutputs().size());
-
-                    List<DataBlock> componentList = new ArrayList<>();
+                    var componentArray = ((DataArrayImpl) gamepadDataBlock.getComponent("gamepadComponents"));
+                    componentArray.updateSize();
+                    dataBlock.updateAtomCount();
 
                     // Set component data from controllerData outputs
                     for(int componentIndex = 0; componentIndex < controller.getControllerData().getOutputs().size(); componentIndex++) {
                         ControllerComponent componentData = controller.getControllerData().getOutputs().get(componentIndex);
-
-                        DataBlock componentDataBlock = dataStruct
-                                .getComponent("gamepads")
-                                .getComponent("gamepad")
-                                .getComponent("gamepadComponents")
-                                .getComponent("component")
-                                .createDataBlock();
-
-                        componentDataBlock.setStringValue(0, componentData.getName());
-                        componentDataBlock.setFloatValue(1, componentData.getValue());
-
-                        componentList.add(componentDataBlock);
+                        dataBlock.setStringValue(index++, componentData.getName());
+                        dataBlock.setFloatValue(index++, componentData.getValue());
                     }
-                    // Set this list of components for each gamepad
-                    ((AbstractDataBlock[])(gamepadDataBlock.getUnderlyingObject()))[3].setUnderlyingObject(componentList);
-
-                    gamepadList.add(gamepadDataBlock);
                 }
-
-                // Set the list of gamepads
-                //logger.debug("gamepadsDatablock = {}", ((AbstractDataBlock[]) dataBlock.getUnderlyingObject())[3].getClass());
-                ((AbstractDataBlock[])(dataBlock.getUnderlyingObject()))[3].setUnderlyingObject(gamepadList);
 
                 dataBlock.updateAtomCount();
 
