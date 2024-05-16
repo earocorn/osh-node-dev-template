@@ -361,7 +361,8 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     // Set component data from controllerData outputs
                     for(int componentIndex = 0; componentIndex < controller.getControllerData().getOutputs().size(); componentIndex++) {
                         ControllerComponent componentData = controller.getControllerData().getOutputs().get(componentIndex);
-                        dataBlock.setStringValue(index++, componentData.getName());
+                        String joinedName = componentData.getName().replace(" ", "");
+                        dataBlock.setStringValue(index++, joinedName);
                         dataBlock.setFloatValue(index++, componentData.getValue());
                     }
                 }

@@ -132,6 +132,8 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     @Override
     public void execute() throws ProcessException
     {
+        System.out.println("Executing rPTZ process");
+        reportError("Executing rPTZ process");
         try {
             isPrimary = isPrimaryControllerInput.getData().getBooleanValue();
             if(isPrimary) {
