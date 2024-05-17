@@ -54,7 +54,6 @@ public class UniversalControllerConfig extends SensorConfig {
     @DisplayInfo(desc = "Primary controller switching configuration")
     public ControllerLayerConfig controllerLayerConfig = new ControllerLayerConfig();
 
-
     @DisplayInfo.Required
     @DisplayInfo(desc = "Polling rate in milliseconds")
     public int pollingRate = 250;
@@ -67,4 +66,7 @@ public class UniversalControllerConfig extends SensorConfig {
     @DisplayInfo(desc = "Include sensitivity field")
     public boolean hasSensitivity = false;
 
+    @DisplayInfo.Required
+    @DisplayInfo(desc = "Time in seconds to search for controllers")
+    public int searchTime = 15;
 }

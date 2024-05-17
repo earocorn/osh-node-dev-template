@@ -39,8 +39,6 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     UniversalControllerOutput output;
     ArrayList<IController> allControllers = new ArrayList<>();
     private FindControllers findControllers;
-    private WiiMoteConnection wiiMoteConnection;
-
     @Override
     public void doInit() throws SensorHubException {
 
@@ -58,7 +56,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         }
 
         try {
-            findControllers = new FindControllers(new Event(), typesArray);
+            findControllers = new FindControllers(config.searchTime* 1000L, new Event(), typesArray);
             if(!findControllers.getControllers().isEmpty()) {
                 allControllers = findControllers.getControllers();
             }
@@ -93,7 +91,8 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
     }
 
     public void cancelWiiMoteSearch() {
-        wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
+        WiiMoteConnection wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
+        wiiMoteConnection.getConnectedControllers().forEach(IController::disconnect);
         if (wiiMoteConnection != null) {
             wiiMoteConnection.cancelSearch();
         }
