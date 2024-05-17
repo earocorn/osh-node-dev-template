@@ -22,9 +22,9 @@ public class ProcessDescriptors extends AbstractProcessProvider
     
     public ProcessDescriptors()
     {
+        addImpl(GamepadProcessChain.INFO);
         addImpl(GamepadPtz.INFO);
         addImpl(RelativeGamepadPtz.INFO);
-        addImpl(GamepadProcessChain.INFO);
     }
 
 }

@@ -250,7 +250,7 @@
     "id": "ba3748e3-8719-4228-af36-d72f3fb1751c",
     "moduleClass": "org.sensorhub.impl.sensor.swe.SWEVirtualSensor",
     "name": "New SWE Virtual Sensor",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig",

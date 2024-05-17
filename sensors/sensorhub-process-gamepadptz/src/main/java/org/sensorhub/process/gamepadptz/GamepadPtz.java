@@ -43,11 +43,8 @@ public class GamepadPtz extends ExecutableProcessImpl
     private Quantity dpad;
     private Quantity zoomInHID;
     private Quantity zoomOutHID;
-    private Quantity zoomInWii;
-    private Quantity zoomOutWii;
     private Quantity zoomReset;
     private DataRecord ptzOutput;
-    private DataRecord ptzInput;
 
     float curPan = 0;
     float curTilt = 0;

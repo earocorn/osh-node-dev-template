@@ -88,10 +88,6 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        inputData.add("isPrimaryControllerInput", isPrimaryControllerInput = sweHelper.createBoolean()
-                .label("Is Primary Controller")
-                .value(false)
-                .build());
 
         // outputs
         outputData.add("rpan", rPanOutput = sweHelper.createQuantity()
@@ -133,11 +129,7 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     public void execute() throws ProcessException
     {
         System.out.println("Executing rPTZ process");
-        reportError("Executing rPTZ process");
         try {
-            isPrimary = isPrimaryControllerInput.getData().getBooleanValue();
-            if(isPrimary) {
-
             curXValue = xAxisInput.getData().getFloatValue();
             curYValue = yAxisInput.getData().getFloatValue();
 
@@ -178,11 +170,6 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
                 rPanOutput.getData().setFloatValue(newPan);
                 rTiltOutput.getData().setFloatValue(newTilt);
                 rZoomOutput.getData().setFloatValue(newZoom);
-            } else {
-                rPanOutput.getData().setFloatValue(0);
-                rTiltOutput.getData().setFloatValue(0);
-                rZoomOutput.getData().setFloatValue(0);
-            }
         } catch (Exception e) {
             reportError("Error computing PTZ position");
         }
