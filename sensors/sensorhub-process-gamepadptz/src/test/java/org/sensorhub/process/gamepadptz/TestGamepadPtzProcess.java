@@ -16,6 +16,8 @@ import org.sensorhub.impl.SensorHub;
 import org.sensorhub.impl.module.ModuleClassFinder;
 import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.processing.*;
+import org.sensorhub.process.gamepadptz.clean.ControllerPTZProcess;
+import org.sensorhub.process.gamepadptz.helpers.PrimaryControllerSelector;
 import org.vast.data.DataStreamImpl;
 import org.vast.sensorML.*;
 
@@ -68,7 +70,7 @@ public class TestGamepadPtzProcess {
     @Test
     public void testGamepadPtzProcess() throws Exception
     {
-        GamepadProcessChain p = new GamepadProcessChain();
+        ControllerPTZProcess p = new ControllerPTZProcess();
         p.init();
         System.out.println(p.getProcessInfo().getUri());
 

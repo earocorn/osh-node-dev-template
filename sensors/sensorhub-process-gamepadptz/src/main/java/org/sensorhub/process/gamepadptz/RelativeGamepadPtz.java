@@ -46,7 +46,6 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     private Quantity dpadInput;
     private Quantity rightInput;
     private Quantity leftInput;
-    private Boolean isPrimaryControllerInput;
     float curXValue = 0;
     float curYValue = 0;
     private Quantity rPanOutput;
@@ -57,7 +56,6 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
     float newZoom = 0;
     boolean isLeftPressed = false;
     boolean isRightPressed = false;
-    boolean isPrimary;
 
     public RelativeGamepadPtz()
     {
@@ -136,40 +134,36 @@ public class RelativeGamepadPtz extends ExecutableProcessImpl
             // Zoom in/out button isPressed values for HID and Wii controllers
             isLeftPressed = leftInput.getValue() == 1.0f;
             isRightPressed = rightInput.getValue() == 1.0f;
-//            isMinusPressed = zoomOutWii.getValue() == 1.0f;
-//            isPlusPressed = zoomInWii.getValue() == 1.0f;
 
-//            if(dpadInput.getData().getFloatValue() != 0 || curXValue != 0 || curYValue != 0 || isLeftPressed || isRightPressed) {
-
-                // Sensitivity determined by dpadInput up and down on scale of 1-10
-                if(dpadInput.getData().getFloatValue() == 0.25f) {
-                    if(sensitivityOutput.getData().getIntValue() < 10) {
-                        sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() + 1);
-                    }
-                } else if(dpadInput.getData().getFloatValue() == 0.75f) {
-                    if(sensitivityOutput.getData().getIntValue() > 1) {
-                        sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() - 1);
-                    }
+            // Sensitivity determined by dpadInput up and down on scale of 1-10
+            if(dpadInput.getData().getFloatValue() == 0.25f) {
+                if(sensitivityOutput.getData().getIntValue() < 10) {
+                    sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() + 1);
                 }
-
-                newPan = curXValue * sensitivityOutput.getData().getIntValue() * 5;
-
-                newTilt = -(curYValue * sensitivityOutput.getData().getIntValue() * 5);
-
-                // Zoom in or out incrementally based on whether buttons are pressed
-                if(isLeftPressed) {
-                    newZoom = -100 * sensitivityOutput.getData().getIntValue();
-                } else if(isRightPressed) {
-                    newZoom = 100 * sensitivityOutput.getData().getIntValue();
-                } else {
-                    newZoom = 0;
+            } else if(dpadInput.getData().getFloatValue() == 0.75f) {
+                if(sensitivityOutput.getData().getIntValue() > 1) {
+                    sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() - 1);
                 }
+            }
 
-                getLogger().debug("New PTZ = [{},{},{}]", newPan, newTilt, newZoom);
+            //          1
+            newPan = curXValue * sensitivityOutput.getData().getIntValue() * 5;
 
-                rPanOutput.getData().setFloatValue(newPan);
-                rTiltOutput.getData().setFloatValue(newTilt);
-                rZoomOutput.getData().setFloatValue(newZoom);
+            //         -1
+            newTilt = -(curYValue * sensitivityOutput.getData().getIntValue() * 5);
+
+            // Zoom in or out incrementally based on whether buttons are pressed
+            if(isLeftPressed) {
+                newZoom = -100 * sensitivityOutput.getData().getIntValue();
+            } else if(isRightPressed) {
+                newZoom = 100 * sensitivityOutput.getData().getIntValue();
+            } else {
+                newZoom = 0;
+            }
+
+            rPanOutput.getData().setFloatValue(newPan);
+            rTiltOutput.getData().setFloatValue(newTilt);
+            rZoomOutput.getData().setFloatValue(newZoom);
         } catch (Exception e) {
             reportError("Error computing PTZ position");
         }

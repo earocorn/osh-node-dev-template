@@ -56,7 +56,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         }
 
         try {
-            findControllers = new FindControllers(config.searchTime* 1000L, new Event(), typesArray);
+            findControllers = new FindControllers(config.controllerSearchTime* 1000L, new Event(), typesArray);
             if(!findControllers.getControllers().isEmpty()) {
                 allControllers = findControllers.getControllers();
             }
@@ -92,8 +92,8 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
 
     public void cancelWiiMoteSearch() {
         WiiMoteConnection wiiMoteConnection = (WiiMoteConnection) findControllers.getControllerConnection(ControllerType.WIIMOTE);
-        wiiMoteConnection.getConnectedControllers().forEach(IController::disconnect);
         if (wiiMoteConnection != null) {
+            wiiMoteConnection.getConnectedControllers().forEach(IController::disconnect);
             wiiMoteConnection.cancelSearch();
         }
     }

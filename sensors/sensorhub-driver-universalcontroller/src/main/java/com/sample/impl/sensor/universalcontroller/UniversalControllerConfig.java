@@ -55,6 +55,14 @@ public class UniversalControllerConfig extends SensorConfig {
     public ControllerLayerConfig controllerLayerConfig = new ControllerLayerConfig();
 
     @DisplayInfo.Required
+    @DisplayInfo(desc = "Number of control streams for controller processes", label = "Number of Control Streams")
+    public int numControlStreams = 0;
+
+    @DisplayInfo.Required
+    @DisplayInfo(desc = "Index of primary control stream")
+    public int primaryControlStreamIndex = 0;
+
+    @DisplayInfo.Required
     @DisplayInfo(desc = "Polling rate in milliseconds")
     public int pollingRate = 250;
 
@@ -63,10 +71,6 @@ public class UniversalControllerConfig extends SensorConfig {
     public ArrayList<ControllerType> controllerTypes = new ArrayList<>();
 
     @DisplayInfo.Required
-    @DisplayInfo(desc = "Include sensitivity field")
-    public boolean hasSensitivity = false;
-
-    @DisplayInfo.Required
     @DisplayInfo(desc = "Time in seconds to search for controllers")
-    public int searchTime = 15;
+    public int controllerSearchTime = 15;
 }

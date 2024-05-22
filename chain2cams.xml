@@ -1,54 +1,30 @@
 <sml:AggregateProcess xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sml="http://www.opengis.net/sensorml/2.0" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" gml:id="F1">
-    <gml:identifier codeSpace="uid">eb3f1c29-d123-4a5d-91cb-159da63d67cb</gml:identifier>
+    <gml:identifier codeSpace="uid">861a1f13-aee5-463e-a19e-8f0f9103375f</gml:identifier>
     <sml:outputs>
         <sml:OutputList>
-            <sml:output name="commandsRecord">
-                <swe:DataRecord>
-                    <swe:label>Commands Record</swe:label>
-                    <swe:description>Commands for each control stream</swe:description>
-                    <swe:field name="numControlStreams">
-                        <swe:Count id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
-                            <swe:label>Num Control Streams</swe:label>
-                            <swe:description>Number of Control Streams</swe:description>
-                        </swe:Count>
-                    </swe:field>
-                    <swe:field name="commands">
-                        <swe:DataArray definition="http://sensorml.com/ont/swe/property/CommandsArray">
-                            <swe:label>Commands</swe:label>
-                            <swe:elementCount xlink:href="#numControlStreams"/>
-                            <swe:elementType name="ptzCommand">
-                                <swe:DataRecord definition="http://sensorml.com/ont/swe/property/PTZCommand">
-                                    <swe:label>PTZ Command</swe:label>
-                                    <swe:description>Command for Relative PTZ</swe:description>
-                                    <swe:field name="rpan">
-                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
-                                            <swe:label>Relative Pan</swe:label>
-                                            <swe:uom code="deg"/>
-                                        </swe:Quantity>
-                                    </swe:field>
-                                    <swe:field name="rtilt">
-                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
-                                            <swe:label>Relative Tilt</swe:label>
-                                            <swe:uom code="deg"/>
-                                        </swe:Quantity>
-                                    </swe:field>
-                                    <swe:field name="rzoom">
-                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
-                                            <swe:label>Relative Zoom Factor</swe:label>
-                                            <swe:uom code="1"/>
-                                        </swe:Quantity>
-                                    </swe:field>
-                                    <swe:field name="sensitivity">
-                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
-                                            <swe:label>Sensitivity</swe:label>
-                                            <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
-                                        </swe:Quantity>
-                                    </swe:field>
-                                </swe:DataRecord>
-                            </swe:elementType>
-                        </swe:DataArray>
-                    </swe:field>
-                </swe:DataRecord>
+            <sml:output name="rpan">
+                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
+                    <swe:label>Relative Pan</swe:label>
+                    <swe:uom code="deg"/>
+                </swe:Quantity>
+            </sml:output>
+            <sml:output name="rtilt">
+                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
+                    <swe:label>Relative Tilt</swe:label>
+                    <swe:uom code="deg"/>
+                </swe:Quantity>
+            </sml:output>
+            <sml:output name="rzoom">
+                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
+                    <swe:label>Relative Zoom Factor</swe:label>
+                    <swe:uom code="1"/>
+                </swe:Quantity>
+            </sml:output>
+            <sml:output name="sensitivity">
+                <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
+                    <swe:label>Sensitivity</swe:label>
+                    <swe:uom code=""/>
+                </swe:Quantity>
             </sml:output>
         </sml:OutputList>
     </sml:outputs>
@@ -72,18 +48,6 @@
                             <sml:input name="gamepadRecord">
                                 <swe:DataRecord definition="http://sensorml.com/ont/swe/property/GamepadOutputRecord">
                                     <swe:label>Gamepad Output Record</swe:label>
-                                    <swe:field name="primaryControlStreamIndex">
-                                        <swe:Count definition="http://sensorml.com/ont/swe/property/PrimaryControlStreamIndex">
-                                            <swe:label>Primary Control Stream Index</swe:label>
-                                            <swe:description>Index of the primary control stream</swe:description>
-                                        </swe:Count>
-                                    </swe:field>
-                                    <swe:field name="numControlStreams">
-                                        <swe:Count definition="http://sensorml.com/ont/swe/property/NumControlStreams">
-                                            <swe:label>Num Control Streams</swe:label>
-                                            <swe:description>Number of Control Streams</swe:description>
-                                        </swe:Count>
-                                    </swe:field>
                                     <swe:field name="numGamepads">
                                         <swe:Count id="numGamepads" definition="http://sensorml.com/ont/swe/property/GamepadCount">
                                             <swe:label>Num Gamepads</swe:label>
@@ -225,67 +189,102 @@
                                     <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
                                 </swe:Quantity>
                             </sml:input>
-                            <sml:input name="numControlStreams">
-                                <swe:Count id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
-                                    <swe:label>Num Control Streams</swe:label>
-                                    <swe:description>Number of Control Streams</swe:description>
-                                    <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
-                                </swe:Count>
-                            </sml:input>
                         </sml:InputList>
                     </sml:inputs>
                     <sml:outputs>
                         <sml:OutputList>
-                            <sml:output name="commandsRecord">
-                                <swe:DataRecord>
-                                    <swe:label>Commands Record</swe:label>
-                                    <swe:description>Commands for each control stream</swe:description>
-                                    <swe:field name="numControlStreams">
-                                        <swe:Count id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
-                                            <swe:label>Num Control Streams</swe:label>
-                                            <swe:description>Number of Control Streams</swe:description>
-                                        </swe:Count>
-                                    </swe:field>
-                                    <swe:field name="commands">
-                                        <swe:DataArray definition="http://sensorml.com/ont/swe/property/CommandsArray">
-                                            <swe:label>Commands</swe:label>
-                                            <swe:elementCount xlink:href="#numControlStreams"/>
-                                            <swe:elementType name="ptzCommand">
-                                                <swe:DataRecord definition="http://sensorml.com/ont/swe/property/PTZCommand">
-                                                    <swe:label>PTZ Command</swe:label>
-                                                    <swe:description>Command for Relative PTZ</swe:description>
-                                                    <swe:field name="rpan">
-                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
-                                                            <swe:label>Relative Pan</swe:label>
-                                                            <swe:uom code="deg"/>
-                                                        </swe:Quantity>
-                                                    </swe:field>
-                                                    <swe:field name="rtilt">
-                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
-                                                            <swe:label>Relative Tilt</swe:label>
-                                                            <swe:uom code="deg"/>
-                                                        </swe:Quantity>
-                                                    </swe:field>
-                                                    <swe:field name="rzoom">
-                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
-                                                            <swe:label>Relative Zoom Factor</swe:label>
-                                                            <swe:uom code="1"/>
-                                                        </swe:Quantity>
-                                                    </swe:field>
-                                                    <swe:field name="sensitivity">
-                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
-                                                            <swe:label>Sensitivity</swe:label>
-                                                            <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
-                                                        </swe:Quantity>
-                                                    </swe:field>
-                                                </swe:DataRecord>
-                                            </swe:elementType>
-                                        </swe:DataArray>
-                                    </swe:field>
-                                </swe:DataRecord>
+                            <sml:output name="rpan">
+                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
+                                    <swe:label>Relative Pan</swe:label>
+                                    <swe:uom code="deg"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="rtilt">
+                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
+                                    <swe:label>Relative Tilt</swe:label>
+                                    <swe:uom code="deg"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="rzoom">
+                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
+                                    <swe:label>Relative Zoom Factor</swe:label>
+                                    <swe:uom code="1"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="sensitivity">
+                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
+                                    <swe:label>Sensitivity</swe:label>
+                                    <swe:uom code=""/>
+                                </swe:Quantity>
                             </sml:output>
                         </sml:OutputList>
                     </sml:outputs>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="axiscamcontrolrpan">
+                <sml:SimpleProcess gml:id="F5">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:axis:cam:00408CA0FF1C</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="axiscamcontrolrtilt">
+                <sml:SimpleProcess gml:id="F6">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:axis:cam:00408CA0FF1C</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="axiscamcontrolrzoom">
+                <sml:SimpleProcess gml:id="F7">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:axis:cam:00408CA0FF1C</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="dahuacontrolrpan">
+                <sml:SimpleProcess gml:id="F8">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:dahua:cam:1G0215CGAK00046</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="dahuacontrolrtilt">
+                <sml:SimpleProcess gml:id="F9">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:dahua:cam:1G0215CGAK00046</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="dahuacontrolrzoom">
+                <sml:SimpleProcess gml:id="F10">
+                    <sml:typeOf xlink:href="urn:osh:process:datasink:commandstream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/systemUID">urn:dahua:cam:1G0215CGAK00046</sml:setValue>
+                            <sml:setValue ref="parameters/inputName">ptzControl</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
                 </sml:SimpleProcess>
             </sml:component>
         </sml:ComponentList>
@@ -294,20 +293,14 @@
         <sml:ConnectionList>
             <sml:connection>
                 <sml:Link>
-                    <sml:source ref="components/gamepadsource/outputs/output1/numGamepads"/>
+                    <sml:source ref="components/gamepadsource/outputs/UniversalControllerOutput/numGamepads"/>
                     <sml:destination ref="components/gamepadchainprocess/inputs/gamepadRecord/numGamepads"/>
                 </sml:Link>
             </sml:connection>
             <sml:connection>
                 <sml:Link>
-                    <sml:source ref="components/gamepadsource/outputs/output1/gamepads"/>
+                    <sml:source ref="components/gamepadsource/outputs/UniversalControllerOutput/gamepads"/>
                     <sml:destination ref="components/gamepadchainprocess/inputs/gamepadRecord/gamepads"/>
-                </sml:Link>
-            </sml:connection>
-            <sml:connection>
-                <sml:Link>
-                    <sml:source ref="components/gamepadsource/outputs/output1/numControlStreams"/>
-                    <sml:destination ref="components/ptzprocess/inputs/numControlStreams"/>
                 </sml:Link>
             </sml:connection>
             <sml:connection>
@@ -334,16 +327,52 @@
                     <sml:destination ref="components/ptzprocess/inputs/LeftThumb"/>
                 </sml:Link>
             </sml:connection>
-            <sml:connection.>
+            <sml:connection>
                 <sml:Link>
                     <sml:source ref="components/gamepadchainprocess/outputs/RightThumb"/>
                     <sml:destination ref="components/ptzprocess/inputs/RightThumb"/>
                 </sml:Link>
-            </sml:connection.>
+            </sml:connection>
             <sml:connection>
                 <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/commandsRecod"/>
-                    <sml:destination ref="outputs/commandsRecord"/>
+                    <sml:source ref="components/ptzprocess/outputs/rpan"/>
+                    <sml:destination ref="components/axiscamcontrolrpan/inputs/ptzControl/rpan"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/rtilt"/>
+                    <sml:destination ref="components/axiscamcontrolrtilt/inputs/ptzControl/rtilt"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/rzoom"/>
+                    <sml:destination ref="components/axiscamcontrolrzoom/inputs/ptzControl/rzoom"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/rpan"/>
+                    <sml:destination ref="outputs/rpan"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/rtilt"/>
+                    <sml:destination ref="outputs/rtilt"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/rzoom"/>
+                    <sml:destination ref="outputs/rzoom"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/ptzprocess/outputs/sensitivity"/>
+                    <sml:destination ref="outputs/sensitivity"/>
                 </sml:Link>
             </sml:connection>
         </sml:ConnectionList>

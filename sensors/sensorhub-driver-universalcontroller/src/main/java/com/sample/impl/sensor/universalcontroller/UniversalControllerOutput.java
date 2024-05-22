@@ -60,6 +60,8 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     private final Object histogramLock = new Object();
 
     // Stuff from config
+    private int numControlStreams;
+    private int primaryControlStreamIndex;
     private int primaryControllerIndex;
     private long pollingRate;
     private ControllerLayerConfig controllerLayerConfig;
@@ -85,6 +87,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             controllerIndices[i] = i;
         }
 
+        int[] controlStreamIndices = new int[numControlStreams];
+        for (int i = 0; i < numControlStreams; i++) {
+            controlStreamIndices[i] = i;
+        }
+
         SWEHelper sweFactory = new SWEHelper();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
@@ -99,6 +106,18 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         .asSamplingTimeIsoUTC()
                         .label("Sample Time")
                         .description("Time of data collection"))
+                .addField("primaryControlStreamIndex", sweFactory.createCount()
+                        .label("Primary Control Stream Index")
+                        .description("Index of the primary control stream")
+                        .definition(SWEHelper.getPropertyUri("PrimaryControlStreamIndex"))
+                        .value(primaryControlStreamIndex)
+                        .addAllowedValues(controlStreamIndices))
+                .addField("numControlStreams", sweFactory.createCount()
+                        .label("Num Control Streams")
+                        .description("Number of Control Streams")
+                        .definition(SWEHelper.getPropertyUri("NumControlStreams"))
+                        .id("numControlStreams")
+                        .value(numControlStreams))
                 .addField("primaryControllerIndex", sweFactory.createCount()
                         .label("Primary Controller Index")
                         .description("Index of the primary controller in use")
@@ -172,6 +191,10 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
         primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
         pollingRate = parentSensor.getConfiguration().pollingRate;
         controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
+        // Control stream cycling
+        numControlStreams = parentSensor.getConfiguration().numControlStreams;
+        primaryControlStreamIndex = parentSensor.getConfiguration().primaryControlStreamIndex;
+
 
         dataStruct = createDataRecord();
 
@@ -269,7 +292,6 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             int componentsForCombination = preset.componentNames.size();
 
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_PRIMARY_CONTROLLER)) {
-                // TODO: only cycle to next controller if current controller is primary controller?
                 for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
                     if (preset.componentNames.contains(controllerComponent.getName())) {
                         if (controllerComponent.getValue() == 1.0f) {
@@ -300,6 +322,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             }
 
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.PASS_PRIMARY_TO_NEXT)) {
+                componentsForCombination = preset.componentNames.size();
                 for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
                     if(preset.componentNames.contains(controllerComponent.getName())) {
                         if(controllerComponent.getValue() == 1.0f) {
@@ -311,6 +334,23 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                                 if(primaryControllerIndex >= parentSensor.allControllers.size()) {
                                     primaryControllerIndex = 0;
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_CONTROL_STREAM)) {
+                componentsForCombination = preset.componentNames.size();
+                for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
+                    if(preset.componentNames.contains(controllerComponent.getName())) {
+                        if(controllerComponent.getValue() == 1.0f) {
+                            componentsForCombination--;
+                        }
+                        if(componentsForCombination == 0) {
+                            primaryControlStreamIndex++;
+                            if(primaryControlStreamIndex >= numControlStreams) {
+                                primaryControlStreamIndex = 0;
                             }
                         }
                     }
@@ -358,8 +398,11 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                     int index = 0;
 
                     dataBlock.setDoubleValue(index++, timestamp);
+                    dataBlock.setIntValue(index++, primaryControlStreamIndex);
+                    dataBlock.setIntValue(index++, numControlStreams);
                     dataBlock.setIntValue(index++, primaryControllerIndex);
                     dataBlock.setIntValue(index++, parentSensor.allControllers.size());
+
 
                     var gamepadArray = (DataArrayImpl) dataStruct.getComponent("gamepads");
                     gamepadArray.updateSize();

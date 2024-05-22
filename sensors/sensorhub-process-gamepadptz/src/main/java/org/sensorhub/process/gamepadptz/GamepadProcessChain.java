@@ -61,7 +61,6 @@ public class GamepadProcessChain extends ExecutableProcessImpl {
                 .label("Right Thumb")
                 .uomUri(SWEConstants.UOM_UNITLESS)
                 .build());
-        getLogger().debug("Completed constructor");
     }
 
     public DataRecord createGamepadRecord() {
@@ -70,6 +69,14 @@ public class GamepadProcessChain extends ExecutableProcessImpl {
                 .name("gamepadRecord")
                 .label("Gamepad Output Record")
                 .definition(SWEHelper.getPropertyUri("GamepadOutputRecord"))
+                .addField("primaryControlStreamIndex", sweFactory.createCount()
+                        .label("Primary Control Stream Index")
+                        .description("Index of the primary control stream")
+                        .definition(SWEHelper.getPropertyUri("PrimaryControlStreamIndex")))
+                .addField("numControlStreams", sweFactory.createCount()
+                        .label("Num Control Streams")
+                        .description("Number of Control Streams")
+                        .definition(SWEHelper.getPropertyUri("NumControlStreams")))
                 .addField("numGamepads", sweFactory.createCount()
                         .name("numGamepads")
                         .label("Num Gamepads")
@@ -137,9 +144,6 @@ public class GamepadProcessChain extends ExecutableProcessImpl {
             synchronized (lock) {
                 numGamepads = gamepadRecordInput.getComponent("numGamepads").getData().getIntValue();
 
-                //var gamepadArray = (DataArrayImpl) gamepadRecordInput.getComponent("gamepads");
-                //gamepadArray.updateSize();
-
                 povValue = 0.0f;
                 xValue = 0.0f;
                 yValue = 0.0f;
@@ -151,8 +155,6 @@ public class GamepadProcessChain extends ExecutableProcessImpl {
                     for (int gamepadIndex = 0; gamepadIndex < numGamepads; gamepadIndex++) {
                         // Get gamepad by index
                         DataBlockMixed gamepad = (DataBlockMixed) ((DataBlockList) gamepadRecordInput.getComponent("gamepads").getData()).get(gamepadIndex);
-
-                        System.out.println("GAMEPADCHAIN: gamepad name = " + gamepad.getStringValue(0) + " and gamepad index = " + gamepadIndex);
 
                         // Get data such as isPrimaryController, number of components, and the array of components
                         boolean isPrimaryController = gamepad.getBooleanValue(1);

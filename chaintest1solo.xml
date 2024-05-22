@@ -2,29 +2,53 @@
     <gml:identifier codeSpace="uid">861a1f13-aee5-463e-a19e-8f0f9103375f</gml:identifier>
     <sml:outputs>
         <sml:OutputList>
-            <sml:output name="rpan">
-                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
-                    <swe:label>Relative Pan</swe:label>
-                    <swe:uom code="deg"/>
-                </swe:Quantity>
-            </sml:output>
-            <sml:output name="rtilt">
-                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
-                    <swe:label>Relative Tilt</swe:label>
-                    <swe:uom code="deg"/>
-                </swe:Quantity>
-            </sml:output>
-            <sml:output name="rzoom">
-                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
-                    <swe:label>Relative Zoom Factor</swe:label>
-                    <swe:uom code="1"/>
-                </swe:Quantity>
-            </sml:output>
-            <sml:output name="sensitivity">
-                <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
-                    <swe:label>Sensitivity</swe:label>
-                    <swe:uom code=""/>
-                </swe:Quantity>
+            <sml:output name="commandsRecord">
+                <swe:DataRecord>
+                    <swe:label>Commands Record</swe:label>
+                    <swe:description>Commands for each control stream</swe:description>
+                    <swe:field name="numControlStreams">
+                        <swe:Count id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
+                            <swe:label>Num Control Streams</swe:label>
+                            <swe:description>Number of Control Streams</swe:description>
+                        </swe:Count>
+                    </swe:field>
+                    <swe:field name="commands">
+                        <swe:DataArray definition="http://sensorml.com/ont/swe/property/CommandsArray">
+                            <swe:label>Commands</swe:label>
+                            <swe:elementCount xlink:href="#numControlStreams"/>
+                            <swe:elementType name="ptzCommand">
+                                <swe:DataRecord definition="http://sensorml.com/ont/swe/property/PTZCommand">
+                                    <swe:label>PTZ Command</swe:label>
+                                    <swe:description>Command for Relative PTZ</swe:description>
+                                    <swe:field name="rpan">
+                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
+                                            <swe:label>Relative Pan</swe:label>
+                                            <swe:uom code="deg"/>
+                                        </swe:Quantity>
+                                    </swe:field>
+                                    <swe:field name="rtilt">
+                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
+                                            <swe:label>Relative Tilt</swe:label>
+                                            <swe:uom code="deg"/>
+                                        </swe:Quantity>
+                                    </swe:field>
+                                    <swe:field name="rzoom">
+                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
+                                            <swe:label>Relative Zoom Factor</swe:label>
+                                            <swe:uom code="1"/>
+                                        </swe:Quantity>
+                                    </swe:field>
+                                    <swe:field name="sensitivity">
+                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
+                                            <swe:label>Sensitivity</swe:label>
+                                            <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
+                                        </swe:Quantity>
+                                    </swe:field>
+                                </swe:DataRecord>
+                            </swe:elementType>
+                        </swe:DataArray>
+                    </swe:field>
+                </swe:DataRecord>
             </sml:output>
         </sml:OutputList>
     </sml:outputs>
@@ -48,6 +72,18 @@
                             <sml:input name="gamepadRecord">
                                 <swe:DataRecord definition="http://sensorml.com/ont/swe/property/GamepadOutputRecord">
                                     <swe:label>Gamepad Output Record</swe:label>
+                                    <swe:field name="primaryControlStreamIndex">
+                                        <swe:Count definition="http://sensorml.com/ont/swe/property/PrimaryControlStreamIndex">
+                                            <swe:label>Primary Control Stream Index</swe:label>
+                                            <swe:description>Index of the primary control stream</swe:description>
+                                        </swe:Count>
+                                    </swe:field>
+                                    <swe:field name="numControlStreams">
+                                        <swe:Count definition="http://sensorml.com/ont/swe/property/NumControlStreams">
+                                            <swe:label>Num Control Streams</swe:label>
+                                            <swe:description>Number of Control Streams</swe:description>
+                                        </swe:Count>
+                                    </swe:field>
                                     <swe:field name="numGamepads">
                                         <swe:Count id="numGamepads" definition="http://sensorml.com/ont/swe/property/GamepadCount">
                                             <swe:label>Num Gamepads</swe:label>
@@ -189,33 +225,64 @@
                                     <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
                                 </swe:Quantity>
                             </sml:input>
+                            <sml:input name="numControlStreams">
+                                <swe:Quantity id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
+                                    <swe:label>Num Control Streams</swe:label>
+                                    <swe:description>Number of Control Streams</swe:description>
+                                    <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
+                                </swe:Quantity>
+                            </sml:input>
                         </sml:InputList>
                     </sml:inputs>
                     <sml:outputs>
                         <sml:OutputList>
-                            <sml:output name="rpan">
-                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
-                                    <swe:label>Relative Pan</swe:label>
-                                    <swe:uom code="deg"/>
-                                </swe:Quantity>
-                            </sml:output>
-                            <sml:output name="rtilt">
-                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
-                                    <swe:label>Relative Tilt</swe:label>
-                                    <swe:uom code="deg"/>
-                                </swe:Quantity>
-                            </sml:output>
-                            <sml:output name="rzoom">
-                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
-                                    <swe:label>Relative Zoom Factor</swe:label>
-                                    <swe:uom code="1"/>
-                                </swe:Quantity>
-                            </sml:output>
-                            <sml:output name="sensitivity">
-                                <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
-                                    <swe:label>Sensitivity</swe:label>
-                                    <swe:uom code=""/>
-                                </swe:Quantity>
+                            <sml:output name="commandsRecord">
+                                <swe:DataRecord>
+                                    <swe:label>Commands Record</swe:label>
+                                    <swe:description>Commands for each control stream</swe:description>
+                                    <swe:field name="numControlStreams">
+                                        <swe:Count id="numControlStreams" definition="http://sensorml.com/ont/swe/property/NumControlStreams">
+                                            <swe:label>Num Control Streams</swe:label>
+                                            <swe:description>Number of Control Streams</swe:description>
+                                        </swe:Count>
+                                    </swe:field>
+                                    <swe:field name="commands">
+                                        <swe:DataArray definition="http://sensorml.com/ont/swe/property/CommandsArray">
+                                            <swe:label>Commands</swe:label>
+                                            <swe:elementCount xlink:href="#numControlStreams"/>
+                                            <swe:elementType name="ptzCommand">
+                                                <swe:DataRecord definition="http://sensorml.com/ont/swe/property/PTZCommand">
+                                                    <swe:label>PTZ Command</swe:label>
+                                                    <swe:description>Command for Relative PTZ</swe:description>
+                                                    <swe:field name="rpan">
+                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativePan">
+                                                            <swe:label>Relative Pan</swe:label>
+                                                            <swe:uom code="deg"/>
+                                                        </swe:Quantity>
+                                                    </swe:field>
+                                                    <swe:field name="rtilt">
+                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeTilt">
+                                                            <swe:label>Relative Tilt</swe:label>
+                                                            <swe:uom code="deg"/>
+                                                        </swe:Quantity>
+                                                    </swe:field>
+                                                    <swe:field name="rzoom">
+                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/RelativeZoomFactor">
+                                                            <swe:label>Relative Zoom Factor</swe:label>
+                                                            <swe:uom code="1"/>
+                                                        </swe:Quantity>
+                                                    </swe:field>
+                                                    <swe:field name="sensitivity">
+                                                        <swe:Quantity definition="http://sensorml.com/ont/swe/property/JoystickSensitivity">
+                                                            <swe:label>Sensitivity</swe:label>
+                                                            <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
+                                                        </swe:Quantity>
+                                                    </swe:field>
+                                                </swe:DataRecord>
+                                            </swe:elementType>
+                                        </swe:DataArray>
+                                    </swe:field>
+                                </swe:DataRecord>
                             </sml:output>
                         </sml:OutputList>
                     </sml:outputs>
@@ -235,6 +302,12 @@
                 <sml:Link>
                     <sml:source ref="components/gamepadsource/outputs/UniversalControllerOutput/gamepads"/>
                     <sml:destination ref="components/gamepadchainprocess/inputs/gamepadRecord/gamepads"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/gamepadsource/outputs/UniversalControllerOutput/numControlStreams"/>
+                    <sml:destination ref="components/ptzprocess/inputs/numControlStreams"/>
                 </sml:Link>
             </sml:connection>
             <sml:connection>
@@ -269,26 +342,8 @@
             </sml:connection>
             <sml:connection>
                 <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/rpan"/>
-                    <sml:destination ref="outputs/rpan"/>
-                </sml:Link>
-            </sml:connection>
-            <sml:connection>
-                <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/rtilt"/>
-                    <sml:destination ref="outputs/rtilt"/>
-                </sml:Link>
-            </sml:connection>
-            <sml:connection>
-                <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/rzoom"/>
-                    <sml:destination ref="outputs/rzoom"/>
-                </sml:Link>
-            </sml:connection>
-            <sml:connection>
-                <sml:Link>
-                    <sml:source ref="components/ptzprocess/outputs/sensitivity"/>
-                    <sml:destination ref="outputs/sensitivity"/>
+                    <sml:source ref="components/ptzprocess/outputs/commandsRecord"/>
+                    <sml:destination ref="outputs/commandsRecord"/>
                 </sml:Link>
             </sml:connection>
         </sml:ConnectionList>

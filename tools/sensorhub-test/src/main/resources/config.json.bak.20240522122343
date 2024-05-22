@@ -246,7 +246,7 @@
       "reconnectPeriod": 1000,
       "reconnectAttempts": -1
     },
-    "lastUpdated": "2024-05-22T15:07:28.056-0500",
+    "lastUpdated": "2024-05-29T15:07:28.056-0500",
     "id": "ba3748e3-8719-4228-af36-d72f3fb1751c",
     "moduleClass": "org.sensorhub.impl.sensor.swe.SWEVirtualSensor",
     "name": "New SWE Virtual Sensor",
@@ -305,7 +305,7 @@
   },
   {
     "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "sensorML": "cleanchain1solo.xml",
+    "sensorML": "chaintest2solo_sos.xml",
     "id": "f821628a-f0b1-4cda-8b0b-e9e616ac00ba",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "New SensorML Stream Process",
