@@ -1,27 +1,15 @@
 package org.sensorhub.process.gamepadptz;
 
-import net.opengis.HrefResolver;
-import net.opengis.gml.v32.Reference;
-import net.opengis.gml.v32.impl.ReferenceImpl;
-import net.opengis.sensorml.v20.*;
-import net.opengis.swe.v20.AbstractSWEIdentifiable;
-import net.opengis.swe.v20.DataBlock;
-import net.opengis.swe.v20.DataComponent;
-import net.opengis.swe.v20.DataStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sensorhub.api.data.IStreamingDataInterface;
 import org.sensorhub.api.processing.IProcessModule;
-import org.sensorhub.impl.SensorHub;
-import org.sensorhub.impl.module.ModuleClassFinder;
 import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.processing.*;
-import org.sensorhub.process.gamepadptz.clean.ControllerPTZProcess;
-import org.sensorhub.process.gamepadptz.helpers.PrimaryControllerSelector;
-import org.vast.data.DataStreamImpl;
+import org.sensorhub.process.gamepadptz.impl.ControllerPTZProcess;
+import org.sensorhub.process.gamepadptz.old.GamepadPtz;
 import org.vast.sensorML.*;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;

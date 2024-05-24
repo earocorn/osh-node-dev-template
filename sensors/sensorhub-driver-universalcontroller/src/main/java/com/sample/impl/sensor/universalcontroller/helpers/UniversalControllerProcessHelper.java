@@ -32,11 +32,30 @@ public class UniversalControllerProcessHelper extends SWEHelper {
         this.componentRecord.setData(dataBlock);
     }
 
+    public boolean hasComponent(String componentName) {
+        if(this.getComponentRecord().getComponent("gamepadComponents") != null) {
+            DataBlockParallel componentArray = ((DataBlockParallel) this.componentRecord.getComponent("gamepadComponents").getData());
+
+            int numComponents = getNumComponentsInput();
+
+            for (int j = 0; j < numComponents; j++) {
+                String[] componentNames = (String[]) componentArray.getUnderlyingObject()[0].getUnderlyingObject();
+
+                if (Objects.equals(componentNames[j], componentName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasComponent(UniversalControllerComponent component) {
+        return hasComponent(component.getComponentName());
+    }
+
     public float getComponentValueInput(String componentName) {
         float componentValue = 0.0f;
         if(this.getComponentRecord().getComponent("gamepadComponents") != null) {
-//            DataArrayImpl componentArrayImpl = (DataArrayImpl) this.componentRecord.getComponent("gamepadComponents");
-//            componentArrayImpl.updateSize();
 
             DataBlockParallel componentArray = ((DataBlockParallel) this.componentRecord.getComponent("gamepadComponents").getData());
 
@@ -62,6 +81,10 @@ public class UniversalControllerProcessHelper extends SWEHelper {
             }
         }
         return componentValue;
+    }
+
+    public float getComponentValueInput(UniversalControllerComponent component) {
+        return getComponentValueInput(component.getComponentName());
     }
 
     private DataRecord createComponentRecord() {

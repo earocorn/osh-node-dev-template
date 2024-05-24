@@ -12,20 +12,12 @@
 
  ******************************* END LICENSE BLOCK ***************************/
 
-package org.sensorhub.process.gamepadptz;
-
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+package org.sensorhub.process.gamepadptz.old;
 
 import net.opengis.swe.v20.*;
-import net.opengis.swe.v20.Boolean;
-import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
-import org.vast.swe.SWEBuilders;
 import org.vast.swe.SWEConstants;
 import org.vast.swe.SWEHelper;
 

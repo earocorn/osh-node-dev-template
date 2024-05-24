@@ -15,8 +15,11 @@ Copyright (C) 2012-2017 Sensia Software LLC. All Rights Reserved.
 package org.sensorhub.process.gamepadptz;
 
 import org.sensorhub.impl.processing.AbstractProcessProvider;
-import org.sensorhub.process.gamepadptz.clean.ControllerPTZProcess;
-import org.sensorhub.process.gamepadptz.helpers.PrimaryControllerSelector;
+import org.sensorhub.process.gamepadptz.impl.ControllerPTZProcess;
+import org.sensorhub.process.gamepadptz.impl.PrimaryControllerSelector;
+import org.sensorhub.process.gamepadptz.old.GamepadProcessChain;
+import org.sensorhub.process.gamepadptz.old.GamepadPtz;
+import org.sensorhub.process.gamepadptz.old.RelativeGamepadPtz;
 
 
 public class ProcessDescriptors extends AbstractProcessProvider
@@ -24,6 +27,7 @@ public class ProcessDescriptors extends AbstractProcessProvider
     
     public ProcessDescriptors()
     {
+        // OLD processes
         addImpl(GamepadProcessChain.INFO);
         addImpl(GamepadPtz.INFO);
         addImpl(RelativeGamepadPtz.INFO);

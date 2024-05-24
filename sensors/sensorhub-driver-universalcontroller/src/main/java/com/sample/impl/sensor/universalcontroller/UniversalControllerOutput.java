@@ -20,6 +20,7 @@ import com.alexalmanza.models.ControllerData;
 import com.alexalmanza.models.ControllerType;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerCyclingAction;
 import com.sample.impl.sensor.universalcontroller.helpers.ControllerMappingPreset;
+import com.sample.impl.sensor.universalcontroller.helpers.UniversalControllerComponent;
 import net.opengis.swe.v20.*;
 import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.api.sensor.SensorException;
@@ -188,6 +189,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
         logger.debug("Initializing UniversalControllerOutput");
 
+        // Get values from config
         primaryControllerIndex = parentSensor.getConfiguration().primaryControllerIndex;
         pollingRate = parentSensor.getConfiguration().pollingRate;
         controllerLayerConfig = parentSensor.getConfiguration().controllerLayerConfig;
@@ -283,9 +285,9 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
     }
 
     /**
-     * Updates the primary controller index based on controller mappings.
+     * Updates the primary controller index or control stream index based on controller mappings.
      */
-    public void updatePrimaryControllerIndex() {
+    public void applyHotkeys() {
         // Go through controller mapping
         for (ControllerMappingPreset preset : controllerLayerConfig.presets) {
             IController controller = parentSensor.allControllers.get(preset.controllerIndex);
@@ -293,7 +295,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_PRIMARY_CONTROLLER)) {
                 for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                    if (preset.componentNames.contains(controllerComponent.getName())) {
+                    if (preset.componentNames.contains(UniversalControllerComponent.fromString(controllerComponent.getName()))) {
                         if (controllerComponent.getValue() == 1.0f) {
                             componentsForCombination--;
                         }
@@ -310,7 +312,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.OVERRIDES_PRIMARY_CONTROLLER)) {
                 componentsForCombination = preset.componentNames.size();
                 for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                    if(preset.componentNames.contains(controllerComponent.getName())) {
+                    if(preset.componentNames.contains(UniversalControllerComponent.fromString(controllerComponent.getName()))) {
                         if(controllerComponent.getValue() == 1.0f) {
                             componentsForCombination--;
                         }
@@ -324,7 +326,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.PASS_PRIMARY_TO_NEXT)) {
                 componentsForCombination = preset.componentNames.size();
                 for (ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                    if(preset.componentNames.contains(controllerComponent.getName())) {
+                    if(preset.componentNames.contains(UniversalControllerComponent.fromString(controllerComponent.getName()))) {
                         if(controllerComponent.getValue() == 1.0f) {
                             componentsForCombination--;
                         }
@@ -343,7 +345,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
             if (preset.controllerCyclingAction.equals(ControllerCyclingAction.CYCLES_CONTROL_STREAM)) {
                 componentsForCombination = preset.componentNames.size();
                 for(ControllerComponent controllerComponent : controller.getControllerData().getOutputs()) {
-                    if(preset.componentNames.contains(controllerComponent.getName())) {
+                    if(preset.componentNames.contains(UniversalControllerComponent.fromString(controllerComponent.getName()))) {
                         if(controllerComponent.getValue() == 1.0f) {
                             componentsForCombination--;
                         }
@@ -391,7 +393,8 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
 
                     ++setCount;
 
-                    updatePrimaryControllerIndex();
+                    // Update stuff configured from hotkeys
+                    applyHotkeys();
 
                     double timestamp = System.currentTimeMillis() / 1000d;
 
@@ -413,7 +416,7 @@ public class UniversalControllerOutput extends AbstractSensorOutput<UniversalCon
                         DataRecord gamepadDataBlock = (DataRecord) gamepadArray.getComponent(i);
 
                         // Set each element for underlying gamepad object
-                        dataBlock.setStringValue(index++, "gamepad" + i);
+                        dataBlock.setStringValue(index++, controller.getControllerData().getName());
                         dataBlock.setBooleanValue(index++, i == primaryControllerIndex);
                         dataBlock.setIntValue(index++, controller.getControllerData().getOutputs().size());
 

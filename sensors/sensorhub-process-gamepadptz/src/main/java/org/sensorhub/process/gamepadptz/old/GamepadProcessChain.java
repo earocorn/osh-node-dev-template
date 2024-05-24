@@ -1,4 +1,4 @@
-package org.sensorhub.process.gamepadptz;
+package org.sensorhub.process.gamepadptz.old;
 
 import net.opengis.swe.v20.*;
 import org.sensorhub.api.processing.OSHProcessInfo;

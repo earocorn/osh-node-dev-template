@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class ControllerMappingPreset {
 
-    public ArrayList<String> componentNames;
+    public ArrayList<UniversalControllerComponent> componentNames;
     public int controllerIndex;
 
     // Options for controller mapping

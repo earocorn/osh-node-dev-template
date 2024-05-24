@@ -30,8 +30,8 @@ import java.util.ArrayList;
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
  *
- * @author your_name
- * @since date
+ * @author Alex Almanza
+ * @since 05/23/2024
  */
 public class UniversalControllerSensor extends AbstractSensorModule<UniversalControllerConfig> {
 
@@ -48,6 +48,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         generateUniqueID("urn:osh:sensor:", config.serialNumber);
         generateXmlID("UNIVERSAL_CONTROLLER", config.serialNumber);
 
+        // Get what types of controllers to search for
         ControllerType[] typesArray = new ControllerType[config.controllerTypes.size()];
 
         for (int i = 0; i < config.controllerTypes.size(); i++) {
@@ -56,6 +57,7 @@ public class UniversalControllerSensor extends AbstractSensorModule<UniversalCon
         }
 
         try {
+            // Start request for controllers of the types in config
             findControllers = new FindControllers(config.controllerSearchTime* 1000L, new Event(), typesArray);
             if(!findControllers.getControllers().isEmpty()) {
                 allControllers = findControllers.getControllers();

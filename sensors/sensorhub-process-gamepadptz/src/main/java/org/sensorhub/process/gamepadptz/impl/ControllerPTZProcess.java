@@ -1,5 +1,6 @@
-package org.sensorhub.process.gamepadptz.clean;
+package org.sensorhub.process.gamepadptz.impl;
 
+import com.sample.impl.sensor.universalcontroller.helpers.UniversalControllerComponent;
 import net.opengis.swe.v20.DataType;
 import net.opengis.swe.v20.Quantity;
 import org.sensorhub.process.gamepadptz.helpers.AbstractControllerTaskingProcess;
@@ -54,20 +55,20 @@ public class ControllerPTZProcess extends AbstractControllerTaskingProcess {
     @Override
     public void updateOutputs() throws ProcessException {
         try {
-            curXValue = fac.getComponentValueInput("x");
-            System.out.println("CURXVAL = " + curXValue);
-            curYValue = fac.getComponentValueInput("y");
+            boolean hasOnlyLeftJoystick = fac.hasComponent(UniversalControllerComponent.X_AXIS);
+            curXValue = hasOnlyLeftJoystick ? fac.getComponentValueInput(UniversalControllerComponent.X_AXIS) : fac.getComponentValueInput(UniversalControllerComponent.RX_AXIS);
+            curYValue = hasOnlyLeftJoystick ? fac.getComponentValueInput(UniversalControllerComponent.Y_AXIS) : fac.getComponentValueInput(UniversalControllerComponent.RY_AXIS);
 
             // Zoom in/out button isPressed values for HID and Wii controllers
-            isLeftPressed = fac.getComponentValueInput("LeftThumb") == 1.0f;
-            isRightPressed = fac.getComponentValueInput("RightThumb") == 1.0f;
+            isLeftPressed = fac.getComponentValueInput(UniversalControllerComponent.LT_BUTTON) == 1.0f;
+            isRightPressed = fac.getComponentValueInput(UniversalControllerComponent.RT_BUTTON) == 1.0f;
 
             // Sensitivity determined by dpadInput up and down on scale of 1-10
-            if(fac.getComponentValueInput("pov") == 0.25f) {
+            if(fac.getComponentValueInput(UniversalControllerComponent.D_PAD) == UniversalControllerComponent.DPadDirection.UP.getValue()) {
                 if(sensitivityOutput.getData().getIntValue() < 10) {
                     sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() + 1);
                 }
-            } else if(fac.getComponentValueInput("pov") == 0.75f) {
+            } else if(fac.getComponentValueInput(UniversalControllerComponent.D_PAD) == UniversalControllerComponent.DPadDirection.DOWN.getValue()) {
                 if(sensitivityOutput.getData().getIntValue() > 1) {
                     sensitivityOutput.getData().setIntValue(sensitivityOutput.getData().getIntValue() - 1);
                 }

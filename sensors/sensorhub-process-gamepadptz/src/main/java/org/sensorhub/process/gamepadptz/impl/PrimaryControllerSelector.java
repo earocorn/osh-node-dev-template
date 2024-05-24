@@ -1,9 +1,8 @@
-package org.sensorhub.process.gamepadptz.helpers;
+package org.sensorhub.process.gamepadptz.impl;
 
 import com.sample.impl.sensor.universalcontroller.helpers.UniversalControllerProcessHelper;
 import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.processing.OSHProcessInfo;
-import org.vast.data.DataArrayImpl;
 import org.vast.data.DataBlockList;
 import org.vast.data.DataBlockMixed;
 import org.vast.data.DataBlockParallel;
