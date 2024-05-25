@@ -40,8 +40,16 @@ dependencies {
   implementation project(':sensorhub-driver-rtpcam')
   implementation project(':sensorhub-driver-dahua')
 
+  // driver for ros control
+//  implementation project (':sensorhub-driver-teleop')
+//  implementation project(':sensorhub-ros-common')
+//  implementation project(':actionlib')
+
+  // driver for mavlink
+  implementation project(':sensorhub-driver-mavlink')
+
   // process
-  implementation project(':sensorhub-process-gamepadptz')
+  implementation project(':sensorhub-process-universalcontroller')
 }
 
 // create one configuration for each distribution

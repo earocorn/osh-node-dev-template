@@ -58,6 +58,17 @@ project(':sensorhub-driver-rtpcam').projectDir = "$sensorDir/video/sensorhub-dri
 include 'sensorhub-driver-dahua'
 project(':sensorhub-driver-dahua').projectDir = "$sensorDir/video/sensorhub-driver-dahua" as File
 
+//include 'sensorhub-driver-teleop'
+//project(':sensorhub-driver-teleop').projectDir = "$sensorDir/robotics/ros/platforms/yahboom/transbot/sensorhub-driver-teleop" as File
+//
+//include 'sensorhub-ros-common'
+//project(':sensorhub-ros-common').projectDir = "$sensorDir/robotics/ros/common/sensorhub-ros-common" as File
+//
+//include 'actionlib'
+//project(':actionlib').projectDir = "$sensorDir/robotics/ros/common/actionlib" as File
+
+include 'sensorhub-driver-mavlink'
+project(':sensorhub-driver-mavlink').projectDir = "$sensorDir/robotics/sensorhub-driver-mavlink" as File
 
 // Project modules
 

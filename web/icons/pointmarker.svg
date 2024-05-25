@@ -13,4 +13,6 @@
   -
   -->
 
-<svg id="a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.73 33" fill="white"><path d="M29.73,33l-14.73-8L0,33,15,0l14.73,33Z"/></svg>
+<svg id="a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.73 33" fill="white">
+    <path d="M29.73,33l-14.73-8L0,33,15,0l14.73,33Z"/>
+</svg>

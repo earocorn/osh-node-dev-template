@@ -29,5 +29,5 @@ dependencies {
   implementation project(':sensorhub-driver-universalcontroller')
 
   // process
-  implementation project(':sensorhub-process-gamepadptz')
+  implementation project(':sensorhub-process-universalcontroller')
 }
