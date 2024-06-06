@@ -240,7 +240,7 @@
     "id": "54cdb94a-ac7d-4bb5-b8d3-592afd1bcbb0",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "New SensorML Stream Process",
-    "autoStart": false
+    "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
@@ -259,14 +259,12 @@
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
       "autoStart": false
     },
-    "systemUIDs": [
-      "9c8311a9-cdd1-4693-92f2-c8ed0e5748e6"
-    ],
+    "systemUIDs": [],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "2a43ed4b-4770-4937-8042-83f59b7294c7",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
     "name": "Alarm Database",
-    "autoStart": true
+    "autoStart": false
   }
 ]

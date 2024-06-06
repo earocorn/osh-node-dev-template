@@ -50,6 +50,11 @@ dependencies {
 
   // process
   implementation project(':sensorhub-process-universalcontroller')
+
+  implementation project(':sensorhub-driver-simulated')
+  implementation project(':sensorhub-process-simulated')
+
+  implementation project(':sensorhub-driver-fakeweather')
 }
 
 // create one configuration for each distribution

@@ -1,6 +1,7 @@
 package org.sensorhub.process.universalcontroller.helpers;
 
 import com.sample.impl.sensor.universalcontroller.helpers.UniversalControllerProcessHelper;
+import org.sensorhub.impl.SensorHub;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.process.ProcessInfo;
@@ -16,6 +17,8 @@ public abstract class AbstractControllerTaskingProcess extends ExecutableProcess
         inputData.add(fac.getComponentRecord().getName(), fac.getComponentRecord());
 
         paramData.add(fac.createControlStreamIndexParameter().getName(), fac.createControlStreamIndexParameter());
+
+
     }
 
     public abstract void updateOutputs() throws ProcessException;

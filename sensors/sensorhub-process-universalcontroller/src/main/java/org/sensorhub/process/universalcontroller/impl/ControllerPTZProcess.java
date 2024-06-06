@@ -50,6 +50,8 @@ public class ControllerPTZProcess extends AbstractControllerTaskingProcess {
                 .value(1)
                 .label("Sensitivity")
                 .build());
+
+
     }
 
     @Override

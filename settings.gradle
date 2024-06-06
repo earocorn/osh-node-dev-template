@@ -70,6 +70,9 @@ project(':sensorhub-driver-dahua').projectDir = "$sensorDir/video/sensorhub-driv
 include 'sensorhub-driver-mavlink'
 project(':sensorhub-driver-mavlink').projectDir = "$sensorDir/robotics/sensorhub-driver-mavlink" as File
 
+include 'sensorhub-driver-fakeweather'
+project(':sensorhub-driver-fakeweather').projectDir = "$sensorDir/simulated/sensorhub-driver-fakeweather" as File
+
 // Project modules
 
 // Include all folders with build.gradle as subprojects

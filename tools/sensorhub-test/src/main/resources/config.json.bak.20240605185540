@@ -240,7 +240,7 @@
     "id": "54cdb94a-ac7d-4bb5-b8d3-592afd1bcbb0",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "New SensorML Stream Process",
-    "autoStart": false
+    "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
