@@ -55,6 +55,10 @@ dependencies {
   implementation project(':sensorhub-process-simulated')
 
   implementation project(':sensorhub-driver-fakeweather')
+
+  // Oakridge
+  implementation project(':sensorhub-driver-rapiscan')
+  implementation project(':sensorhub-utils-rad')
 }
 
 // create one configuration for each distribution

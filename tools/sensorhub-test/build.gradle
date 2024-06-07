@@ -1,6 +1,6 @@
 apply plugin: 'java'
 description = 'Main Test Project'
-targetCompatibility = 11
+targetCompatibility = 17
 
 dependencies {
   implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
@@ -26,11 +26,11 @@ dependencies {
   implementation project(':sensorhub-driver-videocam')
   implementation project(':sensorhub-driver-axis')
   implementation project(':sensorhub-driver-rtpcam')
-  implementation project(':sensorhub-driver-universalcontroller')
+//  implementation project(':sensorhub-driver-universalcontroller')
   implementation project(':sensorhub-driver-simulated')
   implementation project(':sensorhub-driver-fakeweather')
 
   // process
-  implementation project(':sensorhub-process-universalcontroller')
+//  implementation project(':sensorhub-process-universalcontroller')
   implementation project(':sensorhub-process-simulated')
 }

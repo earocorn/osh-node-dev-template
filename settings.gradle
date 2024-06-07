@@ -75,6 +75,13 @@ project(':sensorhub-driver-fakeweather').projectDir = "$sensorDir/simulated/sens
 
 // Project modules
 
+// Oakridge Stuff
+//include 'sensorhub-driver-rapiscan'
+//project(':sensorhub-driver-rapiscan').projectDir = "$sensorDir/simulated/sensorhub-driver-fakeweather" as File
+//
+//include 'sensorhub-driver-fakeweather'
+//project(':sensorhub-driver-fakeweather').projectDir = "$sensorDir/simulated/sensorhub-driver-fakeweather" as File
+
 // Include all folders with build.gradle as subprojects
 
 FileTree subprojects = fileTree("$rootDir/sensors").include('**/build.gradle')
