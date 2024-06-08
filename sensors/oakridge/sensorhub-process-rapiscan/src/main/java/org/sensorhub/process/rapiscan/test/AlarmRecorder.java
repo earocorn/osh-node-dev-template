@@ -4,6 +4,7 @@ import net.opengis.swe.v20.*;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.data.IObsData;
 import org.sensorhub.api.database.IDatabaseRegistry;
+import org.sensorhub.api.datastore.obs.DataStreamFilter;
 import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.impl.processing.ISensorHubProcess;
@@ -27,6 +28,10 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     Count numGammaEntries;
     DataRecord neutronEntry;
     DataRecord gammaEntry;
+
+    enum EntryType {
+        NEUTRON, GAMMA
+    }
 
     public AlarmRecorder() {
         super(INFO);
@@ -128,8 +133,8 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     @Override
     public void execute() throws ProcessException {
         // Only populate data entry if alarm is triggered
-        if(inputData.getComponent("alarm").getData().getBooleanValue()) {
-            System.out.println("Results from past 5 seconds");
+        if(occupancyInput.getComponent("GammaAlarm").getData().getBooleanValue()) {
+            System.out.println("Results from past 10 seconds");
 
             List<IObsData> alarmingData;
 
@@ -153,10 +158,24 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
             }
 
         }
+
+        if(occupancyInput.getComponent("NeutronAlarm").getData().getBooleanValue()) {
+
+        }
     }
 
-    public List<IObsData> getDataFromInterval(Instant start, Instant end, String dbModuleID) {
+    private List<IObsData> getDataFromInterval(Instant start, Instant end, String dbModuleID, EntryType entryType) {
+        String outputName = "";
+        switch(entryType) {
+            case GAMMA: outputName = "Gamma Scan";
+            case NEUTRON: outputName = "Neutron Scan";
+        }
+        DataStreamFilter dsFilter = new DataStreamFilter.Builder()
+                .withOutputNames(outputName)
+                .build();
+
         ObsFilter filter = new ObsFilter.Builder()
+                .withDataStreams(dsFilter)
                 .withPhenomenonTimeDuring(start, end).build();
 
         var obsDb = getRegistry()
@@ -168,7 +187,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         return obsDb.collect(Collectors.toList());
     }
 
-    public void publishDataList(List<IObsData> blockList, String dbModuleID) {
+    private void publishEntryOutput(List<IObsData> blockList, String dbModuleID, EntryType entryType) {
         var db = getRegistry().getObsDatabaseByModuleID(dbModuleID);
         if(!blockList.isEmpty()) {
 
@@ -179,7 +198,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         }
     }
 
-    public IDatabaseRegistry getRegistry() {
+    private IDatabaseRegistry getRegistry() {
         if(hub != null) {
             registry = hub.getDatabaseRegistry();
         }
