@@ -1,13 +1,13 @@
 package org.sensorhub.process.rapiscan.test;
 
 import net.opengis.swe.v20.*;
-import net.opengis.swe.v20.Boolean;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.data.IObsData;
 import org.sensorhub.api.database.IDatabaseRegistry;
 import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.impl.processing.ISensorHubProcess;
+import org.sensorhub.impl.utils.rad.RADHelper;
 import org.vast.data.AbstractDataBlock;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
@@ -21,63 +21,103 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     public static final OSHProcessInfo INFO = new OSHProcessInfo("alarmrecorder", "Alarm data recording process", null, AlarmRecorder.class);
     ISensorHub hub;
     IDatabaseRegistry registry;
-    Count countInput;
-    Boolean alarmInput;
+    DataRecord occupancyInput;
     Text dbInputParam;
-    Count numRecords;
-    DataRecord entry;
+    Count numNeutronEntries;
+    Count numGammaEntries;
+    DataRecord neutronEntry;
+    DataRecord gammaEntry;
 
     public AlarmRecorder() {
         super(INFO);
 
-        SWEHelper fac = new SWEHelper();
+        RADHelper radHelper = new RADHelper();
 
-        inputData.add("count", countInput = fac.createCount()
-                .label("Arbitrary Count")
-                .value(0)
-                .definition(SWEHelper.getPropertyUri("Count"))
+        inputData.add("occupancy", occupancyInput = radHelper.createRecord()
+                .label("Occupancy")
+                .definition(RADHelper.getRadUri("occupancy"))
+                .addField("Timestamp", radHelper.createPrecisionTimeStamp())
+                .addField("OccupancyCount", radHelper.createOccupancyCount())
+                .addField("StartTime", radHelper.createOccupancyStartTime())
+                .addField("EndTime", radHelper.createOccupancyEndTime())
+                .addField("NeutronBackground", radHelper.createNeutronBackground())
+                .addField("GammaAlarm",
+                        radHelper.createBoolean()
+                                .name("gamma-alarm")
+                                .label("Gamma Alarm")
+                                .definition(RADHelper.getRadUri("gamma-alarm")))
+                .addField("NeutronAlarm",
+                        radHelper.createBoolean()
+                                .name("neutron-alarm")
+                                .label("Neutron Alarm")
+                                .definition(RADHelper.getRadUri("neutron-alarm")))
                 .build());
 
-        inputData.add("alarm", alarmInput = fac.createBoolean()
-                .label("Alarm Status")
-                .definition(SWEHelper.getPropertyUri("AlarmStatus"))
-                .build());
-
-        outputData.add("entry", entry = fac.createRecord()
+        outputData.add("neutronEntry", neutronEntry = radHelper.createRecord()
                 .updatable(true)
-                .label("Entry")
+                .label("Neutron Entry")
                 .description("Data Entry")
                 .definition(SWEHelper.getPropertyUri("Entry"))
-                .addField("numRecords", numRecords = fac.createCount()
-                        .label("Num Records")
-                        .id("numRecords")
+                .addField("numNeutronRecords", numNeutronEntries = radHelper.createCount()
+                        .label("Num Neutron Records")
+                        .id("numNeutronRecords")
                         .definition(SWEHelper.getPropertyUri("Quantity"))
                         .value(0)
                         .build())
-                .addField("records", fac.createArray()
+                .addField("neutronRecords", radHelper.createArray()
                         .label("Data Records")
-                        .withVariableSize("numRecords")
-                        .withElement("record", fac.createRecord()
-                                .label("Data Record")
-                                .description("Recorded data")
-                                .addField("sampleTime", fac.createQuantity()
-                                        .dataType(DataType.DOUBLE)
-                                        .value(0)
-                                        .label("Sample Time")
-                                        .description("Time of data collection"))
-                                .addField("count", fac.createCount()
-                                        .label("Arbitrary Count")
-                                        .value(0)
-                                        .definition(SWEHelper.getPropertyUri("Count")))
-                                .addField("alarm", fac.createBoolean()
-                                        .label("Alarm Status")
-                                        .value(false)
-                                        .definition(SWEHelper.getPropertyUri("AlarmStatus")))
+                        .withVariableSize("numNeutronRecords")
+                        .withElement("Neutron Scan", radHelper.createRecord()
+                                .label("Neutron Scan")
+                                .definition(RADHelper.getRadUri("neutron-scan"))
+                                .addField("SamplingTime", radHelper.createPrecisionTimeStamp())
+                                .addField("Neutron1", radHelper.createNeutronGrossCount())
+                                .addField("Neutron2", radHelper.createNeutronGrossCount())
+                                .addField("Neutron3", radHelper.createNeutronGrossCount())
+                                .addField("Neutron4", radHelper.createNeutronGrossCount())
+                                .addField("AlarmState",
+                                        radHelper.createCategory()
+                                                .name("Alarm")
+                                                .label("Alarm")
+                                                .definition(RADHelper.getRadUri("alarm"))
+                                                .addAllowedValues("Alarm", "Background", "Scan", "Fault - Neutron High"))
                                 .build())
                         .build())
                 .build());
 
-        paramData.add("databaseInput", dbInputParam = fac.createText()
+        outputData.add("gammaEntry", gammaEntry = radHelper.createRecord()
+                .updatable(true)
+                .label("Gamma Entry")
+                .description("Data Entry")
+                .definition(SWEHelper.getPropertyUri("Entry"))
+                .addField("numGammaRecords", numGammaEntries = radHelper.createCount()
+                        .label("Num Gamma Records")
+                        .id("numGammaRecords")
+                        .definition(SWEHelper.getPropertyUri("Quantity"))
+                        .value(0)
+                        .build())
+                .addField("gammaRecords", radHelper.createArray()
+                        .label("Data Records")
+                        .withVariableSize("numGammaRecords")
+                        .withElement("Gamma Scan", radHelper.createRecord()
+                                .label("Gamma Scan")
+                                .definition(RADHelper.getRadUri("gamma-scan"))
+                                .addField("Sampling Time", radHelper.createPrecisionTimeStamp())
+                                .addField("Gamma1", radHelper.createGammaGrossCount())
+                                .addField("Gamma2", radHelper.createGammaGrossCount())
+                                .addField("Gamma3", radHelper.createGammaGrossCount())
+                                .addField("Gamma4", radHelper.createGammaGrossCount())
+                                .addField("Alarm State",
+                                        radHelper.createCategory()
+                                                .name("Alarm")
+                                                .label("Alarm")
+                                                .definition(RADHelper.getRadUri("alarm"))
+                                                .addAllowedValues("Alarm", "Background", "Scan", "Fault - Gamma High", "Fault - Gamma Low"))
+                                .build())
+                        .build())
+                .build());
+
+        paramData.add("databaseInput", dbInputParam = radHelper.createText()
                 .label("Database Input")
                 .description("Database to query historical results")
                 .definition(SWEHelper.getPropertyUri("Database"))
