@@ -19,10 +19,12 @@ import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.impl.processing.ISensorHubProcess;
 import org.vast.data.AbstractDataBlock;
+import org.vast.data.DataArrayImpl;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
 
+import javax.xml.crypto.Data;
 import java.sql.Array;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -116,16 +118,19 @@ public class SimulatedDB extends ExecutableProcessImpl implements ISensorHubProc
             // Get past 5 seconds of data when alarm is triggered
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue());
 
+            DataArrayImpl dataArray = (DataArrayImpl) entry.getComponent("records");
+            dataArray.updateSize();
+
             int index = 1;
 
             numRecords.getData().setIntValue(0, alarmingData.size());
 
             for(IObsData obsData : alarmingData) {
-                AbstractDataBlock[] dataBlock = (AbstractDataBlock[]) obsData.getResult().getUnderlyingObject();
+                DataBlock dataBlock = obsData.getResult();
                 System.out.println(dataBlock);
-                entry.getData().setDoubleValue(index++, dataBlock[0].getDoubleValue());
-                entry.getData().setIntValue(index++, dataBlock[1].getIntValue());
-                entry.getData().setBooleanValue(index++, dataBlock[2].getBooleanValue());
+                entry.getData().setDoubleValue(index++, ((AbstractDataBlock[]) dataBlock.getUnderlyingObject())[0].getDoubleValue());
+                entry.getData().setIntValue(index++, dataBlock.getIntValue());
+                entry.getData().setBooleanValue(index++, dataBlock.getBooleanValue());
                 getLogger().debug("DATA: {} -> {}", dataBlock, entry);
             }
 
