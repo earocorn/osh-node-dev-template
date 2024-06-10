@@ -10,6 +10,8 @@ import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.impl.processing.ISensorHubProcess;
 import org.sensorhub.impl.utils.rad.RADHelper;
 import org.vast.data.AbstractDataBlock;
+import org.vast.data.DataArrayImpl;
+import org.vast.data.DataBlockMixed;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
@@ -189,11 +191,27 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
 
     private void publishEntryOutput(List<IObsData> blockList, String dbModuleID, EntryType entryType) {
         var db = getRegistry().getObsDatabaseByModuleID(dbModuleID);
+        DataRecord output = null;
+        Count numOutputs = null;
+        switch (entryType) {
+            case GAMMA: {
+                output = gammaEntry;
+                numOutputs = numGammaEntries;
+            }
+            case NEUTRON: {
+                output = neutronEntry;
+                numOutputs = numNeutronEntries;
+            }
+        }
+        // Set number of entries for DataArray
+        numOutputs.getData().setIntValue(blockList.size());
+        // Update size of entry array
+        DataArrayImpl array = (DataArrayImpl) output.getComponent(1).getData();
+        array.updateSize();
+        System.out.println(output.getComponent(1).getData().getClass());
         if(!blockList.isEmpty()) {
 
             for (IObsData obsData : blockList) {
-                db.getObservationStore()
-                        .add(obsData);
             }
         }
     }
