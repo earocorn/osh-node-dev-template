@@ -19,26 +19,35 @@ public class TestProcessWriter {
         SWEHelper fac = new SWEHelper();
 
         IOPropertyList outputs = new IOPropertyList();
-        outputs.add("numRecords",
+        outputs.add("numGammaRecords",
                 fac.createCount()
-                        .id("numRecords")
+                        .id("numGammaRecords")
+                        .label("Num Records")
+                        .definition(SWEHelper.getPropertyUri("Quantity"))
+                        .build());
+        outputs.add("numNeutronRecords",
+                fac.createCount()
+                        .id("numNeutronRecords")
                         .label("Num Records")
                         .definition(SWEHelper.getPropertyUri("Quantity"))
                         .build());
 
         processHelper.addOutputList(outputs);
 
-        processHelper.addDataSource("source0", "urn:osh:sensor:simulated");
+        processHelper.addDataSource("source0", "urn:osh:sensor:rapiscansensor001");
 
-        processHelper.addProcess("process0", new AlarmRecorder());
+        AlarmRecorder process = new AlarmRecorder();
+        process.getParameterList().getComponent(0).getData().setStringValue("29f2b677-95b1-4499-8e5b-459839ec3eb6");
 
-        processHelper.addConnection("components/source0/outputs/sensorOutput/count"
-                ,"components/process0/inputs/count");
-        processHelper.addConnection("components/source0/outputs/sensorOutput/alarm"
-                ,"components/process0/inputs/alarm");
+        processHelper.addProcess("process0", process);
 
-        processHelper.addConnection("components/process0/outputs/entry/numRecords",
-                "outputs/numRecords");
+        processHelper.addConnection("components/source0/outputs/Occupancy/"
+                ,"components/process0/inputs/occupancy");
+
+        processHelper.addConnection("components/process0/outputs/neutronEntry/numNeutronRecords",
+                "outputs/numNeutronRecords");
+        processHelper.addConnection("components/process0/outputs/gammaEntry/numGammaRecords",
+                "outputs/numGammaRecords");
 
         processHelper.writeXML(System.out);
     }

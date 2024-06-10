@@ -32,7 +32,6 @@ dependencies {
 //  implementation project(':sensorhub-driver-videocam')
 
   // universal controller driver
-  implementation project(':sensorhub-driver-universalcontroller')
 
   // drivers for axis ptz cam connection
   implementation project(':sensorhub-driver-videocam')
@@ -48,11 +47,8 @@ dependencies {
   // driver for mavlink
   implementation project(':sensorhub-driver-mavlink')
 
-  // process
-  implementation project(':sensorhub-process-universalcontroller')
-
-  implementation project(':sensorhub-driver-simulated')
-  implementation project(':sensorhub-process-simulated')
+//  implementation project(':sensorhub-driver-simulated')
+//  implementation project(':sensorhub-process-simulated')
 
   implementation project(':sensorhub-driver-fakeweather')
 

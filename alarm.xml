@@ -1,0 +1,250 @@
+<sml:AggregateProcess xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sml="http://www.opengis.net/sensorml/2.0" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" gml:id="F1">
+    <gml:identifier codeSpace="uid">b7eb480c-5045-486d-a06e-91933644f6a7</gml:identifier>
+    <sml:outputs>
+        <sml:OutputList>
+            <sml:output name="numGammaRecords">
+                <swe:Count id="numGammaRecords" definition="http://sensorml.com/ont/swe/property/Quantity">
+                    <swe:label>Num Records</swe:label>
+                </swe:Count>
+            </sml:output>
+            <sml:output name="numNeutronRecords">
+                <swe:Count id="numNeutronRecords" definition="http://sensorml.com/ont/swe/property/Quantity">
+                    <swe:label>Num Records</swe:label>
+                </swe:Count>
+            </sml:output>
+        </sml:OutputList>
+    </sml:outputs>
+    <sml:components>
+        <sml:ComponentList>
+            <sml:component name="source0">
+                <sml:SimpleProcess gml:id="F2">
+                    <sml:typeOf xlink:href="urn:osh:process:datasource:stream"/>
+                    <sml:configuration>
+                        <sml:Settings>
+                            <sml:setValue ref="parameters/producerURI">urn:osh:sensor:rapiscansensor001</sml:setValue>
+                        </sml:Settings>
+                    </sml:configuration>
+                </sml:SimpleProcess>
+            </sml:component>
+            <sml:component name="process0">
+                <sml:SimpleProcess gml:id="F3">
+                    <sml:typeOf xlink:href="urn:osh:process:alarmrecorder"/>
+                    <sml:inputs>
+                        <sml:InputList>
+                            <sml:input name="occupancy">
+                                <swe:DataRecord definition="http://www.opengis.net/def/occupancy">
+                                    <swe:label>Occupancy</swe:label>
+                                    <swe:field name="Timestamp">
+                                        <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                            <swe:label>Sampling Time</swe:label>
+                                            <swe:description>time stamp: when the message was received</swe:description>
+                                            <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                                        </swe:Time>
+                                    </swe:field>
+                                    <swe:field name="OccupancyCount">
+                                        <swe:Count definition="http://www.opengis.net/def/occupancy-count">
+                                            <swe:label>Occupancy Count</swe:label>
+                                            <swe:description>Occupancy count number reset daily</swe:description>
+                                        </swe:Count>
+                                    </swe:field>
+                                    <swe:field name="StartTime">
+                                        <swe:Time definition="http://www.opengis.net/def/occupancy-start-time" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                            <swe:label>Start Time</swe:label>
+                                            <swe:description>The start time of occupancy data</swe:description>
+                                            <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                                        </swe:Time>
+                                    </swe:field>
+                                    <swe:field name="EndTime">
+                                        <swe:Time definition="http://www.opengis.net/def/occupancy-end-time" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                            <swe:label>End Time</swe:label>
+                                            <swe:description>The end time of occupancy data</swe:description>
+                                            <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                                        </swe:Time>
+                                    </swe:field>
+                                    <swe:field name="NeutronBackground">
+                                        <swe:Quantity definition="http://www.opengis.net/def/neutron-background">
+                                            <swe:label>Neutron Background</swe:label>
+                                            <swe:uom xlink:href="http://qudt.org/vocab/unit/UNITLESS"/>
+                                        </swe:Quantity>
+                                    </swe:field>
+                                    <swe:field name="GammaAlarm">
+                                        <swe:Boolean definition="http://www.opengis.net/def/gamma-alarm">
+                                            <swe:label>Gamma Alarm</swe:label>
+                                        </swe:Boolean>
+                                    </swe:field>
+                                    <swe:field name="NeutronAlarm">
+                                        <swe:Boolean definition="http://www.opengis.net/def/neutron-alarm">
+                                            <swe:label>Neutron Alarm</swe:label>
+                                        </swe:Boolean>
+                                    </swe:field>
+                                </swe:DataRecord>
+                            </sml:input>
+                        </sml:InputList>
+                    </sml:inputs>
+                    <sml:outputs>
+                        <sml:OutputList>
+                            <sml:output name="neutronEntry">
+                                <swe:DataRecord updatable="true" definition="http://sensorml.com/ont/swe/property/Entry">
+                                    <swe:label>Neutron Entry</swe:label>
+                                    <swe:description>Data Entry</swe:description>
+                                    <swe:field name="numNeutronRecords">
+                                        <swe:Count id="numNeutronRecords" definition="http://sensorml.com/ont/swe/property/Quantity">
+                                            <swe:label>Num Neutron Records</swe:label>
+                                        </swe:Count>
+                                    </swe:field>
+                                    <swe:field name="neutronRecords">
+                                        <swe:DataArray>
+                                            <swe:label>Data Records</swe:label>
+                                            <swe:elementCount xlink:href="#numNeutronRecords"/>
+                                            <swe:elementType name="Neutron Scan">
+                                                <swe:DataRecord definition="http://www.opengis.net/def/neutron-scan">
+                                                    <swe:label>Neutron Scan</swe:label>
+                                                    <swe:field name="SamplingTime">
+                                                        <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                                            <swe:label>Sampling Time</swe:label>
+                                                            <swe:description>time stamp: when the message was received</swe:description>
+                                                            <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                                                        </swe:Time>
+                                                    </swe:field>
+                                                    <swe:field name="Neutron1">
+                                                        <swe:Count definition="http://www.opengis.net/def/neutron-gross-count">
+                                                            <swe:label>Neutron Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Neutron2">
+                                                        <swe:Count definition="http://www.opengis.net/def/neutron-gross-count">
+                                                            <swe:label>Neutron Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Neutron3">
+                                                        <swe:Count definition="http://www.opengis.net/def/neutron-gross-count">
+                                                            <swe:label>Neutron Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Neutron4">
+                                                        <swe:Count definition="http://www.opengis.net/def/neutron-gross-count">
+                                                            <swe:label>Neutron Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="AlarmState">
+                                                        <swe:Category definition="http://www.opengis.net/def/alarm">
+                                                            <swe:label>Alarm</swe:label>
+                                                            <swe:constraint>
+                                                                <swe:AllowedTokens>
+                                                                    <swe:value>Alarm</swe:value>
+                                                                    <swe:value>Background</swe:value>
+                                                                    <swe:value>Scan</swe:value>
+                                                                    <swe:value>Fault - Neutron High</swe:value>
+                                                                </swe:AllowedTokens>
+                                                            </swe:constraint>
+                                                        </swe:Category>
+                                                    </swe:field>
+                                                </swe:DataRecord>
+                                            </swe:elementType>
+                                        </swe:DataArray>
+                                    </swe:field>
+                                </swe:DataRecord>
+                            </sml:output>
+                            <sml:output name="gammaEntry">
+                                <swe:DataRecord updatable="true" definition="http://sensorml.com/ont/swe/property/Entry">
+                                    <swe:label>Gamma Entry</swe:label>
+                                    <swe:description>Data Entry</swe:description>
+                                    <swe:field name="numGammaRecords">
+                                        <swe:Count id="numGammaRecords" definition="http://sensorml.com/ont/swe/property/Quantity">
+                                            <swe:label>Num Gamma Records</swe:label>
+                                        </swe:Count>
+                                    </swe:field>
+                                    <swe:field name="gammaRecords">
+                                        <swe:DataArray>
+                                            <swe:label>Data Records</swe:label>
+                                            <swe:elementCount xlink:href="#numGammaRecords"/>
+                                            <swe:elementType name="Gamma Scan">
+                                                <swe:DataRecord definition="http://www.opengis.net/def/gamma-scan">
+                                                    <swe:label>Gamma Scan</swe:label>
+                                                    <swe:field name="Sampling Time">
+                                                        <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+                                                            <swe:label>Sampling Time</swe:label>
+                                                            <swe:description>time stamp: when the message was received</swe:description>
+                                                            <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+                                                        </swe:Time>
+                                                    </swe:field>
+                                                    <swe:field name="Gamma1">
+                                                        <swe:Count definition="http://www.opengis.net/def/gamma-gross-count">
+                                                            <swe:label>Gamma Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Gamma2">
+                                                        <swe:Count definition="http://www.opengis.net/def/gamma-gross-count">
+                                                            <swe:label>Gamma Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Gamma3">
+                                                        <swe:Count definition="http://www.opengis.net/def/gamma-gross-count">
+                                                            <swe:label>Gamma Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Gamma4">
+                                                        <swe:Count definition="http://www.opengis.net/def/gamma-gross-count">
+                                                            <swe:label>Gamma Gross Count</swe:label>
+                                                        </swe:Count>
+                                                    </swe:field>
+                                                    <swe:field name="Alarm State">
+                                                        <swe:Category definition="http://www.opengis.net/def/alarm">
+                                                            <swe:label>Alarm</swe:label>
+                                                            <swe:constraint>
+                                                                <swe:AllowedTokens>
+                                                                    <swe:value>Alarm</swe:value>
+                                                                    <swe:value>Background</swe:value>
+                                                                    <swe:value>Scan</swe:value>
+                                                                    <swe:value>Fault - Gamma High</swe:value>
+                                                                    <swe:value>Fault - Gamma Low</swe:value>
+                                                                </swe:AllowedTokens>
+                                                            </swe:constraint>
+                                                        </swe:Category>
+                                                    </swe:field>
+                                                </swe:DataRecord>
+                                            </swe:elementType>
+                                        </swe:DataArray>
+                                    </swe:field>
+                                </swe:DataRecord>
+                            </sml:output>
+                        </sml:OutputList>
+                    </sml:outputs>
+                    <sml:parameters>
+                        <sml:ParameterList>
+                            <sml:parameter name="databaseInput">
+                                <swe:Text definition="http://sensorml.com/ont/swe/property/Database">
+                                    <swe:label>Database Input</swe:label>
+                                    <swe:description>Database to query historical results</swe:description>
+                                    <swe:value>29f2b677-95b1-4499-8e5b-459839ec3eb6</swe:value>
+                                </swe:Text>
+                            </sml:parameter>
+                        </sml:ParameterList>
+                    </sml:parameters>
+                </sml:SimpleProcess>
+            </sml:component>
+        </sml:ComponentList>
+    </sml:components>
+    <sml:connections>
+        <sml:ConnectionList>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/source0/outputs/Occupancy/"/>
+                    <sml:destination ref="components/process0/inputs/occupancy"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/process0/outputs/neutronEntry/numNeutronRecords"/>
+                    <sml:destination ref="outputs/numNeutronRecords"/>
+                </sml:Link>
+            </sml:connection>
+            <sml:connection>
+                <sml:Link>
+                    <sml:source ref="components/process0/outputs/gammaEntry/numGammaRecords"/>
+                    <sml:destination ref="outputs/numGammaRecords"/>
+                </sml:Link>
+            </sml:connection>
+        </sml:ConnectionList>
+    </sml:connections>
+</sml:AggregateProcess>

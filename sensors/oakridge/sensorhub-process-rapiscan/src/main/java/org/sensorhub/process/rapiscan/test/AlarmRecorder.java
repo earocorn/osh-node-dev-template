@@ -144,20 +144,8 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
             Instant before = now.minusSeconds(5);
 
             // Get past 5 seconds of data when alarm is triggered
-            alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue());
+            alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
 
-            int index = 1;
-
-            numRecords.getData().setIntValue(0, alarmingData.size());
-
-            for(IObsData obsData : alarmingData) {
-                AbstractDataBlock[] dataBlock = (AbstractDataBlock[]) obsData.getResult().getUnderlyingObject();
-                System.out.println(dataBlock);
-                entry.getData().setDoubleValue(index++, dataBlock[0].getDoubleValue());
-                entry.getData().setIntValue(index++, dataBlock[1].getIntValue());
-                entry.getData().setBooleanValue(index++, dataBlock[2].getBooleanValue());
-                getLogger().debug("DATA: {} -> {}", dataBlock, entry);
-            }
 
         }
 
@@ -212,6 +200,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         if(!blockList.isEmpty()) {
 
             for (IObsData obsData : blockList) {
+
             }
         }
     }
