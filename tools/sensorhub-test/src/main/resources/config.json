@@ -185,7 +185,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "urn:osh:sensor:simulated"
+      "urn:osh:sensor:rapiscansensor001"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 1,
@@ -226,20 +226,42 @@
     "autoStart": true
   },
   {
-    "objClass": "com.sensor.simulated.SimulatedConfig",
-    "serialNumber": "simulated",
-    "lastUpdated": "2024-06-04T18:47:38.630-0500",
-    "id": "e530e310-9e1f-454b-95bf-0484217f9266",
-    "moduleClass": "com.sensor.simulated.SimulatedSensor",
-    "name": "New Simulated driver",
+    "objClass": "com.botts.impl.sensor.rapiscan.RapiscanConfig",
+    "serialNumber": "sensor001",
+    "commSettings": {
+      "objClass": "org.sensorhub.impl.comm.TCPCommProviderConfig",
+      "connection": {
+        "objClass": "org.sensorhub.impl.comm.RobustIPConnectionConfig",
+        "checkReachability": true,
+        "connectTimeout": 3000,
+        "reconnectPeriod": 10000,
+        "reconnectAttempts": 0
+      },
+      "protocol": {
+        "objClass": "org.sensorhub.impl.comm.TCPConfig",
+        "remotePort": 1600,
+        "enableTLS": false,
+        "remoteHost": "localhost",
+        "localAddress": "AUTO"
+      },
+      "moduleClass": "org.sensorhub.impl.comm.TCPCommProvider",
+      "autoStart": false
+    },
+    "positionConfig": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig"
+    },
+    "lastUpdated": "2024-06-10T13:36:30.446-0500",
+    "id": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "moduleClass": "com.botts.impl.sensor.rapiscan.RapiscanSensor",
+    "name": "New Rapiscan Sensor Driver",
     "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "sensorML": "simulated.xml",
-    "id": "54cdb94a-ac7d-4bb5-b8d3-592afd1bcbb0",
+    "sensorML": "alarm.xml",
+    "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
-    "name": "New SensorML Stream Process",
+    "name": "Alarm Process",
     "autoStart": false
   },
   {
@@ -247,7 +269,7 @@
     "dbConfig": {
       "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
       "indexObsLocation": false,
-      "storagePath": "alarms.dat",
+      "storagePath": "alarm_data.dat",
       "memoryCacheSize": 5120,
       "autoCommitBufferSize": 1024,
       "autoCommitPeriod": 10,
@@ -260,13 +282,13 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "9c8311a9-cdd1-4693-92f2-c8ed0e5748e6"
+      "b7eb480c-5045-486d-a06e-91933644f6a7"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
-    "id": "2a43ed4b-4770-4937-8042-83f59b7294c7",
+    "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
-    "name": "Alarm Database",
-    "autoStart": true
+    "name": "Alarm Process Database",
+    "autoStart": false
   }
 ]

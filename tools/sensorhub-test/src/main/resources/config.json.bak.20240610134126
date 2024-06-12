@@ -224,12 +224,42 @@
     "autoStart": true
   },
   {
-    "objClass": "com.sensor.simulated.SimulatedConfig",
-    "serialNumber": "sensor",
-    "lastUpdated": "2024-06-04T18:47:38.630-0500",
-    "id": "e530e310-9e1f-454b-95bf-0484217f9266",
-    "moduleClass": "com.sensor.simulated.SimulatedSensor",
-    "name": "New Simulated driver",
-    "autoStart": true
+    "objClass": "com.botts.impl.sensor.rapiscan.RapiscanConfig",
+    "serialNumber": "sensor001",
+    "commSettings": {
+      "objClass": "org.sensorhub.impl.comm.TCPCommProviderConfig",
+      "connection": {
+        "objClass": "org.sensorhub.impl.comm.RobustIPConnectionConfig",
+        "checkReachability": true,
+        "connectTimeout": 3000,
+        "reconnectPeriod": 10000,
+        "reconnectAttempts": 0
+      },
+      "protocol": {
+        "objClass": "org.sensorhub.impl.comm.TCPConfig",
+        "remotePort": 1600,
+        "enableTLS": false,
+        "remoteHost": "localhost",
+        "localAddress": "AUTO"
+      },
+      "moduleClass": "org.sensorhub.impl.comm.TCPCommProvider",
+      "autoStart": false
+    },
+    "positionConfig": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig"
+    },
+    "lastUpdated": "2024-06-10T13:36:30.446-0500",
+    "id": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "moduleClass": "com.botts.impl.sensor.rapiscan.RapiscanSensor",
+    "name": "New Rapiscan Sensor Driver",
+    "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
+    "sensorML": "alarm.xml",
+    "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
+    "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
+    "name": "Alarm Process",
+    "autoStart": false
   }
 ]

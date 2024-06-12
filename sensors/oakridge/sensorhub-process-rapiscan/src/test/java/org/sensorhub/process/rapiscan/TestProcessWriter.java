@@ -18,25 +18,12 @@ public class TestProcessWriter {
         ProcessHelper processHelper = new ProcessHelper();
         SWEHelper fac = new SWEHelper();
 
-        IOPropertyList outputs = new IOPropertyList();
-        outputs.add("numGammaRecords",
-                fac.createCount()
-                        .id("numGammaRecords")
-                        .label("Num Records")
-                        .definition(SWEHelper.getPropertyUri("Quantity"))
-                        .build());
-        outputs.add("numNeutronRecords",
-                fac.createCount()
-                        .id("numNeutronRecords")
-                        .label("Num Records")
-                        .definition(SWEHelper.getPropertyUri("Quantity"))
-                        .build());
+        AlarmRecorder process = new AlarmRecorder();
 
-        processHelper.addOutputList(outputs);
+        processHelper.addOutputList(process.getOutputList());
 
         processHelper.addDataSource("source0", "urn:osh:sensor:rapiscansensor001");
 
-        AlarmRecorder process = new AlarmRecorder();
         process.getParameterList().getComponent(0).getData().setStringValue("29f2b677-95b1-4499-8e5b-459839ec3eb6");
 
         processHelper.addProcess("process0", process);
