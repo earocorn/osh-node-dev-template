@@ -241,7 +241,7 @@
         "objClass": "org.sensorhub.impl.comm.TCPConfig",
         "remotePort": 1600,
         "enableTLS": false,
-        "remoteHost": "192.168.1.126",
+        "remoteHost": "localhost",
         "localAddress": "AUTO"
       },
       "moduleClass": "org.sensorhub.impl.comm.TCPCommProvider",
@@ -262,7 +262,7 @@
     "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "Alarm Process",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
@@ -282,13 +282,13 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "44254769-23ae-404a-a257-c437de932d2f"
+      "b7eb480c-5045-486d-a06e-91933644f6a7"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
     "name": "Alarm Process Database",
-    "autoStart": true
+    "autoStart": false
   }
 ]

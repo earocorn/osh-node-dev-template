@@ -34,8 +34,6 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     IDatabaseRegistry registry;
     DataRecord occupancyInput;
     Text dbInputParam;
-    Count numNeutronEntries;
-    Count numGammaEntries;
     DataRecord neutronEntry;
     DataRecord gammaEntry;
 
@@ -87,12 +85,12 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         outputData.add("gammaEntry", gammaEntry = radHelper.createRecord()
                         .label("Gamma Scan")
                         .definition(RADHelper.getRadUri("gamma-scan"))
-                        .addField("Sampling Time", radHelper.createPrecisionTimeStamp())
+                        .addField("SamplingTime", radHelper.createPrecisionTimeStamp())
                         .addField("Gamma1", radHelper.createGammaGrossCount())
                         .addField("Gamma2", radHelper.createGammaGrossCount())
                         .addField("Gamma3", radHelper.createGammaGrossCount())
                         .addField("Gamma4", radHelper.createGammaGrossCount())
-                        .addField("Alarm State",
+                        .addField("AlarmState",
                                 radHelper.createCategory()
                                         .name("Alarm")
                                         .label("Alarm")
@@ -111,26 +109,30 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     @Override
     public void execute() throws ProcessException {
         // Only populate data entry if alarm is triggered
+        List<IObsData> alarmingData;
+        Instant now = Instant.now();
+        Instant before = now.minusSeconds(10);
+
         if(occupancyInput.getComponent("GammaAlarm").getData().getBooleanValue()) {
             System.out.println("Results from past 10 seconds");
 
-            List<IObsData> alarmingData;
-
-            Instant now = Instant.now();
-            Instant before = now.minusSeconds(5);
-
-            // Get past 5 seconds of data when alarm is triggered
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
 
             try {
-                publishEntryOutput(alarmingData, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
+                publishEntryOutput(alarmingData, EntryType.GAMMA);
             } catch (InterruptedException | DataStoreException e) {
                 throw new RuntimeException(e);
             }
         }
 
         if(occupancyInput.getComponent("NeutronAlarm").getData().getBooleanValue()) {
+            alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.NEUTRON);
 
+            try {
+                publishEntryOutput(alarmingData, EntryType.NEUTRON);
+            } catch (InterruptedException | DataStoreException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -138,7 +140,9 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         String outputName = "";
         switch(entryType) {
             case GAMMA: outputName = "Gamma Scan";
+            break;
             case NEUTRON: outputName = "Neutron Scan";
+            break;
         }
         DataStreamFilter dsFilter = new DataStreamFilter.Builder()
                 .withOutputNames(outputName)
@@ -157,48 +161,36 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         return obsDb.collect(Collectors.toList());
     }
 
-    private void publishEntryOutput(List<IObsData> blockList, String dbModuleID, EntryType entryType) throws InterruptedException, DataStoreException {
-        var db = getRegistry().getObsDatabaseByModuleID(dbModuleID);
+    private void publishEntryOutput(List<IObsData> blockList, EntryType entryType) throws InterruptedException, DataStoreException {
         DataRecord output = null;
-        Count numOutputs = null;
         switch (entryType) {
             case GAMMA: {
                 output = gammaEntry;
-                numOutputs = numGammaEntries;
             }
+            break;
             case NEUTRON: {
                 output = neutronEntry;
-                numOutputs = numNeutronEntries;
             }
+            break;
         }
-        // Set number of entries for DataArray
-        numOutputs.getData().setIntValue(blockList.size());
-        // Update size of entry array
-        DataArrayImpl array = (DataArrayImpl) output.getComponent(1);
-        array.updateSize();
-        System.out.println(output.getComponent(1).getData().getClass()); // == DataBlockParallel
         if(!blockList.isEmpty()) {
-            DataBlockParallel entryList = (DataBlockParallel) output.getComponent(1).getData();
+            DataBlockMixed entry = (DataBlockMixed) output.getData();
             for (int i = 0; i < blockList.size(); i++) {
-                entryList.getUnderlyingObject()[0].setDoubleValue(i, blockList.get(i).getResult().getDoubleValue(0));
-                entryList.getUnderlyingObject()[1].setIntValue(i, blockList.get(i).getResult().getIntValue(1));
-                entryList.getUnderlyingObject()[2].setIntValue(i, blockList.get(i).getResult().getIntValue(2));
-                entryList.getUnderlyingObject()[3].setIntValue(i, blockList.get(i).getResult().getIntValue(3));
-                entryList.getUnderlyingObject()[4].setIntValue(i, blockList.get(i).getResult().getIntValue(4));
-                entryList.getUnderlyingObject()[5].setStringValue(i, blockList.get(i).getResult().getStringValue(5));
-                System.out.println("EntryList: " + entryList + " DataBlock: " + blockList.get(i).getResult());
-            }
-            output.getComponent(1).setData(entryList);
-            System.out.println("EntryList: " + entryList + " BlockItemList: " + blockList);
-        }
+                entry.setDoubleValue(0, blockList.get(i).getResult().getDoubleValue(0));
+                entry.setIntValue(1, blockList.get(i).getResult().getIntValue(1));
+                entry.setIntValue(2, blockList.get(i).getResult().getIntValue(2));
+                entry.setIntValue(3, blockList.get(i).getResult().getIntValue(3));
+                entry.setIntValue(4, blockList.get(i).getResult().getIntValue(4));
+                entry.setStringValue(5, blockList.get(i).getResult().getStringValue(5));
 
-        DataStreamInfo dsInfo = new DataStreamInfo.Builder()
-                .withDescription("Alarm entries")
-                .withName("Alarm Entries")
-                .withRecordDescription(output)
-                .build();
-        db.getDataStreamStore().add(dsInfo);
-        db.getObservationStore().
+                output.setData(entry);
+
+                publishData();
+                publishData(output.getName());
+
+                System.out.println("Entry: " + entry + " DataBlock: " + blockList.get(i).getResult());
+            }
+        }
     }
 
     private IDatabaseRegistry getRegistry() {

@@ -31,10 +31,10 @@ public class TestProcessWriter {
         processHelper.addConnection("components/source0/outputs/Occupancy/"
                 ,"components/process0/inputs/occupancy");
 
-        processHelper.addConnection("components/process0/outputs/neutronEntry/numNeutronRecords",
-                "outputs/numNeutronRecords");
-        processHelper.addConnection("components/process0/outputs/gammaEntry/numGammaRecords",
-                "outputs/numGammaRecords");
+        processHelper.addConnection("components/process0/outputs/neutronEntry",
+                "outputs/neutronEntry");
+        processHelper.addConnection("components/process0/outputs/gammaEntry",
+                "outputs/gammaEntry");
 
         processHelper.writeXML(System.out);
     }
