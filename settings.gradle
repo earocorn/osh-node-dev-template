@@ -73,6 +73,12 @@ project(':sensorhub-driver-mavlink').projectDir = "$sensorDir/robotics/sensorhub
 include 'sensorhub-driver-fakeweather'
 project(':sensorhub-driver-fakeweather').projectDir = "$sensorDir/simulated/sensorhub-driver-fakeweather" as File
 
+include 'sensorhub-process-ffmpeg'
+project(':sensorhub-process-ffmpeg').projectDir = "$processDir/sensorhub-process-ffmpeg" as File
+
+include 'sensorhub-driver-v4l'
+project(':sensorhub-driver-v4l').projectDir = "$sensorDir/video/sensorhub-driver-v4l" as File
+
 // Project modules
 
 // Oakridge Stuff
