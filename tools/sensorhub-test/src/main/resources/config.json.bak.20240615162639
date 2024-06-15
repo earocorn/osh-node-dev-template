@@ -185,9 +185,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "urn:osh:sensor:rapiscansensor001",
-      "urn:osh:sensor:ffmpeg:video001",
-      "urn:osh:sensor:ffmpeg:video002"
+      "urn:osh:sensor:rapiscansensor001"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 1,
@@ -284,53 +282,13 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "942be964-a1e1-48c0-9475-b34020f93cb9"
+      "44254769-23ae-404a-a257-c437de932d2f"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
     "name": "Alarm Process Database",
-    "autoStart": true
-  },
-  {
-    "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.FFMPEGConfig",
-    "serialNumber": "video001",
-    "connection": {
-      "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
-      "transportStreamPath": "http://10.146.49.248:10101/oneshotimage.jpg",
-      "fps": 0,
-      "loop": true,
-      "isMJPEG": true,
-      "ignoreDataTimestamps": true
-    },
-    "positionConfig": {
-      "objClass": "org.sensorhub.api.sensor.PositionConfig"
-    },
-    "lastUpdated": "2024-06-15T16:24:31.438-0500",
-    "id": "8b181a16-dcf0-4367-bad7-d7193ca508e6",
-    "moduleClass": "org.sensorhub.impl.sensor.ffmpeg.FFMPEGSensor",
-    "name": "FFMPEG Video 1",
-    "autoStart": true
-  },
-  {
-    "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.FFMPEGConfig",
-    "serialNumber": "video002",
-    "connection": {
-      "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
-      "transportStreamPath": "http://10.146.49.248:10102/now.jpg",
-      "fps": 0,
-      "loop": true,
-      "isMJPEG": true,
-      "ignoreDataTimestamps": true
-    },
-    "positionConfig": {
-      "objClass": "org.sensorhub.api.sensor.PositionConfig"
-    },
-    "lastUpdated": "2024-06-15T16:26:06.516-0500",
-    "id": "1bf76bf0-ec46-46ca-8a34-0e73f7efede7",
-    "moduleClass": "org.sensorhub.impl.sensor.ffmpeg.FFMPEGSensor",
-    "name": "FFMPEG Video 2",
     "autoStart": true
   }
 ]

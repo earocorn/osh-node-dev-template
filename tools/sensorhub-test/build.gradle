@@ -38,4 +38,5 @@ dependencies {
   implementation project(':sensorhub-driver-rapiscan')
   implementation project(':sensorhub-process-rapiscan')
   implementation project(':sensorhub-driver-ffmpeg')
+  implementation project(':sensorhub-service-video')
 }

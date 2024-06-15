@@ -264,7 +264,7 @@
     "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "Alarm Process",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
@@ -284,7 +284,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "942be964-a1e1-48c0-9475-b34020f93cb9"
+      "44254769-23ae-404a-a257-c437de932d2f"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,

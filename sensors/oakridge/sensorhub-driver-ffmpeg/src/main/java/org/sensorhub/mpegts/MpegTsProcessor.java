@@ -340,7 +340,7 @@ public class MpegTsProcessor extends Thread {
     public void run() {
         do {
             processStreamPackets();
-            logger.info("End of the FFMPEG stream");
+//            logger.info("End of the FFMPEG stream");
             if (loop) {
                 avformat.av_seek_frame(avFormatContext, 0, 0, avformat.AVSEEK_FLAG_ANY);
             }

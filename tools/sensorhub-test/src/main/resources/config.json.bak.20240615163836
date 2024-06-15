@@ -185,9 +185,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "urn:osh:sensor:rapiscansensor001",
-      "urn:osh:sensor:ffmpeg:video001",
-      "urn:osh:sensor:ffmpeg:video002"
+      "urn:osh:sensor:rapiscansensor001"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 1,
@@ -284,7 +282,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "942be964-a1e1-48c0-9475-b34020f93cb9"
+      "44254769-23ae-404a-a257-c437de932d2f"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
@@ -300,7 +298,7 @@
       "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
       "transportStreamPath": "http://10.146.49.248:10101/oneshotimage.jpg",
       "fps": 0,
-      "loop": true,
+      "loop": false,
       "isMJPEG": true,
       "ignoreDataTimestamps": true
     },
@@ -320,7 +318,7 @@
       "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
       "transportStreamPath": "http://10.146.49.248:10102/now.jpg",
       "fps": 0,
-      "loop": true,
+      "loop": false,
       "isMJPEG": true,
       "ignoreDataTimestamps": true
     },

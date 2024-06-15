@@ -12,6 +12,7 @@ import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.api.system.SystemId;
 import org.sensorhub.impl.processing.ISensorHubProcess;
+import org.sensorhub.impl.sensor.videocam.VideoCamHelper;
 import org.sensorhub.impl.utils.rad.RADHelper;
 import org.vast.data.AbstractDataBlock;
 import org.vast.data.DataArrayImpl;
@@ -36,6 +37,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     Text dbInputParam;
     DataRecord neutronEntry;
     DataRecord gammaEntry;
+    DataComponent video1;
 
     enum EntryType {
         NEUTRON, GAMMA
@@ -98,6 +100,9 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
                                         .addAllowedValues("Alarm", "Background", "Scan", "Fault - Gamma High", "Fault - Gamma Low"))
                         .build());
 
+        VideoCamHelper vidHelper = new VideoCamHelper();
+        outputData.add("video1", video1 = vidHelper.newVideoOutputMJPEG("video1", 640, 480).getElementType());
+
         paramData.add("databaseInput", dbInputParam = radHelper.createText()
                 .label("Database Input")
                 .description("Database to query historical results")
@@ -110,6 +115,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     public void execute() throws ProcessException {
         // Only populate data entry if alarm is triggered
         List<IObsData> alarmingData;
+        List<IObsData> videoData;
         Instant now = Instant.now();
         Instant before = now.minusSeconds(10);
 
@@ -117,8 +123,10 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
             System.out.println("Results from past 10 seconds");
 
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
+            videoData = getVideoFromInterval(before.minusSeconds(100), now, dbInputParam.getData().getStringValue());
 
             try {
+                publishVideoOutput(videoData);
                 publishEntryOutput(alarmingData, EntryType.GAMMA);
             } catch (InterruptedException | DataStoreException e) {
                 throw new RuntimeException(e);
@@ -127,8 +135,10 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
 
         if(occupancyInput.getComponent("NeutronAlarm").getData().getBooleanValue()) {
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.NEUTRON);
+            videoData = getVideoFromInterval(before.minusSeconds(100), now, dbInputParam.getData().getStringValue());
 
             try {
+                publishVideoOutput(videoData);
                 publishEntryOutput(alarmingData, EntryType.NEUTRON);
             } catch (InterruptedException | DataStoreException e) {
                 throw new RuntimeException(e);
@@ -189,6 +199,33 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
                 publishData(output.getName());
 
                 System.out.println("Entry: " + entry + " DataBlock: " + blockList.get(i).getResult());
+            }
+        }
+    }
+
+    private List<IObsData> getVideoFromInterval(Instant start, Instant end, String dbModuleID) {
+        String outputName = "video";
+        DataStreamFilter dsFilter = new DataStreamFilter.Builder()
+                .withOutputNames(outputName)
+                .build();
+
+        ObsFilter filter = new ObsFilter.Builder()
+                .withDataStreams(dsFilter)
+                .withPhenomenonTimeDuring(start, end).build();
+
+        var obsDb = getRegistry()
+                .getObsDatabaseByModuleID(dbModuleID)
+                .getObservationStore()
+                .select(filter);
+
+        return obsDb.collect(Collectors.toList());
+    }
+
+    private void publishVideoOutput(List<IObsData> blockList) {
+        if(!blockList.isEmpty()) {
+            DataBlockMixed videoOutput = (DataBlockMixed) outputData.getComponent("video1");
+            for(int i = 0; i < blockList.size(); i++) {
+                System.out.println(blockList.get(i).getResult());
             }
         }
     }

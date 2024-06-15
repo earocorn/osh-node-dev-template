@@ -35,6 +35,8 @@ public class TestProcessWriter {
                 "outputs/neutronEntry");
         processHelper.addConnection("components/process0/outputs/gammaEntry",
                 "outputs/gammaEntry");
+        processHelper.addConnection("components/process0/outputs/video1",
+                "outputs/video1");
 
         processHelper.writeXML(System.out);
     }
