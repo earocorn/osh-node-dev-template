@@ -1,4 +1,4 @@
-package org.sensorhub.process.rapiscan.helpers;
+package org.sensorhub.process.datasave.helpers;
 
 import net.opengis.gml.v32.impl.ReferenceImpl;
 import net.opengis.sensorml.v20.IOPropertyList;
@@ -25,7 +25,6 @@ public class ProcessHelper extends SMLUtils {
         sourceType = new ReferenceImpl("urn:osh:process:datasource:stream");
 
         aggregateProcess = new AggregateProcessImpl();
-        aggregateProcess.setUniqueIdentifier(UUID.randomUUID().toString());
     }
     public ProcessHelper(SMLStaxBindings staxBindings) {
         super(staxBindings);
@@ -37,6 +36,7 @@ public class ProcessHelper extends SMLUtils {
      * @param outputStream
      */
     public void writeXML(OutputStream outputStream) throws XMLWriterException {
+        aggregateProcess.setUniqueIdentifier(UUID.randomUUID().toString());
         writeProcess(outputStream, aggregateProcess, true);
     }
 

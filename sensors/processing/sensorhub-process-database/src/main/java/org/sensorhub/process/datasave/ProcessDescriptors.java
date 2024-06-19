@@ -12,14 +12,14 @@ Copyright (C) 2012-2017 Sensia Software LLC. All Rights Reserved.
  
 ******************************* END LICENSE BLOCK ***************************/
 
-package org.sensorhub.process.rapiscan;
+package org.sensorhub.process.datasave;
 
 import org.sensorhub.api.module.IModule;
 import org.sensorhub.api.module.ModuleConfig;
 import org.sensorhub.impl.processing.AbstractProcessProvider;
-import org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig;
-import org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl;
-import org.sensorhub.process.rapiscan.test.AlarmRecorder;
+import org.sensorhub.process.datasave.helpers.DatasaveProcessConfig;
+import org.sensorhub.process.datasave.helpers.DatasaveProcessImpl;
+import org.sensorhub.process.datasave.test.AlarmRecorder;
 
 public class ProcessDescriptors extends AbstractProcessProvider
 {
@@ -29,30 +29,29 @@ public class ProcessDescriptors extends AbstractProcessProvider
         addImpl(AlarmRecorder.INFO);
     }
 
-
     @Override
     public String getModuleName() {
-        return "Occupancy Alarm Process";
+        return "Database Save Process";
     }
 
     @Override
     public String getModuleDescription()
     {
-        return "Processing module configured for storing occupancy data from an OSH database";
+        return "Processing module configured for storing data from an OSH database";
     }
 
 
     @Override
     public Class<? extends IModule<?>> getModuleClass()
     {
-        return RapiscanProcessImpl.class;
+        return DatasaveProcessImpl.class;
     }
 
 
     @Override
     public Class<? extends ModuleConfig> getModuleConfigClass()
     {
-        return RapiscanProcessConfig.class;
+        return DatasaveProcessConfig.class;
     }
 
 }

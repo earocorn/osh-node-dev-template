@@ -1,36 +1,27 @@
-package org.sensorhub.process.rapiscan.test;
+package org.sensorhub.process.datasave.test;
 
-import net.opengis.swe.v20.*;
+import net.opengis.swe.v20.DataComponent;
+import net.opengis.swe.v20.DataRecord;
+import net.opengis.swe.v20.Text;
 import org.sensorhub.api.ISensorHub;
-import org.sensorhub.api.data.DataStreamInfo;
-import org.sensorhub.api.data.IDataStreamInfo;
 import org.sensorhub.api.data.IObsData;
 import org.sensorhub.api.database.IDatabaseRegistry;
 import org.sensorhub.api.datastore.DataStoreException;
 import org.sensorhub.api.datastore.obs.DataStreamFilter;
 import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
-import org.sensorhub.api.system.SystemId;
 import org.sensorhub.impl.processing.ISensorHubProcess;
-import org.sensorhub.impl.sensor.videocam.VideoCamHelper;
-import org.sensorhub.impl.utils.rad.RADHelper;
-import org.vast.data.AbstractDataBlock;
-import org.vast.data.DataArrayImpl;
 import org.vast.data.DataBlockMixed;
-import org.vast.data.DataBlockParallel;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
-import org.vast.util.TimeExtent;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubProcess {
-    public static final OSHProcessInfo INFO = new OSHProcessInfo("alarmrecorder", "Alarm data recording process", null, AlarmRecorder.class);
+    public static final OSHProcessInfo INFO = new OSHProcessInfo("datasave", "Data recording process", null, AlarmRecorder.class);
     ISensorHub hub;
     IDatabaseRegistry registry;
     DataRecord occupancyInput;
@@ -45,70 +36,16 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
 
     public AlarmRecorder() {
         super(INFO);
-
-        RADHelper radHelper = new RADHelper();
-
-        inputData.add("occupancy", occupancyInput = radHelper.createRecord()
-                .label("Occupancy")
-                .definition(RADHelper.getRadUri("occupancy"))
-                .addField("Timestamp", radHelper.createPrecisionTimeStamp())
-                .addField("OccupancyCount", radHelper.createOccupancyCount())
-                .addField("StartTime", radHelper.createOccupancyStartTime())
-                .addField("EndTime", radHelper.createOccupancyEndTime())
-                .addField("NeutronBackground", radHelper.createNeutronBackground())
-                .addField("GammaAlarm",
-                        radHelper.createBoolean()
-                                .name("gamma-alarm")
-                                .label("Gamma Alarm")
-                                .definition(RADHelper.getRadUri("gamma-alarm")))
-                .addField("NeutronAlarm",
-                        radHelper.createBoolean()
-                                .name("neutron-alarm")
-                                .label("Neutron Alarm")
-                                .definition(RADHelper.getRadUri("neutron-alarm")))
-                .build());
-
-        outputData.add("neutronEntry", neutronEntry = radHelper.createRecord()
-                        .label("Neutron Scan")
-                        .definition(RADHelper.getRadUri("neutron-scan"))
-                        .addField("SamplingTime", radHelper.createPrecisionTimeStamp())
-                        .addField("Neutron1", radHelper.createNeutronGrossCount())
-                        .addField("Neutron2", radHelper.createNeutronGrossCount())
-                        .addField("Neutron3", radHelper.createNeutronGrossCount())
-                        .addField("Neutron4", radHelper.createNeutronGrossCount())
-                        .addField("AlarmState",
-                                radHelper.createCategory()
-                                        .name("Alarm")
-                                        .label("Alarm")
-                                        .definition(RADHelper.getRadUri("alarm"))
-                                        .addAllowedValues("Alarm", "Background", "Scan", "Fault - Neutron High"))
-                        .build());
-
-        outputData.add("gammaEntry", gammaEntry = radHelper.createRecord()
-                        .label("Gamma Scan")
-                        .definition(RADHelper.getRadUri("gamma-scan"))
-                        .addField("SamplingTime", radHelper.createPrecisionTimeStamp())
-                        .addField("Gamma1", radHelper.createGammaGrossCount())
-                        .addField("Gamma2", radHelper.createGammaGrossCount())
-                        .addField("Gamma3", radHelper.createGammaGrossCount())
-                        .addField("Gamma4", radHelper.createGammaGrossCount())
-                        .addField("AlarmState",
-                                radHelper.createCategory()
-                                        .name("Alarm")
-                                        .label("Alarm")
-                                        .definition(RADHelper.getRadUri("alarm"))
-                                        .addAllowedValues("Alarm", "Background", "Scan", "Fault - Gamma High", "Fault - Gamma Low"))
-                        .build());
-
-        VideoCamHelper vidHelper = new VideoCamHelper();
-        outputData.add("video1", video1 = vidHelper.newVideoOutputMJPEG("video1", 640, 480).getElementType());
-
-        paramData.add("databaseInput", dbInputParam = radHelper.createText()
-                .label("Database Input")
-                .description("Database to query historical results")
-                .definition(SWEHelper.getPropertyUri("Database"))
-                .value("")
-                .build());
+//
+//        RADHelper radHelper = new RADHelper
+//        outputData.add("video1", video1 = vidHelper.newVideoOutputMJPEG("video1", 640, 480).getElementType());
+//
+//        paramData.add("databaseInput", dbInputParam = radHelper.createText()
+//                .label("Database Input")
+//                .description("Database to query historical results")
+//                .definition(SWEHelper.getPropertyUri("Database"))
+//                .value("")
+//                .build());
     }
 
     @Override
@@ -123,7 +60,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
             System.out.println("Results from past 10 seconds");
 
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
-            videoData = getVideoFromInterval(before.minusSeconds(10), now, dbInputParam.getData().getStringValue());
+            videoData = getVideoFromInterval(before.minusSeconds(100), now, dbInputParam.getData().getStringValue());
 
             try {
                 publishVideoOutput(videoData);
@@ -135,7 +72,7 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
 
         if(occupancyInput.getComponent("NeutronAlarm").getData().getBooleanValue()) {
             alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.NEUTRON);
-            videoData = getVideoFromInterval(before.minusSeconds(10), now, dbInputParam.getData().getStringValue());
+            videoData = getVideoFromInterval(before.minusSeconds(100), now, dbInputParam.getData().getStringValue());
 
             try {
                 publishVideoOutput(videoData);

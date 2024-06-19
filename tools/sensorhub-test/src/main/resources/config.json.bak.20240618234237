@@ -283,8 +283,7 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "25ef2749-393d-4f9a-88a6-13308f9783a1",
-      "9da94922-d58a-44d8-b4cd-1c2e64450db8"
+      "25ef2749-393d-4f9a-88a6-13308f9783a1"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,

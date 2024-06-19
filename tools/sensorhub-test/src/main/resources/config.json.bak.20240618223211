@@ -282,10 +282,7 @@
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
       "autoStart": false
     },
-    "systemUIDs": [
-      "25ef2749-393d-4f9a-88a6-13308f9783a1",
-      "9da94922-d58a-44d8-b4cd-1c2e64450db8"
-    ],
+    "systemUIDs": [],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
@@ -382,15 +379,6 @@
     "id": "d2c5bc3a-a0a5-42af-ad99-0dbbcf74f121",
     "moduleClass": "org.sensorhub.impl.sensor.axis.AxisCameraDriver",
     "name": "New Axis Video Camera",
-    "autoStart": false
-  },
-  {
-    "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
-    "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
-    "databaseModuleID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "id": "6ca681af-f604-4dbd-a208-37fc01492578",
-    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
-    "name": "New Occupancy Alarm Process",
     "autoStart": false
   }
 ]

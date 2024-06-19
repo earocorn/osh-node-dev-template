@@ -1,10 +1,8 @@
 package org.sensorhub.process.rapiscan;
 
-import net.opengis.sensorml.v20.IOPropertyList;
 import org.junit.Test;
-import org.sensorhub.impl.SensorHub;
-import org.sensorhub.process.rapiscan.helpers.ProcessHelper;
-import org.sensorhub.process.rapiscan.test.AlarmRecorder;
+import org.sensorhub.process.datasave.helpers.ProcessHelper;
+import org.sensorhub.process.datasave.test.AlarmRecorder;
 import org.vast.swe.SWEHelper;
 
 public class TestProcessWriter {
