@@ -25,7 +25,6 @@ public class ProcessHelper extends SMLUtils {
         sourceType = new ReferenceImpl("urn:osh:process:datasource:stream");
 
         aggregateProcess = new AggregateProcessImpl();
-        aggregateProcess.setUniqueIdentifier(UUID.randomUUID().toString());
     }
     public ProcessHelper(SMLStaxBindings staxBindings) {
         super(staxBindings);

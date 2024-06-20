@@ -258,6 +258,14 @@
     "autoStart": true
   },
   {
+    "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
+    "sensorML": "alarm.xml",
+    "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
+    "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
+    "name": "Alarm Process",
+    "autoStart": false
+  },
+  {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
     "dbConfig": {
       "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
@@ -274,13 +282,56 @@
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
       "autoStart": false
     },
-    "systemUIDs": [],
+    "systemUIDs": [
+      "25ef2749-393d-4f9a-88a6-13308f9783a1",
+      "9da94922-d58a-44d8-b4cd-1c2e64450db8"
+    ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
     "name": "Alarm Process Database",
     "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.FFMPEGConfig",
+    "serialNumber": "video001",
+    "connection": {
+      "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
+      "transportStreamPath": "http://10.146.49.248:10101/oneshotimage.jpg",
+      "fps": 0,
+      "loop": true,
+      "isMJPEG": true,
+      "ignoreDataTimestamps": true
+    },
+    "positionConfig": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig"
+    },
+    "lastUpdated": "2024-06-15T16:24:31.438-0500",
+    "id": "8b181a16-dcf0-4367-bad7-d7193ca508e6",
+    "moduleClass": "org.sensorhub.impl.sensor.ffmpeg.FFMPEGSensor",
+    "name": "FFMPEG Video 1",
+    "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.FFMPEGConfig",
+    "serialNumber": "video002",
+    "connection": {
+      "objClass": "org.sensorhub.impl.sensor.ffmpeg.config.Connection",
+      "transportStreamPath": "http://10.146.49.248:10102/now.jpg",
+      "fps": 0,
+      "loop": true,
+      "isMJPEG": true,
+      "ignoreDataTimestamps": true
+    },
+    "positionConfig": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig"
+    },
+    "lastUpdated": "2024-06-15T16:26:06.516-0500",
+    "id": "1bf76bf0-ec46-46ca-8a34-0e73f7efede7",
+    "moduleClass": "org.sensorhub.impl.sensor.ffmpeg.FFMPEGSensor",
+    "name": "FFMPEG Video 2",
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig",
@@ -331,14 +382,15 @@
     "id": "d2c5bc3a-a0a5-42af-ad99-0dbbcf74f121",
     "moduleClass": "org.sensorhub.impl.sensor.axis.AxisCameraDriver",
     "name": "New Axis Video Camera",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
-    "serialNumber": "process001",
-    "id": "81762230-feae-4cb4-9b78-7e0c0e7dae24",
+    "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "databaseModuleID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
+    "id": "6ca681af-f604-4dbd-a208-37fc01492578",
     "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
-    "name": "New Occupancy Alarm Database Process",
+    "name": "New Occupancy Alarm Process",
     "autoStart": false
   }
 ]

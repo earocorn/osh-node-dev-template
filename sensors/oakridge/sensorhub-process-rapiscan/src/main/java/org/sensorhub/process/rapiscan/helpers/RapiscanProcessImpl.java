@@ -9,6 +9,7 @@ import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.module.ModuleEvent;
 import org.sensorhub.api.processing.ProcessingException;
 import org.sensorhub.api.sensor.ISensorModule;
+import org.sensorhub.api.utils.OshAsserts;
 import org.sensorhub.impl.processing.AbstractProcessModule;
 import org.sensorhub.process.rapiscan.test.AlarmRecorder;
 import org.vast.process.ProcessException;
@@ -17,6 +18,7 @@ import org.vast.sensorML.SMLException;
 import org.vast.sensorML.SMLHelper;
 import org.vast.sensorML.SMLUtils;
 
+import java.io.*;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,11 +31,13 @@ public class RapiscanProcessImpl extends AbstractProcessModule<RapiscanProcessCo
     protected AggregateProcessImpl wrapperProcess;
     protected int errorCount = 0;
     protected boolean useThreads = true;
+    String processUniqueID;
 
 
     public RapiscanProcessImpl()
     {
         wrapperProcess = new AggregateProcessImpl();
+
         wrapperProcess.setUniqueIdentifier(UUID.randomUUID().toString());
         initAsync = true;
     }
@@ -51,6 +55,9 @@ public class RapiscanProcessImpl extends AbstractProcessModule<RapiscanProcessCo
     @Override
     protected void doInit() throws SensorHubException {
         try {
+            processUniqueID = "urn:osh:process:rapiscan:" + config.serialNumber;
+            OshAsserts.checkValidUID(processUniqueID);
+
             processDescription = buildProcess();
 
             if(processDescription.getName() == null) {
@@ -63,8 +70,9 @@ public class RapiscanProcessImpl extends AbstractProcessModule<RapiscanProcessCo
         }
     }
 
-    public AggregateProcess buildProcess() throws ProcessException, SensorHubException {
+    public AggregateProcessImpl buildProcess() throws ProcessException, SensorHubException {
         ProcessHelper processHelper = new ProcessHelper();
+        processHelper.aggregateProcess.setUniqueIdentifier(processUniqueID);
 
         AlarmRecorder process = new AlarmRecorder();
 
@@ -95,7 +103,14 @@ public class RapiscanProcessImpl extends AbstractProcessModule<RapiscanProcessCo
         processHelper.addConnection("components/process0/outputs/video1",
                 "outputs/video1");
 
-        return processHelper.aggregateProcess;
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            smlUtils.writeProcess(os, processHelper.aggregateProcess, true);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            return (AggregateProcessImpl) smlUtils.readProcess(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void initChain() throws SensorHubException

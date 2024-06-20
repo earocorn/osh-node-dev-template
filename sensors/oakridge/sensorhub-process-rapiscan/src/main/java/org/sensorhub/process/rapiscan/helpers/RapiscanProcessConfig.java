@@ -8,6 +8,10 @@ import org.sensorhub.api.sensor.ISensorModule;
 public class RapiscanProcessConfig extends ProcessConfig {
 
     @DisplayInfo.Required
+    @DisplayInfo(desc = "Serial number or unique identifier")
+    public String serialNumber = "process001";
+
+    @DisplayInfo.Required
     @DisplayInfo.FieldType(DisplayInfo.FieldType.Type.MODULE_ID)
     @DisplayInfo.ModuleType(ISensorModule.class)
     @DisplayInfo(label = "Rapiscan Driver ID", desc = "Datasource to read occupancy data")

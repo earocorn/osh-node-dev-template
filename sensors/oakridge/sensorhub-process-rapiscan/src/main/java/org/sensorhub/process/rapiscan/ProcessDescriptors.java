@@ -32,7 +32,7 @@ public class ProcessDescriptors extends AbstractProcessProvider
 
     @Override
     public String getModuleName() {
-        return "Occupancy Alarm Process";
+        return "Occupancy Alarm Database Process";
     }
 
     @Override

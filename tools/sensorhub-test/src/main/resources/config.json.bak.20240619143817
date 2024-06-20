@@ -274,7 +274,9 @@
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
       "autoStart": false
     },
-    "systemUIDs": [],
+    "systemUIDs": [
+      "d95ec3ef-b8d7-4c6a-85a8-45831113e7cf"
+    ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
     "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
@@ -335,7 +337,15 @@
   },
   {
     "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
-    "serialNumber": "process001",
+    "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "databaseModuleID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
+    "id": "d2a12f4c-8629-45a2-8236-86c91c2340c7",
+    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
+    "name": "New Occupancy Alarm Process",
+    "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
     "id": "81762230-feae-4cb4-9b78-7e0c0e7dae24",
     "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
     "name": "New Occupancy Alarm Database Process",
