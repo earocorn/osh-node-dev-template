@@ -36,7 +36,6 @@ public class ProcessHelper extends SMLUtils {
      * @param outputStream
      */
     public void writeXML(OutputStream outputStream) throws XMLWriterException {
-        aggregateProcess.setUniqueIdentifier(UUID.randomUUID().toString());
         writeProcess(outputStream, aggregateProcess, true);
     }
 
@@ -132,5 +131,9 @@ public class ProcessHelper extends SMLUtils {
      */
     public void addConnection(String source, String destination) {
         aggregateProcess.addConnection(new LinkImpl(source, destination));
+    }
+
+    public AggregateProcessImpl getAggregateProcess() {
+        return aggregateProcess;
     }
 }

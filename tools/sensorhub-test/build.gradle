@@ -40,5 +40,5 @@ dependencies {
   implementation project(':sensorhub-driver-ffmpeg')
   implementation project(':sensorhub-service-video')
 
-  implementation project(':sensorhub-process-database')
+  implementation project(':sensorhub-process-datasave')
 }

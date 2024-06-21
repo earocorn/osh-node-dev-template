@@ -17,8 +17,7 @@ package org.sensorhub.process.datasave;
 import org.sensorhub.api.module.IModule;
 import org.sensorhub.api.module.ModuleConfig;
 import org.sensorhub.impl.processing.AbstractProcessProvider;
-import org.sensorhub.process.datasave.helpers.DatasaveProcessConfig;
-import org.sensorhub.process.datasave.helpers.DatasaveProcessImpl;
+import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
 import org.sensorhub.process.datasave.test.AlarmRecorder;
 
 public class ProcessDescriptors extends AbstractProcessProvider
@@ -26,12 +25,12 @@ public class ProcessDescriptors extends AbstractProcessProvider
     
     public ProcessDescriptors()
     {
-        addImpl(AlarmRecorder.INFO);
+        addImpl(DatasaveProcess.INFO);
     }
 
     @Override
     public String getModuleName() {
-        return "Database Save Process";
+        return "Data Saving Process";
     }
 
     @Override
@@ -44,7 +43,7 @@ public class ProcessDescriptors extends AbstractProcessProvider
     @Override
     public Class<? extends IModule<?>> getModuleClass()
     {
-        return DatasaveProcessImpl.class;
+        return DatasaveProcessModule.class;
     }
 
 

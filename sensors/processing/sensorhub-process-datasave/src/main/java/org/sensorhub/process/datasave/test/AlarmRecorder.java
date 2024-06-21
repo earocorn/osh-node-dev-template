@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubProcess {
-    public static final OSHProcessInfo INFO = new OSHProcessInfo("datasave", "Data recording process", null, AlarmRecorder.class);
+    public static final OSHProcessInfo INFO = new OSHProcessInfo("alarm", "alarm process", null, AlarmRecorder.class);
     ISensorHub hub;
     IDatabaseRegistry registry;
     DataRecord occupancyInput;

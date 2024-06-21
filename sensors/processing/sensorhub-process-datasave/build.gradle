@@ -9,7 +9,7 @@ dependencies {
 // add info to OSGi manifest
 osgi {
   manifest {
-    attributes('Bundle-Vendor': 'Sensia Software LLC')
+    attributes('Bundle-Vendor': 'Botts Innovative Research')
     attributes('Bundle-Activator': 'org.sensorhub.process.datasave.Activator')
   }
 }
