@@ -19,7 +19,6 @@ import org.sensorhub.api.module.ModuleConfig;
 import org.sensorhub.impl.processing.AbstractProcessProvider;
 import org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig;
 import org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl;
-import org.sensorhub.process.rapiscan.test.AlarmRecorder;
 
 public class ProcessDescriptors extends AbstractProcessProvider
 {

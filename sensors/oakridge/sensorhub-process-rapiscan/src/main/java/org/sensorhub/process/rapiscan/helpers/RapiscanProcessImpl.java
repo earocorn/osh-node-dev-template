@@ -10,7 +10,7 @@ import org.sensorhub.api.processing.ProcessingException;
 import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.api.utils.OshAsserts;
 import org.sensorhub.impl.processing.AbstractProcessModule;
-import org.sensorhub.process.rapiscan.test.AlarmRecorder;
+import org.sensorhub.process.rapiscan.AlarmRecorder;
 import org.vast.process.ProcessException;
 import org.vast.sensorML.AggregateProcessImpl;
 import org.vast.sensorML.SMLException;

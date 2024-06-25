@@ -1,32 +1,23 @@
-package org.sensorhub.process.rapiscan.test;
+package org.sensorhub.process.rapiscan;
 
 import net.opengis.swe.v20.*;
 import org.sensorhub.api.ISensorHub;
-import org.sensorhub.api.data.DataStreamInfo;
-import org.sensorhub.api.data.IDataStreamInfo;
 import org.sensorhub.api.data.IObsData;
 import org.sensorhub.api.database.IDatabaseRegistry;
 import org.sensorhub.api.datastore.DataStoreException;
 import org.sensorhub.api.datastore.obs.DataStreamFilter;
 import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
-import org.sensorhub.api.system.SystemId;
 import org.sensorhub.impl.processing.ISensorHubProcess;
 import org.sensorhub.impl.sensor.videocam.VideoCamHelper;
 import org.sensorhub.impl.utils.rad.RADHelper;
-import org.vast.data.AbstractDataBlock;
-import org.vast.data.DataArrayImpl;
 import org.vast.data.DataBlockMixed;
-import org.vast.data.DataBlockParallel;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
-import org.vast.util.TimeExtent;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubProcess {
@@ -116,14 +107,16 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         // Only populate data entry if alarm is triggered
         List<IObsData> alarmingData;
         List<IObsData> videoData;
-        Instant now = Instant.now();
-        Instant before = now.minusSeconds(10);
+        long startFrom = (long) occupancyInput.getComponent("StartTime").getData().getDoubleValue();
+        long endFrom = (long) occupancyInput.getComponent("EndTime").getData().getDoubleValue();
+        Instant start = Instant.ofEpochSecond(startFrom);
+        Instant end = Instant.ofEpochSecond(endFrom);
 
         if(occupancyInput.getComponent("GammaAlarm").getData().getBooleanValue()) {
-            System.out.println("Results from past 10 seconds");
+            System.out.println("Results from occupancy");
 
-            alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
-            videoData = getVideoFromInterval(before.minusSeconds(10), now, dbInputParam.getData().getStringValue());
+            alarmingData = getDataFromInterval(start, end, dbInputParam.getData().getStringValue(), EntryType.GAMMA);
+            videoData = getVideoFromInterval(start, end, dbInputParam.getData().getStringValue());
 
             try {
                 publishVideoOutput(videoData);
@@ -134,8 +127,8 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         }
 
         if(occupancyInput.getComponent("NeutronAlarm").getData().getBooleanValue()) {
-            alarmingData = getDataFromInterval(before, now, dbInputParam.getData().getStringValue(), EntryType.NEUTRON);
-            videoData = getVideoFromInterval(before.minusSeconds(10), now, dbInputParam.getData().getStringValue());
+            alarmingData = getDataFromInterval(start, end, dbInputParam.getData().getStringValue(), EntryType.NEUTRON);
+            videoData = getVideoFromInterval(start, end, dbInputParam.getData().getStringValue());
 
             try {
                 publishVideoOutput(videoData);
