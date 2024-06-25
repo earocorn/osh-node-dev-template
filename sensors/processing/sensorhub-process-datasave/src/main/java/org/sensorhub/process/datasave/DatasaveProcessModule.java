@@ -102,7 +102,12 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         //  Database Observed Properties
         //  Time Before Trigger
 
+        // Process Params:
+        // Input Module ID
+        // Input System Database ID
+
         // Constructor Props:
+        // Observed properties to create data structure
 
         DatasaveProcess datasaveProcess = new DatasaveProcess();
 
