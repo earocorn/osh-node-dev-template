@@ -17,7 +17,7 @@ import org.vast.process.ProcessException;
 import org.vast.sensorML.SMLHelper;
 import org.vast.util.Asserts;
 
-public class ProcessOutputInterface implements IStreamingDataInterface {
+public class RapiscanOutputInterface implements IStreamingDataInterface {
     final IProcessModule parentProcess;
     final IEventHandler eventHandler;
     DataComponent outputDef;
@@ -53,13 +53,13 @@ public class ProcessOutputInterface implements IStreamingDataInterface {
             // save last record and send event
             lastRecord = data;
             lastRecordTime = now;
-            DataEvent e = new DataEvent(now, ProcessOutputInterface.this, data);
+            DataEvent e = new DataEvent(now, RapiscanOutputInterface.this, data);
             eventHandler.publish(e);
         }
     };
 
 
-    protected ProcessOutputInterface(RapiscanProcessImpl parentProcess, AbstractSWEIdentifiable outputDescriptor) throws ProcessingException
+    protected RapiscanOutputInterface(RapiscanProcessImpl parentProcess, AbstractSWEIdentifiable outputDescriptor) throws ProcessingException
     {
         this.parentProcess = parentProcess;
         this.outputDef = SMLHelper.getIOComponent(outputDescriptor);

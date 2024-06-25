@@ -12,6 +12,7 @@ import org.sensorhub.api.event.IEventListener;
 import org.sensorhub.api.processing.IProcessModule;
 import org.sensorhub.api.processing.ProcessingException;
 import org.sensorhub.impl.event.BasicEventHandler;
+import org.sensorhub.impl.processing.AbstractProcessModule;
 import org.sensorhub.process.datasave.DatasaveProcessModule;
 import org.vast.process.DataQueue;
 import org.vast.process.ProcessException;
@@ -62,7 +63,7 @@ public class ProcessOutputInterface implements IStreamingDataInterface {
     };
 
 
-    public ProcessOutputInterface(DatasaveProcessModule parentProcess, AbstractSWEIdentifiable outputDescriptor, AbstractProcessImpl interfacingProcess) throws ProcessingException
+    public ProcessOutputInterface(AbstractProcessModule parentProcess, AbstractSWEIdentifiable outputDescriptor, AbstractProcessImpl interfacingProcess) throws ProcessingException
     {
         this.parentProcess = parentProcess;
         this.outputDef = SMLHelper.getIOComponent(outputDescriptor);

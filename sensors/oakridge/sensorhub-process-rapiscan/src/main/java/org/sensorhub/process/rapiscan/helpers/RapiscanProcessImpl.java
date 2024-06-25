@@ -1,7 +1,6 @@
 package org.sensorhub.process.rapiscan.helpers;
 
 import net.opengis.OgcPropertyList;
-import net.opengis.sensorml.v20.AggregateProcess;
 import net.opengis.swe.v20.AbstractSWEIdentifiable;
 import net.opengis.swe.v20.DataComponent;
 import org.sensorhub.api.ISensorHub;
@@ -170,7 +169,7 @@ public class RapiscanProcessImpl extends AbstractProcessModule<RapiscanProcessCo
             } else if(ioMap == parameters) {
                 // TODO set control interfaces
             } else if(ioMap == outputs) {
-                outputInterfaces.put(ioName, new ProcessOutputInterface(this, ioDesc));
+                outputInterfaces.put(ioName, new RapiscanOutputInterface(this, ioDesc));
             }
         }
     }
