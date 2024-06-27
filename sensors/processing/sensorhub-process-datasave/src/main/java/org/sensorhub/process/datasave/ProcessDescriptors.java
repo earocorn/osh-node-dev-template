@@ -18,7 +18,6 @@ import org.sensorhub.api.module.IModule;
 import org.sensorhub.api.module.ModuleConfig;
 import org.sensorhub.impl.processing.AbstractProcessProvider;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
-import org.sensorhub.process.datasave.test.AlarmRecorder;
 
 public class ProcessDescriptors extends AbstractProcessProvider
 {

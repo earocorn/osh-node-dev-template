@@ -1,13 +1,9 @@
 package org.sensorhub.process.datasave;
 
-import net.opengis.swe.v20.AbstractSWEIdentifiable;
-import net.opengis.swe.v20.Count;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.Quantity;
 import org.sensorhub.api.ISensorHub;
-import org.sensorhub.api.comm.ICommNetwork;
 import org.sensorhub.api.common.SensorHubException;
-import org.sensorhub.api.data.DataStreamInfo;
 import org.sensorhub.api.data.IDataStreamInfo;
 import org.sensorhub.api.data.IObsData;
 import org.sensorhub.api.data.IStreamingDataInterface;
@@ -21,7 +17,6 @@ import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.impl.processing.ISensorHubProcess;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
 import org.sensorhub.process.datasave.config.TriggerThresholdConfig;
-import org.sensorhub.process.datasave.test.AlarmRecorder;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
@@ -33,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHubProcess {
 
-    public static final OSHProcessInfo INFO = new OSHProcessInfo("datasave", "Data recording process", null, AlarmRecorder.class);
+    public static final OSHProcessInfo INFO = new OSHProcessInfo("datasave", "Data recording process", null, DatasaveProcess.class);
     ISensorHub hub;
     Quantity timeBeforeTrigger;
     IObsSystemDatabase inputDB;

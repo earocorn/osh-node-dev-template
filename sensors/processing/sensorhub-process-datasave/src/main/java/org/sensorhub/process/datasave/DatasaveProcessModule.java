@@ -7,6 +7,7 @@ import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.module.ModuleEvent;
 import org.sensorhub.api.processing.ProcessingException;
+import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.api.utils.OshAsserts;
 import org.sensorhub.impl.processing.AbstractProcessModule;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
@@ -54,23 +55,40 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         processUniqueID = "urn:osh:process:datasave:" + config.serialNumber;
         OshAsserts.checkValidUID(processUniqueID);
 
-        processDescription = buildProcess();
+        try {
+            processDescription = buildProcess();
 
         if(processDescription.getName() == null) {
             processDescription.setName(this.getName());
         }
 
         initChain();
+
+        } catch (ProcessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public AggregateProcessImpl buildProcess() {
+    public AggregateProcessImpl buildProcess() throws SensorHubException, ProcessException {
         ProcessHelper processHelper = new ProcessHelper();
         processHelper.getAggregateProcess().setUniqueIdentifier(processUniqueID);
 
         DatasaveProcess datasaveProcess = new DatasaveProcess(config, getParentHub());
 
         processHelper.addOutputList(datasaveProcess.getOutputList());
-        processHelper.addDataSource("source0", config.inputModuleID);
+
+        String inputUID = null;
+
+        var module = getParentHub().getModuleRegistry().getModuleById(config.inputModuleID);
+        if (module instanceof ISensorModule) {
+            ISensorModule rapiscanDriver = (ISensorModule) module;
+            inputUID = rapiscanDriver.getUniqueIdentifier();
+        }
+
+        assert inputUID != null;
+        processHelper.addDataSource("source0", inputUID);
+        processHelper.addProcess("process0", datasaveProcess);
+
         // TODO: Need to pass
         //  Input Module ID
         //  Input System Database ID
