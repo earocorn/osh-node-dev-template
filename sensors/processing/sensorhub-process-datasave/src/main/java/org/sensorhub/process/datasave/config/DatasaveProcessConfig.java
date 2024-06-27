@@ -24,9 +24,9 @@ public class DatasaveProcessConfig extends ProcessConfig {
     @DisplayInfo.Required
     public ObsSystemDatabaseViewConfig inputDatabase;
 
-    @DisplayInfo(label = "Observed Properties", desc = "Observations to save when process is triggered")
-    @DisplayInfo.Required
-    public List<String> observedProperties = new ArrayList<>();
+//    @DisplayInfo(label = "Observed Properties", desc = "Observations to save when process is triggered")
+//    @DisplayInfo.Required
+//    public List<String> observedProperties = new ArrayList<>();
 
     @DisplayInfo(label = "Triggers", desc = "Observed properties and threshold values for triggers")
     public List<TriggerThresholdConfig> triggers;

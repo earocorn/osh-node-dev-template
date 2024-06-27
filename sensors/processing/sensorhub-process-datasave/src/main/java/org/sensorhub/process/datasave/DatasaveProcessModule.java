@@ -67,6 +67,10 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         ProcessHelper processHelper = new ProcessHelper();
         processHelper.getAggregateProcess().setUniqueIdentifier(processUniqueID);
 
+        DatasaveProcess datasaveProcess = new DatasaveProcess(config, getParentHub());
+
+        processHelper.addOutputList(datasaveProcess.getOutputList());
+        processHelper.addDataSource("source0", config.inputModuleID);
         // TODO: Need to pass
         //  Input Module ID
         //  Input System Database ID
@@ -81,7 +85,6 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         // Constructor Props:
         // Observed properties to create data structure
 
-        DatasaveProcess datasaveProcess = new DatasaveProcess(config);
 
         // TODO: Create process description
 
