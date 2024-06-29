@@ -6,6 +6,7 @@ import net.opengis.swe.v20.DataComponent;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.module.ModuleEvent;
+import org.sensorhub.api.processing.IProcessProvider;
 import org.sensorhub.api.processing.ProcessingException;
 import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.api.utils.OshAsserts;
@@ -13,6 +14,7 @@ import org.sensorhub.impl.processing.AbstractProcessModule;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
 import org.sensorhub.process.datasave.helpers.ProcessHelper;
 import org.sensorhub.process.datasave.helpers.ProcessOutputInterface;
+import org.sensorhub.process.datasave.processes.DatasaveProcess;
 import org.vast.process.ProcessException;
 import org.vast.sensorML.AggregateProcessImpl;
 import org.vast.sensorML.SMLException;
@@ -74,6 +76,12 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         processHelper.getAggregateProcess().setUniqueIdentifier(processUniqueID);
 
         DatasaveProcess datasaveProcess = new DatasaveProcess(config, getParentHub());
+        for(IProcessProvider provider : getParentHub().getProcessingManager().getAllProcessingPackages()) {
+            var providerInfo = provider.getProcessMap();
+            System.out.println(provider.getModuleName() + providerInfo);
+        }
+
+        getParentHub().getProcessingManager().getAllProcessingPackages().add(new ProcessDescriptors());
 
         processHelper.addOutputList(datasaveProcess.getOutputList());
 

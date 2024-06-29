@@ -1,6 +1,9 @@
-package org.sensorhub.process.datasave;
+package org.sensorhub.process.datasave.processes;
 
+import net.opengis.OgcProperty;
+import net.opengis.swe.v20.AbstractSWEIdentifiable;
 import net.opengis.swe.v20.DataComponent;
+import net.opengis.swe.v20.DataType;
 import net.opengis.swe.v20.Quantity;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.common.SensorHubException;
@@ -15,13 +18,16 @@ import org.sensorhub.api.processing.IProcessModule;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.impl.processing.ISensorHubProcess;
+import org.sensorhub.process.datasave.DatasaveTriggerComponent;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
 import org.sensorhub.process.datasave.config.TriggerThresholdConfig;
+
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,11 +39,17 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
     Quantity timeBeforeTrigger;
     IObsSystemDatabase inputDB;
     DatasaveProcessConfig config;
+    List<DatasaveTriggerComponent> triggerComponents;
+
+    public DatasaveProcess() {
+        super(INFO);
+    }
 
     public DatasaveProcess(DatasaveProcessConfig config, ISensorHub hub) {
         super(INFO);
         this.hub = hub;
         this.config = config;
+        this.triggerComponents = new ArrayList<>();
 
         SWEHelper fac = new SWEHelper();
         assert hub != null;
@@ -55,8 +67,7 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
                 for(Map.Entry<String, DataComponent> entry : inputProcessModule.getOutputDescriptors().entrySet()) {
                     for(TriggerThresholdConfig trigger : config.triggers) {
                         if(entry.getValue().getDefinition().equals(trigger.triggerObservedProperty)) {
-                            inputData.add(entry.getValue().getName(), entry.getValue());
-                            paramData.add(entry.getValue().getName() + "Threshold", entry.getValue());
+                            registerTrigger(entry.getValue(), trigger.triggerThreshold);
                         }
                     }
                 }
@@ -67,15 +78,13 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
                     DataComponent entryDataRecord = entry.getValue().getRecordDescription();
                     for(TriggerThresholdConfig trigger : config.triggers) {
                         if(entryDataRecord.getDefinition().equals(trigger.triggerObservedProperty)) {
-                            inputData.add(entryDataRecord.getName(), entryDataRecord);
-                            paramData.add(entryDataRecord.getName() + "Threshold", entryDataRecord);
+                            registerTrigger(entryDataRecord, trigger.triggerThreshold);
                         }
                         int recordSize = entryDataRecord.getComponentCount();
                         for(int i = 0; i < recordSize; i++) {
                             DataComponent component = entryDataRecord.getComponent(i);
                             if(component.getDefinition().equals(trigger.triggerObservedProperty)) {
-                                inputData.add(component.getName(), component);
-                                paramData.add(component.getName() + "Threshold", component);
+                                registerTrigger(component, trigger.triggerThreshold);
                             }
                         }
                     }
@@ -97,6 +106,45 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
         // TODO: Initialize inputs from "trigger field"
         // TODO: Initialize parameter from "trigger threshold" and "timeframe"
         // TODO: Initialize output from "observed properties"
+    }
+
+    private void registerTrigger(DataComponent output, String triggerValue) {
+        DatasaveTriggerComponent component = new DatasaveTriggerComponent(output);
+        component.setTrigger(output, triggerValue);
+
+        String name = component.getName();
+        String triggerName = name + "Threshold";
+
+        inputData.add(name, component.getRecordDescription());
+        paramData.add(triggerName, component.getRecordDescription());
+
+        paramData.getComponent(triggerName).setData(component.getTriggerData());
+
+        triggerComponents.add(component);
+    }
+
+    public boolean isTriggered() {
+        for(DatasaveTriggerComponent triggerComponent : triggerComponents) {
+            if(paramData.getComponent(triggerComponent.getThresholdName()).getData()  == inputData.getComponent(triggerComponent.getName()).getData()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<IObsData> getPastData(String outputName) {
+        Instant now = Instant.now();
+        Instant before = now.minusSeconds((long) timeBeforeTrigger.getData().getDoubleValue());
+
+        DataStreamFilter dsFilter = new DataStreamFilter.Builder()
+                .withOutputNames(outputName)
+                .build();
+        ObsFilter filter = new ObsFilter.Builder()
+                .withDataStreams(dsFilter)
+                .withPhenomenonTimeDuring(before, now)
+                .build();
+
+        return inputDB.getObservationStore().select(filter).collect(Collectors.toList());
     }
 
     @Override
@@ -123,34 +171,6 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
             }
         }
     }
-
-    public boolean isTriggered() {
-        int size = inputData.size();
-        for(TriggerThresholdConfig trigger : config.triggers) {
-
-            for(int i = 0; i < size; i++) {
-                DataComponent inputComponent = inputData.getComponent(i);
-                System.out.println(inputComponent.getData().getUnderlyingObject());
-            }
-        }
-        return true;
-    }
-
-    private List<IObsData> getPastData(String outputName) {
-        Instant now = Instant.now();
-        Instant before = now.minusSeconds((long) timeBeforeTrigger.getData().getDoubleValue());
-
-        DataStreamFilter dsFilter = new DataStreamFilter.Builder()
-                .withOutputNames(outputName)
-                .build();
-        ObsFilter filter = new ObsFilter.Builder()
-                .withDataStreams(dsFilter)
-                .withPhenomenonTimeDuring(before, now)
-                .build();
-
-        return inputDB.getObservationStore().select(filter).collect(Collectors.toList());
-    }
-
     @Override
     public void setParentHub(ISensorHub hub) {
         this.hub = hub;
