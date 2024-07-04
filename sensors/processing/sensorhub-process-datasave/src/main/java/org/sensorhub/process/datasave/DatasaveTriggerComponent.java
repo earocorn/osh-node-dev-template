@@ -3,16 +3,23 @@ package org.sensorhub.process.datasave;
 import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataType;
+import org.sensorhub.process.datasave.helpers.ComparisonType;
 
 import java.util.LinkedList;
 
 public class DatasaveTriggerComponent {
 
-    private final DataComponent recordDescription;
+    private String observedProperty;
+    private ComparisonType comparisonType;
+    private String threshold;
+    private DataComponent recordDescription;
+    private String recordName;
     private DataBlock triggerData;
 
-    public DatasaveTriggerComponent(DataComponent recordDescription) {
-        this.recordDescription = recordDescription;
+    public DatasaveTriggerComponent(String observedProperty, ComparisonType comparisonType, String threshold) {
+        this.observedProperty = observedProperty;
+        this.comparisonType = comparisonType;
+        this.threshold = threshold;
     }
 
     public DataType getDataType() {
@@ -20,7 +27,7 @@ public class DatasaveTriggerComponent {
     }
 
     public String getName() {
-        return this.recordDescription.getName();
+        return this.recordName;
     }
 
     public String getThresholdName() {
@@ -31,10 +38,11 @@ public class DatasaveTriggerComponent {
         return this.recordDescription;
     }
 
-    public String getConnectionSource() {
+    public String getConnectionSource(String componentName) {
         DataComponent current = this.recordDescription;
         LinkedList<String> connectionStringList = new LinkedList<>();
-        StringBuilder connection = new StringBuilder("components/source0/outputs");
+        // TODO: Change this later. It's good for now
+        StringBuilder connection = new StringBuilder("components/" + componentName + "/outputs");
         while(current != null) {
             connectionStringList.add(current.getName());
             current = current.getParent();
@@ -45,8 +53,13 @@ public class DatasaveTriggerComponent {
         return connection.toString();
     }
 
-    public void setTrigger(DataComponent component, String triggerValue) {
+    public void setRecordDescription(DataComponent component) {
+        this.recordDescription = component;
+        this.recordName = recordDescription.getName();
+
+        String triggerValue = this.threshold;
         DataBlock data = component.createDataBlock();
+
         switch (data.getDataType()) {
             // Boolean
             case BOOLEAN: data.setBooleanValue(Boolean.parseBoolean(triggerValue));
@@ -85,4 +98,15 @@ public class DatasaveTriggerComponent {
         return this.triggerData;
     }
 
+    public String getThreshold() {
+        return threshold;
+    }
+
+    public ComparisonType getComparisonType() {
+        return comparisonType;
+    }
+
+    public String getObservedProperty() {
+        return observedProperty;
+    }
 }

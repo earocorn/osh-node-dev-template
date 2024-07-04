@@ -2,7 +2,9 @@ package org.sensorhub.process.datasave;
 
 import net.opengis.OgcPropertyList;
 import net.opengis.swe.v20.AbstractSWEIdentifiable;
+import net.opengis.swe.v20.DataBlock;
 import net.opengis.swe.v20.DataComponent;
+import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.module.ModuleEvent;
@@ -12,9 +14,12 @@ import org.sensorhub.api.sensor.ISensorModule;
 import org.sensorhub.api.utils.OshAsserts;
 import org.sensorhub.impl.processing.AbstractProcessModule;
 import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
+import org.sensorhub.process.datasave.config.TriggerThresholdConfig;
 import org.sensorhub.process.datasave.helpers.ProcessHelper;
 import org.sensorhub.process.datasave.helpers.ProcessOutputInterface;
 import org.sensorhub.process.datasave.processes.DatasaveProcess;
+import org.vast.data.DataArrayImpl;
+import org.vast.data.DataBlockMixed;
 import org.vast.process.ProcessException;
 import org.vast.sensorML.AggregateProcessImpl;
 import org.vast.sensorML.SMLException;
@@ -75,15 +80,13 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         ProcessHelper processHelper = new ProcessHelper();
         processHelper.getAggregateProcess().setUniqueIdentifier(processUniqueID);
 
-        DatasaveProcess datasaveProcess = new DatasaveProcess(config, getParentHub());
+        DatasaveProcess datasaveProcess = new DatasaveProcess();
         for(IProcessProvider provider : getParentHub().getProcessingManager().getAllProcessingPackages()) {
             var providerInfo = provider.getProcessMap();
             System.out.println(provider.getModuleName() + providerInfo);
         }
 
         getParentHub().getProcessingManager().getAllProcessingPackages().add(new ProcessDescriptors());
-
-        processHelper.addOutputList(datasaveProcess.getOutputList());
 
         String inputUID = null;
 
@@ -97,21 +100,35 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         processHelper.addDataSource("source0", inputUID);
         processHelper.addProcess("process0", datasaveProcess);
 
-        // TODO: Need to pass
-        //  Input Module ID
-        //  Input System Database ID
-        //  Triggers
-        //  Database Observed Properties
-        //  Time Before Trigger
+        datasaveProcess.getParameterList().getComponent(DatasaveProcess.INPUT_MODULE_ID_PARAM).getData().setStringValue(config.inputModuleID);
+        datasaveProcess.getParameterList().getComponent(DatasaveProcess.INPUT_DATABASE_ID_PARAM).getData().setStringValue(config.inputDatabaseID);
 
-        // Process Params:
-        // Input Module ID
-        // Input System Database ID
+        // Array
+        DataRecord triggersRecord = (DataRecord) datasaveProcess.getParameterList().getComponent(DatasaveProcess.TRIGGERS_PARAM);
+        DataBlock triggersData = triggersRecord.createDataBlock();
+        triggersRecord.setData(triggersData);
 
-        // Constructor Props:
-        // Observed properties to create data structure
+        int triggerIndex = 0;
+        // Update size component
+        triggersData.setIntValue(triggerIndex++, config.triggers.size());
 
+        // Update size of array
+        var triggersArray = (DataArrayImpl) triggersRecord.getComponent("triggers");
+        triggersArray.updateSize();
 
+        for(TriggerThresholdConfig trigger : config.triggers) {
+            triggersData.setStringValue(triggerIndex++, trigger.triggerObservedProperty);
+            triggersData.setStringValue(triggerIndex++, trigger.comparisonType.name());
+            triggersData.setStringValue(triggerIndex++, trigger.triggerThreshold);
+        }
+
+        triggersRecord.setData(triggersData);
+
+        datasaveProcess.getParameterList().getComponent(DatasaveProcess.SAVE_TIME_PARAM).getData().setDoubleValue(config.timeBeforeTrigger);
+
+        datasaveProcess.setParentHub(getParentHub());
+        datasaveProcess.notifyParamChange();
+        processHelper.addOutputList(datasaveProcess.getOutputList());
         // TODO: Create process description
 
         try {

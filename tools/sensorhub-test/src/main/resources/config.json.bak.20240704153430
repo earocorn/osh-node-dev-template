@@ -185,7 +185,8 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "urn:osh:sensor:rapiscansensor001"
+      "urn:osh:sensor:rapiscansensor001",
+      "urn:axis:cam:00408CA0FF1C"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 1,
@@ -241,7 +242,7 @@
         "objClass": "org.sensorhub.impl.comm.TCPConfig",
         "remotePort": 1600,
         "enableTLS": false,
-        "remoteHost": "10.146.49.247",
+        "remoteHost": "localhost",
         "localAddress": "AUTO"
       },
       "moduleClass": "org.sensorhub.impl.comm.TCPCommProvider",

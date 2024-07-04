@@ -2,6 +2,7 @@ package org.sensorhub.process.datasave.config;
 
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.data.IDataProducerModule;
+import org.sensorhub.api.database.IObsSystemDatabaseModule;
 import org.sensorhub.api.processing.ProcessConfig;
 import org.sensorhub.impl.datastore.view.ObsSystemDatabaseViewConfig;
 
@@ -20,13 +21,12 @@ public class DatasaveProcessConfig extends ProcessConfig {
     @DisplayInfo(label = "Input Module ID", desc = "Data-producer ID to read alarming data")
     public String inputModuleID;
 
-    @DisplayInfo(label = "Input Database",desc="Input Database ID")
-    @DisplayInfo.Required
-    public ObsSystemDatabaseViewConfig inputDatabase;
 
-//    @DisplayInfo(label = "Observed Properties", desc = "Observations to save when process is triggered")
-//    @DisplayInfo.Required
-//    public List<String> observedProperties = new ArrayList<>();
+    @DisplayInfo.Required
+    @DisplayInfo.FieldType(DisplayInfo.FieldType.Type.MODULE_ID)
+    @DisplayInfo.ModuleType(IObsSystemDatabaseModule.class)
+    @DisplayInfo(label = "Input Database ID",desc="Database to save when process is triggered")
+    public String inputDatabaseID;
 
     @DisplayInfo(label = "Triggers", desc = "Observed properties and threshold values for triggers")
     public List<TriggerThresholdConfig> triggers;
