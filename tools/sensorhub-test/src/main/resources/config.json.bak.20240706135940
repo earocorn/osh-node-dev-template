@@ -292,30 +292,5 @@
     "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
     "name": "New Occupancy Alarm Database Process",
     "autoStart": false
-  },
-  {
-    "objClass": "org.sensorhub.process.datasave.config.DatasaveProcessConfig",
-    "serialNumber": "001",
-    "inputModuleID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
-    "inputDatabaseID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "triggers": [
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/gamma-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      },
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/neutron-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      }
-    ],
-    "timeBeforeTrigger": 60.0,
-    "id": "4de87a60-5444-4afd-8696-4eb2be9d5f96",
-    "moduleClass": "org.sensorhub.process.datasave.DatasaveProcessModule",
-    "name": "New Data Saving Process",
-    "autoStart": false
   }
 ]

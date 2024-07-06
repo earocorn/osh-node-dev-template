@@ -1,10 +1,7 @@
 package org.sensorhub.process.datasave;
 
 import net.opengis.OgcPropertyList;
-import net.opengis.swe.v20.AbstractSWEIdentifiable;
-import net.opengis.swe.v20.DataBlock;
-import net.opengis.swe.v20.DataComponent;
-import net.opengis.swe.v20.DataRecord;
+import net.opengis.swe.v20.*;
 import org.sensorhub.api.ISensorHub;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.module.ModuleEvent;
@@ -38,6 +35,8 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         protected AggregateProcessImpl wrapperProcess;
         protected boolean useThreads = true;
         private String processUniqueID;
+        public static final String PROCESS_DATASOURCE_NAME = "source0";
+        public static final String PROCESS_INSTANCE_NAME = "process0";
 
     public DatasaveProcessModule()
         {
@@ -81,10 +80,6 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         processHelper.getAggregateProcess().setUniqueIdentifier(processUniqueID);
 
         DatasaveProcess datasaveProcess = new DatasaveProcess();
-        for(IProcessProvider provider : getParentHub().getProcessingManager().getAllProcessingPackages()) {
-            var providerInfo = provider.getProcessMap();
-            System.out.println(provider.getModuleName() + providerInfo);
-        }
 
         getParentHub().getProcessingManager().getAllProcessingPackages().add(new ProcessDescriptors());
 
@@ -97,8 +92,8 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         }
 
         assert inputUID != null;
-        processHelper.addDataSource("source0", inputUID);
-        processHelper.addProcess("process0", datasaveProcess);
+        processHelper.addDataSource(PROCESS_DATASOURCE_NAME, inputUID);
+        processHelper.addProcess(PROCESS_INSTANCE_NAME, datasaveProcess);
 
         datasaveProcess.getParameterList().getComponent(DatasaveProcess.INPUT_MODULE_ID_PARAM).getData().setStringValue(config.inputModuleID);
         datasaveProcess.getParameterList().getComponent(DatasaveProcess.INPUT_DATABASE_ID_PARAM).getData().setStringValue(config.inputDatabaseID);
@@ -106,22 +101,25 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         // Array
         DataRecord triggersRecord = (DataRecord) datasaveProcess.getParameterList().getComponent(DatasaveProcess.TRIGGERS_PARAM);
         DataBlock triggersData = triggersRecord.createDataBlock();
-        triggersRecord.setData(triggersData);
 
-        int triggerIndex = 0;
         // Update size component
-        triggersData.setIntValue(triggerIndex++, config.triggers.size());
+        triggersData.setIntValue(0, config.triggers.size());
 
-        // Update size of array
-        var triggersArray = (DataArrayImpl) triggersRecord.getComponent("triggers");
-        triggersArray.updateSize();
+//        // Update size of array
+//        var arrayImpl = (DataArrayImpl) triggersArray;
+//        arrayImpl.updateSize();
 
+        StringBuilder arrayValues = new StringBuilder("");
         for(TriggerThresholdConfig trigger : config.triggers) {
-            triggersData.setStringValue(triggerIndex++, trigger.triggerObservedProperty);
-            triggersData.setStringValue(triggerIndex++, trigger.comparisonType.name());
-            triggersData.setStringValue(triggerIndex++, trigger.triggerThreshold);
+            if(arrayValues.length() != 0) {
+                arrayValues.append(",");
+            }
+            arrayValues.append(trigger.triggerObservedProperty).append(",");
+            arrayValues.append(trigger.comparisonType.name()).append(",");
+            arrayValues.append(trigger.triggerThreshold);
         }
 
+        triggersData.setStringValue(1, arrayValues.toString());
         triggersRecord.setData(triggersData);
 
         datasaveProcess.getParameterList().getComponent(DatasaveProcess.SAVE_TIME_PARAM).getData().setDoubleValue(config.timeBeforeTrigger);
@@ -129,7 +127,18 @@ public class DatasaveProcessModule extends AbstractProcessModule<DatasaveProcess
         datasaveProcess.setParentHub(getParentHub());
         datasaveProcess.notifyParamChange();
         processHelper.addOutputList(datasaveProcess.getOutputList());
-        // TODO: Create process description
+
+        for(DatasaveTriggerComponent triggerComponent : datasaveProcess.getTriggersMap().values()) {
+            String destinationInput = "components/" + PROCESS_INSTANCE_NAME + "/inputs/" + triggerComponent.getRecordName();
+            processHelper.addConnection(triggerComponent.getConnectionSource(PROCESS_DATASOURCE_NAME), destinationInput);
+        }
+
+        for(AbstractSWEIdentifiable output : datasaveProcess.getOutputList()) {
+            DataComponent component = (DataComponent) output;
+            processHelper.addConnection("components/" + PROCESS_INSTANCE_NAME + "/outputs/" + component.getName(), "outputs/" + component.getName());
+        }
+        // TODO: Add connections from input module -> process input
+        //  and from process output to aggregate process output
 
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();

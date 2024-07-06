@@ -12,14 +12,9 @@ import org.sensorhub.api.datastore.obs.ObsFilter;
 import org.sensorhub.api.processing.OSHProcessInfo;
 import org.sensorhub.impl.processing.ISensorHubProcess;
 import org.sensorhub.process.datasave.DatasaveTriggerComponent;
-import org.sensorhub.process.datasave.config.DatasaveProcessConfig;
 
 import org.sensorhub.process.datasave.helpers.ComparisonType;
 import org.sensorhub.utils.Async;
-import org.vast.data.AbstractDataBlock;
-import org.vast.data.DataBlockMixed;
-import org.vast.data.DataBlockParallel;
-import org.vast.data.DataBlockString;
 import org.vast.process.ExecutableProcessImpl;
 import org.vast.process.ProcessException;
 import org.vast.swe.SWEHelper;
@@ -36,9 +31,6 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
 
     public static final OSHProcessInfo INFO = new OSHProcessInfo("datasave", "Data saving process", null, DatasaveProcess.class);
     ISensorHub hub;
-    Quantity timeBeforeTrigger;
-    IObsSystemDatabase inputDB;
-    DatasaveProcessConfig config;
 
     public static final String INPUT_MODULE_ID_PARAM = "inputModuleID";
     Text inputModuleIDParam;
@@ -48,6 +40,11 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
     String inputDatabaseID;
     public static final String TRIGGERS_PARAM = "triggersRecord";
     DataRecord triggersParam;
+
+    public HashMap<String, DatasaveTriggerComponent> getTriggersMap() {
+        return triggersMap;
+    }
+
     HashMap<String, DatasaveTriggerComponent> triggersMap;
     public static final String SAVE_TIME_PARAM = "saveTime";
     Quantity saveTimeParam;
@@ -77,31 +74,30 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
                 .label("Triggers Record")
                 .definition(SWEHelper.getPropertyUri("TriggersRecord"))
                 .addField("numTriggers", fac.createCount()
-                        .id("numTriggers")
                         .label("Num Triggers")
                         .definition(SWEHelper.getPropertyUri("NumTriggers"))
                         .build())
-                .addField("triggers", fac.createArray()
+                // This should be an array but couldn't get array to work with process parameter
+                .addField("triggers", fac.createText()
                         .label("Triggers")
                         .definition(SWEHelper.getPropertyUri("Triggers"))
-                        .withVariableSize("numTriggers")
-                        .withElement("trigger", fac.createRecord()
-                                .label("Trigger")
-                                .definition(SWEHelper.getPropertyUri("Trigger"))
-                                .addField("observedProperty", fac.createText()
-                                        .label("Observed Property")
-                                        .definition(SWEHelper.getPropertyUri("ObservedProperty"))
-                                        .build())
-                                .addField("comparisonType", fac.createCategory()
-                                        .label("Comparison Type")
-                                        .definition(SWEHelper.getPropertyUri("ComparisonType"))
-                                        .addAllowedValues(ComparisonType.class)
-                                        .build())
-                                .addField("threshold", fac.createText()
-                                        .label("Threshold")
-                                        .definition(SWEHelper.getPropertyUri("Threshold"))
-                                        .build())
-                                .build())
+//                        .withElement("trigger", fac.createRecord()
+//                                .label("Trigger")
+//                                .definition(SWEHelper.getPropertyUri("Trigger"))
+//                                .addField("observedProperty", fac.createText()
+//                                        .label("Observed Property")
+//                                        .definition(SWEHelper.getPropertyUri("ObservedProperty"))
+//                                        .build())
+//                                .addField("comparisonType", fac.createCategory()
+//                                        .label("Comparison Type")
+//                                        .definition(SWEHelper.getPropertyUri("ComparisonType"))
+//                                        .addAllowedValues(ComparisonType.class)
+//                                        .build())
+//                                .addField("threshold", fac.createText()
+//                                        .label("Threshold")
+//                                        .definition(SWEHelper.getPropertyUri("Threshold"))
+//                                        .build())
+//                                .build())
                         .build())
                 .build();
         paramData.add(TRIGGERS_PARAM, triggersParam);
@@ -117,20 +113,8 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
     public void notifyParamChange() {
         // check that data sources exist on producer and input db
         // create inputs for triggers and outputs from input db
-        inputModuleID = inputModuleIDParam.getData().getStringValue();
-        inputDatabaseID = inputDatabaseIDParam.getData().getStringValue();
         // TODO: Upon param change, update the hashmap values
-        triggersParam.getComponent("triggers");
-        var triggerData = ((DataBlockString) triggersParam.getComponent("triggers").getData()).getUnderlyingObject();
-        int index = 0;
-        while(index < triggerData.length-1) {
-            triggersMap.put(triggerData[index], new DatasaveTriggerComponent(
-                    triggerData[index++],
-                    ComparisonType.valueOf(triggerData[index++]),
-                    triggerData[index++]
-            ));
-        }
-        saveTime = saveTimeParam.getData().getDoubleValue();
+        parseParamData();
 
         if(inputModuleID != null && inputDatabaseID != null) {
             try {
@@ -169,7 +153,6 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
         if(internalID == null) {
             return false;
         }
-        int numDsBefore = inputData.size();
         inputData.clear();
         db.getDataStreamStore().select(new DataStreamFilter.Builder()
                 .withSystems(internalID)
@@ -177,41 +160,72 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
                 .withObservedProperties(triggersMap.keySet())
                 .build())
             .forEach(ds -> {
-                triggersMap.get(ds.getRecordStructure().getDefinition()).setRecordDescription(ds.getRecordStructure().copy());
-                inputData.add(ds.getOutputName(), ds.getRecordStructure().copy());
+                var outputName = ds.getOutputName();
+                var struct = ds.getRecordStructure().copy();
+                var def = struct.getDefinition();
+                if(!triggersMap.containsKey(def)) {
+                    for(int i = 0; i < ds.getRecordStructure().getComponentCount(); i++) {
+                        var component = ds.getRecordStructure().getComponent(i);
+                        var componentName = component.getName();
+                        var componentDef = component.getDefinition();
+                        if(triggersMap.containsKey(componentDef)) {
+                            triggersMap.get(componentDef).setRecordDescription(component);
+                            inputData.add(componentName, component);
+                        }
+                    }
+                } else {
+                    triggersMap.get(def).setRecordDescription(struct);
+                    inputData.add(outputName, struct);
+                }
             });
 
-        return !inputData.isEmpty() && inputData.size() == numDsBefore;
+        return !inputData.isEmpty();
     }
 
     private boolean checkDatabase() {
-        var db = hub.getDatabaseRegistry().getFederatedDatabase();
-        var dbEntry = db.getSystemDescStore().getCurrentVersionEntry(inputDatabaseID);
-        if(dbEntry == null) {
+        var db = hub.getDatabaseRegistry().getObsDatabaseByModuleID(inputDatabaseID);
+        if(db == null) {
             return false;
         }
 
-        int numDsBefore = outputData.size();
         outputData.clear();
-        db.getDataStreamStore().select(new DataStreamFilter.Builder()
-                .withSystems(dbEntry.getKey().getInternalID())
-                .withCurrentVersion()
-                .build())
-            .forEach(ds -> {
-                outputData.add(ds.getOutputName(), ds.getRecordStructure().copy());
-            });
+        db.getDataStreamStore().values().forEach(ds -> {
+            outputData.add(ds.getOutputName(), ds.getRecordStructure().copy());
+        });
 
-        return !outputData.isEmpty() && outputData.size() == numDsBefore;
+        return !outputData.isEmpty();
     }
+
+    public void parseParamData() {
+        inputModuleID = inputModuleIDParam.getData().getStringValue();
+        inputDatabaseID = inputDatabaseIDParam.getData().getStringValue();
+        saveTime = saveTimeParam.getData().getDoubleValue();
+
+        // Have trigger data as a list of strings
+        String triggerData = triggersParam.getComponent("triggers").getData().getStringValue();
+        String[] triggerDataArray = triggerData.split(",");
+        int index = 0;
+        while(index < triggerDataArray.length-1) {
+            triggersMap.put(triggerDataArray[index], new DatasaveTriggerComponent(
+                    triggerDataArray[index++],
+                    ComparisonType.valueOf(triggerDataArray[index++]),
+                    triggerDataArray[index++]
+            ));
+        }
+        for(AbstractSWEIdentifiable input : inputData) {
+            DataComponent component = (DataComponent) input;
+            triggersMap.get(component.getDefinition()).setRecordDescription(component);
+        }
+    }
+
 
     public boolean isTriggered() {
         // TODO: Go through triggers and check using param's observed property if the DataBlock from getTriggerData() == inputData.getComponent(triggerComponent.getName())
-//        for(DataComponent component :  triggersParam.getComponent("triggers") ) {
-//            // TODO: Test this
-//            if(dataBlock == inputData.getComponent(triggersMap.get()))
-//        }
+        if(triggersMap.isEmpty()) {
+            parseParamData();
+        }
         for(DatasaveTriggerComponent triggerComponent : triggersMap.values()) {
-            if(paramData.getComponent(triggerComponent.getThresholdName()).getData()  == inputData.getComponent(triggerComponent.getName()).getData()) {
+            if(triggerComponent.compareThreshold(inputData.getComponent(triggerComponent.getName()))) {
                 return true;
             }
         }
@@ -220,7 +234,9 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
 
     private List<IObsData> getPastData(String outputName) {
         Instant now = Instant.now();
-        Instant before = now.minusSeconds((long) timeBeforeTrigger.getData().getDoubleValue());
+        Instant before = now.minusSeconds((long) saveTimeParam.getData().getDoubleValue());
+
+        IObsSystemDatabase inputDB = hub.getDatabaseRegistry().getObsDatabaseByModuleID(inputDatabaseID);
 
         DataStreamFilter dsFilter = new DataStreamFilter.Builder()
                 .withOutputNames(outputName)

@@ -6,6 +6,7 @@ import net.opengis.swe.v20.DataType;
 import org.sensorhub.process.datasave.helpers.ComparisonType;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class DatasaveTriggerComponent {
 
@@ -13,6 +14,11 @@ public class DatasaveTriggerComponent {
     private ComparisonType comparisonType;
     private String threshold;
     private DataComponent recordDescription;
+
+    public String getRecordName() {
+        return recordName;
+    }
+
     private String recordName;
     private DataBlock triggerData;
 
@@ -51,6 +57,104 @@ public class DatasaveTriggerComponent {
             connection.append("/").append(connectionStringList.get(connectionStringListIndex));
         }
         return connection.toString();
+    }
+
+    public boolean compareThreshold(DataComponent input) {
+        DataBlock data = this.triggerData;
+        switch(data.getDataType()) {
+            // Boolean
+            case BOOLEAN:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getBooleanValue() == input.getData().getBooleanValue();
+                    case LESS_THAN:
+                    case GREATER_THAN:
+                        return data.getBooleanValue() != input.getData().getBooleanValue();
+                }
+                break;
+            // Int
+            case UINT:
+            case INT:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getIntValue() == input.getData().getIntValue();
+                    case LESS_THAN:
+                        return data.getIntValue() > input.getData().getIntValue();
+                    case GREATER_THAN:
+                        return data.getIntValue() < input.getData().getIntValue();
+                }
+                break;
+            // Float
+            case FLOAT:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getFloatValue() == input.getData().getFloatValue();
+                    case LESS_THAN:
+                        return data.getFloatValue() > input.getData().getFloatValue();
+                    case GREATER_THAN:
+                        return data.getFloatValue() < input.getData().getFloatValue();
+                }
+                break;
+            // Double
+            case DOUBLE:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getDoubleValue() == input.getData().getDoubleValue();
+                    case LESS_THAN:
+                        return data.getDoubleValue() > input.getData().getDoubleValue();
+                    case GREATER_THAN:
+                        return data.getDoubleValue() < input.getData().getDoubleValue();
+                }
+                break;
+            // Byte
+            case UBYTE:
+            case BYTE:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getByteValue() == input.getData().getByteValue();
+                    case LESS_THAN:
+                        return data.getByteValue() > input.getData().getByteValue();
+                    case GREATER_THAN:
+                        return data.getByteValue() < input.getData().getByteValue();
+                }
+                break;
+            // Short
+            case USHORT:
+            case SHORT:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getShortValue() == input.getData().getShortValue();
+                    case LESS_THAN:
+                        return data.getShortValue() > input.getData().getShortValue();
+                    case GREATER_THAN:
+                        return data.getShortValue() < input.getData().getShortValue();
+                }
+                break;
+            // Long
+            case ULONG:
+            case LONG:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return data.getLongValue() == input.getData().getLongValue();
+                    case LESS_THAN:
+                        return data.getLongValue() > input.getData().getLongValue();
+                    case GREATER_THAN:
+                        return data.getLongValue() < input.getData().getLongValue();
+                }
+                break;
+            // String
+            case UTF_STRING:
+            case ASCII_STRING:
+                switch(comparisonType) {
+                    case EQUAL:
+                        return Objects.equals(data.getStringValue(), input.getData().getStringValue());
+                    case LESS_THAN:
+                    case GREATER_THAN:
+                        return !Objects.equals(data.getStringValue(), input.getData().getStringValue());
+                }
+                break;
+        }
+        return false;
     }
 
     public void setRecordDescription(DataComponent component) {

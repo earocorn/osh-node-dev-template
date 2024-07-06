@@ -284,6 +284,57 @@
     "autoStart": true
   },
   {
+    "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig",
+    "http": {
+      "objClass": "org.sensorhub.impl.comm.HTTPConfig",
+      "remotePort": 80,
+      "user": "root",
+      "password": "password",
+      "enableTLS": false,
+      "remoteHost": "10.146.49.254",
+      "localAddress": "AUTO"
+    },
+    "rtsp": {
+      "objClass": "org.sensorhub.impl.sensor.rtpcam.RTSPConfig",
+      "videoPath": "/axis-media/media.amp?videocodec=h264",
+      "localUdpPort": 20100,
+      "onlyConnectRtsp": false,
+      "remotePort": 554,
+      "user": "root",
+      "password": "password",
+      "enableTLS": false,
+      "remoteHost": "10.146.49.254",
+      "localAddress": "AUTO"
+    },
+    "connection": {
+      "objClass": "org.sensorhub.impl.comm.RobustIPConnectionConfig",
+      "checkReachability": true,
+      "connectTimeout": 3000,
+      "reconnectPeriod": 10000,
+      "reconnectAttempts": 0
+    },
+    "video": {
+      "objClass": "org.sensorhub.impl.sensor.axis.AxisCameraConfig$VideoConfig",
+      "resolution": "_4CIF",
+      "frameRate": 0,
+      "grayscale": false
+    },
+    "ptz": {
+      "objClass": "org.sensorhub.impl.sensor.videocam.ptz.PtzConfig",
+      "presets": []
+    },
+    "position": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig"
+    },
+    "enableH264": false,
+    "enableMJPEG": true,
+    "lastUpdated": "2024-06-18T19:14:28.893-0500",
+    "id": "d2c5bc3a-a0a5-42af-ad99-0dbbcf74f121",
+    "moduleClass": "org.sensorhub.impl.sensor.axis.AxisCameraDriver",
+    "name": "New Axis Video Camera",
+    "autoStart": true
+  },
+  {
     "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
     "serialNumber": "process001",
     "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
@@ -291,31 +342,6 @@
     "id": "81762230-feae-4cb4-9b78-7e0c0e7dae24",
     "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
     "name": "New Occupancy Alarm Database Process",
-    "autoStart": false
-  },
-  {
-    "objClass": "org.sensorhub.process.datasave.config.DatasaveProcessConfig",
-    "serialNumber": "001",
-    "inputModuleID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
-    "inputDatabaseID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "triggers": [
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/gamma-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      },
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/neutron-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      }
-    ],
-    "timeBeforeTrigger": 60.0,
-    "id": "4de87a60-5444-4afd-8696-4eb2be9d5f96",
-    "moduleClass": "org.sensorhub.process.datasave.DatasaveProcessModule",
-    "name": "New Data Saving Process",
     "autoStart": false
   }
 ]
