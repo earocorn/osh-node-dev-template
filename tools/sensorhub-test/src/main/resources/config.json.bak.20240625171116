@@ -337,7 +337,7 @@
     "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
     "serialNumber": "process001",
     "id": "81762230-feae-4cb4-9b78-7e0c0e7dae24",
-    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
+    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessModule",
     "name": "New Occupancy Alarm Database Process",
     "autoStart": false
   }

@@ -111,6 +111,7 @@ public class DatasaveProcess extends ExecutableProcessImpl implements ISensorHub
 
     @Override
     public void notifyParamChange() {
+        super.notifyParamChange();
         // check that data sources exist on producer and input db
         // create inputs for triggers and outputs from input db
         // TODO: Upon param change, update the hashmap values

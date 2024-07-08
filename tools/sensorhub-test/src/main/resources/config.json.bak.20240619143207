@@ -380,7 +380,7 @@
     "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
     "databaseModuleID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
     "id": "d2a12f4c-8629-45a2-8236-86c91c2340c7",
-    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
+    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessModule",
     "name": "New Occupancy Alarm Process",
     "autoStart": false
   }
