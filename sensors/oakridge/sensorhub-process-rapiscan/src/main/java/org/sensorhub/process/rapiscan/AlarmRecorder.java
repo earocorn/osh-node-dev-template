@@ -33,10 +33,12 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     Text driverInputParam;
     String inputDriverID;
     public static final String DRIVER_INPUT = "driverInput";
-    private static final String OCCUPANCY_DEF = RADHelper.getRadUri("occupancy");
+    // TODO: Replace these with RADConstants once those are setup for rapiscan driver
     public static final String OCCUPANCY_NAME = "Occupancy";
     private static final String GAMMA_ALARM_NAME = "GammaAlarm";
     private static final String NEUTRON_ALARM_NAME = "NeutronAlarm";
+    private static final String START_TIME_NAME = "StartTime";
+    private static final String END_TIME_NAME = "EndTime";
     private final RADHelper fac;
 
     public AlarmRecorder() {
@@ -106,10 +108,10 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
         db.getDataStreamStore().select(new DataStreamFilter.Builder()
                 .withSystems(internalID)
                 .withCurrentVersion()
-                .withObservedProperties(OCCUPANCY_DEF)
+                .withOutputNames(OCCUPANCY_NAME)
                 .build())
             .forEach(ds -> {
-                inputData.add(ds.getName(), ds.getRecordStructure());
+                inputData.add(OCCUPANCY_NAME, ds.getRecordStructure());
             });
 
         return !inputData.isEmpty();
@@ -145,8 +147,8 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
     private List<IObsData> getPastData(String outputName) {
         DataComponent occupancyInput = inputData.getComponent(OCCUPANCY_NAME);
 
-        DataComponent startTime = occupancyInput.getComponent(fac.createOccupancyStartTime().getName());
-        DataComponent endTime = occupancyInput.getComponent(fac.createOccupancyEndTime().getName());
+        DataComponent startTime = occupancyInput.getComponent(START_TIME_NAME);
+        DataComponent endTime = occupancyInput.getComponent(END_TIME_NAME);
 
         long startFromUTC = startTime.getData().getLongValue();
         long endFromUTC = endTime.getData().getLongValue();
@@ -169,6 +171,9 @@ public class AlarmRecorder extends ExecutableProcessImpl implements ISensorHubPr
 
     @Override
     public void execute() throws ProcessException {
+        if(inputDatabaseID == null || inputDriverID == null) {
+            populateIDs();
+        }
         // TODO: Use radhelper to get names of occupancy inputs such as start time, end time, alarms
         if(isTriggered()) {
             int size = outputData.size();

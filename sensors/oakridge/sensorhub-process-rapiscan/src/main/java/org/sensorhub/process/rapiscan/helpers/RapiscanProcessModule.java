@@ -95,7 +95,7 @@ public class RapiscanProcessModule extends AbstractProcessModule<RapiscanProcess
         processHelper.addProcess("process0", process);
 
         processHelper.addConnection("components/source0/outputs/" + AlarmRecorder.OCCUPANCY_NAME
-                ,"components/process0/inputs/ " + AlarmRecorder.OCCUPANCY_NAME);
+                ,"components/process0/inputs/" + AlarmRecorder.OCCUPANCY_NAME);
 
         for(AbstractSWEIdentifiable output : process.getOutputList()) {
             DataComponent component = (DataComponent) output;

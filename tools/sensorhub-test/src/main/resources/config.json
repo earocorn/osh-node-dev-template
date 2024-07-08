@@ -168,33 +168,6 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
-    "dbConfig": {
-      "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
-      "indexObsLocation": false,
-      "storagePath": "data.dat",
-      "memoryCacheSize": 5120,
-      "autoCommitBufferSize": 1024,
-      "autoCommitPeriod": 10,
-      "autoCompactFillRate": 40,
-      "idProviderType": "SEQUENTIAL",
-      "useCompression": false,
-      "readOnly": false,
-      "compactOnClose": false,
-      "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
-      "autoStart": false
-    },
-    "systemUIDs": [
-      "urn:osh:sensor:rapiscansensor001"
-    ],
-    "minCommitPeriod": 10000,
-    "databaseNum": 1,
-    "id": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
-    "name": "Occupancy Database",
-    "autoStart": true
-  },
-  {
     "objClass": "org.sensorhub.impl.service.consys.ConSysApiServiceConfig",
     "customFormats": [],
     "security": {
@@ -250,10 +223,25 @@
     "positionConfig": {
       "objClass": "org.sensorhub.api.sensor.PositionConfig"
     },
-    "lastUpdated": "2024-06-10T13:36:30.446-0500",
-    "id": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "lastUpdated": "2024-07-08T17:42:15.994-0500",
+    "id": "13f4fad6-1de4-4c31-a9f2-6d2db306cd68",
     "moduleClass": "com.botts.impl.sensor.rapiscan.RapiscanSensor",
     "name": "New Rapiscan Sensor Driver",
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherConfig",
+    "serialNumber": "0123456879",
+    "location": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
+      "lat": 34.8038,
+      "lon": -86.7228,
+      "alt": 0.0
+    },
+    "lastUpdated": "2024-07-08T17:42:41.142-0500",
+    "id": "2d88ae38-621c-4f8b-bfcf-1a84fdb6dabe",
+    "moduleClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherSensor",
+    "name": "New Simulated Weather Sensor",
     "autoStart": true
   },
   {
@@ -261,7 +249,45 @@
     "dbConfig": {
       "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
       "indexObsLocation": false,
-      "storagePath": "alarm_data.dat",
+      "storagePath": "occupancy",
+      "memoryCacheSize": 5120,
+      "autoCommitBufferSize": 1024,
+      "autoCommitPeriod": 10,
+      "autoCompactFillRate": 40,
+      "idProviderType": "SEQUENTIAL",
+      "useCompression": false,
+      "readOnly": false,
+      "compactOnClose": false,
+      "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
+      "autoStart": false
+    },
+    "systemUIDs": [
+      "urn:osh:sensor:rapiscan:sensor001",
+      "urn:osh:sensor:simweather:0123456879"
+    ],
+    "minCommitPeriod": 10000,
+    "databaseNum": 2,
+    "id": "7b91bad8-d969-4482-a490-031d571a0b09",
+    "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
+    "name": "Occupancy Input Database",
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
+    "serialNumber": "process001",
+    "rapiscanDriverID": "13f4fad6-1de4-4c31-a9f2-6d2db306cd68",
+    "databaseModuleID": "7b91bad8-d969-4482-a490-031d571a0b09",
+    "id": "03ff44ad-2934-4e97-aff5-a7829643dffb",
+    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessModule",
+    "name": "New Occupancy Alarm Database Process",
+    "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
+    "dbConfig": {
+      "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
+      "indexObsLocation": false,
+      "storagePath": "process_output",
       "memoryCacheSize": 5120,
       "autoCommitBufferSize": 1024,
       "autoCommitPeriod": 10,
@@ -277,45 +303,10 @@
       "urn:osh:process:rapiscan:process001"
     ],
     "minCommitPeriod": 10000,
-    "databaseNum": 2,
-    "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
+    "databaseNum": 3,
+    "id": "f3b1ca94-00c6-4e38-a7cb-8b3ba09dfa3e",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
-    "name": "Alarm Process Database",
+    "name": "Process Output Database",
     "autoStart": true
-  },
-  {
-    "objClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessConfig",
-    "serialNumber": "process001",
-    "rapiscanDriverID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
-    "databaseModuleID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "id": "81762230-feae-4cb4-9b78-7e0c0e7dae24",
-    "moduleClass": "org.sensorhub.process.rapiscan.helpers.RapiscanProcessImpl",
-    "name": "New Occupancy Alarm Database Process",
-    "autoStart": false
-  },
-  {
-    "objClass": "org.sensorhub.process.datasave.config.DatasaveProcessConfig",
-    "serialNumber": "001",
-    "inputModuleID": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
-    "inputDatabaseID": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
-    "triggers": [
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/gamma-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      },
-      {
-        "objClass": "org.sensorhub.process.datasave.config.TriggerThresholdConfig",
-        "triggerObservedProperty": "http://www.opengis.net/def/neutron-alarm",
-        "comparisonType": "EQUAL",
-        "triggerThreshold": "true"
-      }
-    ],
-    "timeBeforeTrigger": 60.0,
-    "id": "4de87a60-5444-4afd-8696-4eb2be9d5f96",
-    "moduleClass": "org.sensorhub.process.datasave.DatasaveProcessModule",
-    "name": "New Data Saving Process",
-    "autoStart": false
   }
 ]

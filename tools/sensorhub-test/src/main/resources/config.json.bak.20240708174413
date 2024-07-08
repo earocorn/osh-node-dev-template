@@ -184,9 +184,7 @@
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabase",
       "autoStart": false
     },
-    "systemUIDs": [
-      "urn:osh:sensor:rapiscansensor001"
-    ],
+    "systemUIDs": [],
     "minCommitPeriod": 10000,
     "databaseNum": 1,
     "id": "29f2b677-95b1-4499-8e5b-459839ec3eb6",
@@ -241,7 +239,7 @@
         "objClass": "org.sensorhub.impl.comm.TCPConfig",
         "remotePort": 1600,
         "enableTLS": false,
-        "remoteHost": "localhost",
+        "remoteHost": "10.146.49.247",
         "localAddress": "AUTO"
       },
       "moduleClass": "org.sensorhub.impl.comm.TCPCommProvider",
@@ -250,26 +248,33 @@
     "positionConfig": {
       "objClass": "org.sensorhub.api.sensor.PositionConfig"
     },
-    "lastUpdated": "2024-06-10T13:36:30.446-0500",
-    "id": "3de10122-6eb8-41cf-ad65-c7b5fbe06cd7",
+    "lastUpdated": "2024-07-08T17:42:15.994-0500",
+    "id": "13f4fad6-1de4-4c31-a9f2-6d2db306cd68",
     "moduleClass": "com.botts.impl.sensor.rapiscan.RapiscanSensor",
     "name": "New Rapiscan Sensor Driver",
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "sensorML": "alarm.xml",
-    "id": "0ee515c4-994e-40ac-b3cc-28989e9071e4",
-    "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
-    "name": "Alarm Process",
-    "autoStart": false
+    "objClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherConfig",
+    "serialNumber": "0123456879",
+    "location": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
+      "lat": 34.8038,
+      "lon": -86.7228,
+      "alt": 0.0
+    },
+    "lastUpdated": "2024-07-08T17:42:41.142-0500",
+    "id": "2d88ae38-621c-4f8b-bfcf-1a84fdb6dabe",
+    "moduleClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherSensor",
+    "name": "New Simulated Weather Sensor",
+    "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
     "dbConfig": {
       "objClass": "org.sensorhub.impl.datastore.h2.MVObsSystemDatabaseConfig",
       "indexObsLocation": false,
-      "storagePath": "alarm_data.dat",
+      "storagePath": "occupancy",
       "memoryCacheSize": 5120,
       "autoCommitBufferSize": 1024,
       "autoCommitPeriod": 10,
@@ -282,13 +287,14 @@
       "autoStart": false
     },
     "systemUIDs": [
-      "b7eb480c-5045-486d-a06e-91933644f6a7"
+      "urn:osh:sensor:rapiscan:sensor001",
+      "urn:osh:sensor:simweather:0123456879"
     ],
     "minCommitPeriod": 10000,
     "databaseNum": 2,
-    "id": "47a10f87-2878-4091-818b-57c41dd75f0d",
+    "id": "7b91bad8-d969-4482-a490-031d571a0b09",
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
-    "name": "Alarm Process Database",
-    "autoStart": false
+    "name": "Occupancy Input Database",
+    "autoStart": true
   }
 ]

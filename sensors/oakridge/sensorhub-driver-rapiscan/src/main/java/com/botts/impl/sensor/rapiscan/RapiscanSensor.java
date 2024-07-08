@@ -65,7 +65,7 @@ public class RapiscanSensor extends AbstractSensorModule<RapiscanConfig> {
         super.doInit();
 
         // Generate identifiers
-        generateUniqueID("urn:osh:sensor:rapiscan", config.serialNumber);
+        generateUniqueID("urn:osh:sensor:rapiscan:", config.serialNumber);
         generateXmlID("Rapiscan", config.serialNumber);
 
         gammaOutput = new GammaOutput(this);
